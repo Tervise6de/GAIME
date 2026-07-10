@@ -36,8 +36,8 @@ function advanceDay(g) {
 }
 
 // Play one day: observe now, form forecast `p` for tomorrow, reveal, score.
-function playDay(g, makeProbs) {
-  const read = readInstruments(g.atmo, g.noise);
+function playDay(g, makeProbs, sensors = null) {
+  const read = readInstruments(g.atmo, g.noise, sensors);
   const today = { cat: g.prevCat, state: townState(g.atmo) };
   const actual = advanceDay(g);
   const ctx = { read, today, tomorrow: { cat: actual } };
@@ -116,12 +116,31 @@ else if (q.get('view')) {
 else {
   const g = newGame();
   const conf = { 1: 0.50, 2: 0.62, 3: 0.78 };
-  const ui = { cat: 0, level: 2, phase: 'forecast', last: null, anim: 0 };
+  const BUDGET = 3;
+  const ui = { cat: 0, level: 2, phase: 'place', sensors: [], last: null };
+
+  function canvasPos(e) {
+    const r = canvas.getBoundingClientRect();
+    return { x: (e.clientX - r.left) * (1280 / r.width) / CELL, y: (e.clientY - r.top) * (720 / r.height) / CELL };
+  }
+  canvas.addEventListener('mousedown', (e) => {
+    if (ui.phase !== 'place' || ui.sensors.length >= BUDGET) return;
+    ui.sensors.push(canvasPos(e));
+    refresh();
+  });
 
   function refresh() {
     draw(R, g.atmo, ui);
-    const read = readInstruments(g.atmo, g.noise);
     const ts = townState(g.atmo);
+    if (ui.phase === 'place') {
+      panel.innerHTML = panelHTML(g.atmo, readInstruments(g.atmo, g.noise, ui.sensors), { cat: ts.cat }, { day: 0 })
+        + `<hr><div class="ttl2">Place your weather sensors</div>`
+        + `<div class="dim">You have <b>${BUDGET - ui.sensors.length}</b> of ${BUDGET} left. Click the map to place them. Weather blows in from the WEST — sensors on the incoming air (dashed ring) warn you a day ahead. Sensors on the town only tell you today.</div>`
+        + `<div class="go" style="margin-top:8px">SPACE — begin the season (${ui.sensors.length}/${BUDGET} placed)</div>`;
+      banner.innerHTML = `You are the frontier's weather station. Position your instruments, then forecast each day. Storms you miss cost lives.`;
+      return;
+    }
+    const read = readInstruments(g.atmo, g.noise, ui.sensors);
     panel.innerHTML = panelHTML(g.atmo, read, { cat: ts.cat }, { day: g.day })
       + `<hr><div class="ttl2">Your forecast for tomorrow</div>`
       + CATS.map((c, i) => `<div class="opt ${i === ui.cat ? 'sel' : ''}">[${i + 1}] ${c}</div>`).join('')
@@ -131,8 +150,9 @@ else {
       const f = ui.last.p.indexOf(Math.max(...ui.last.p));
       const ok = f === ui.last.actual;
       const s = g.scorer.summary();
-      banner.innerHTML = `Yesterday you called <b>${CATS[f]}</b> — sky was <b>${CATS[ui.last.actual]}</b> ${ok ? '<span style="color:#7fe3a0">✓</span>' : '<span style="color:#ff7a7a">✗ people were caught out</span>'}`
-        + ` &nbsp;·&nbsp; season Brier <b>${s.brier}</b> · accuracy <b>${(s.accuracy * 100).toFixed(0)}%</b> · reputation <b>${s.reputation}</b>`;
+      const missed = ui.last.actual === 3 && f !== 3;
+      banner.innerHTML = `Yesterday you called <b>${CATS[f]}</b> — sky was <b>${CATS[ui.last.actual]}</b> ${ok ? '<span style="color:#7fe3a0">✓</span>' : `<span style="color:#ff7a7a">✗${missed ? ' the storm caught the town unwarned' : ''}</span>`}`
+        + ` &nbsp;·&nbsp; day ${g.day > DAYS ? DAYS : g.day - 1}/${DAYS} · Brier <b>${s.brier}</b> · accuracy <b>${(s.accuracy * 100).toFixed(0)}%</b> · reputation <b>${s.reputation}</b>`;
     } else {
       banner.innerHTML = `Read the instruments. What is the sky doing tomorrow? The town is counting on you.`;
     }
@@ -145,19 +165,18 @@ else {
     if (e.key === 'e' || e.key === 'E') ui.level = 3;
     if (e.code === 'Space') {
       e.preventDefault();
-      if (g.day > DAYS) return;
-      const cat = ui.cat, c = conf[ui.level];
-      const res = playDay(g, () => probsFromCat(cat, c));
-      ui.last = res;
-      if (g.day > DAYS) {
-        const s = g.scorer.summary();
-        window.__RESULTS = { strategy: 'human', seed, ...s };
-        window.__DONE = true;
+      if (ui.phase === 'place') {
+        if (ui.sensors.length > 0) ui.phase = 'forecast';
+      } else if (g.day <= DAYS) {
+        const cat = ui.cat, c = conf[ui.level];
+        ui.last = playDay(g, () => probsFromCat(cat, c), ui.sensors);
+        if (g.day > DAYS) {
+          window.__RESULTS = { strategy: 'human', seed, ...g.scorer.summary() };
+          window.__DONE = true;
+        }
       }
     }
     refresh();
   });
   refresh();
-  // keep the wind/systems alive visually while the player deliberates
-  (function idle() { requestAnimationFrame(idle); refresh; })();
 }

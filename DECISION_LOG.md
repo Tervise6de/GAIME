@@ -103,3 +103,22 @@ Entry template:
   weak, PIVOT to the preserved HIVEMIND, whose audience is already evidenced.
   Secondary exit: if Stage-6 work cannot keep expert play fallible (skill
   ceiling proves too shallow once sensors are placed), reassess.
+
+## 2026-07-10 — Stage 6: sensor placement is the core decision (scarce budget)
+- Stage: WINNER_DEVELOPMENT
+- Decision: Promote "where to place a limited sensor budget" to STORMWARDEN's
+  central player decision. Sensors are scarce and mis-placeable; a sensor off
+  the incoming streamline reports the wrong airmass or nothing useful, forcing
+  a fall back to the barometer alone. The player places sensors, then forecasts.
+- Alternatives considered: keep the Stage-4b fixed ideal lookouts (rejected —
+  removes the actual decision and leaves accuracy implausibly high); make
+  sensors free/unlimited (rejected — no tradeoff, no metagame).
+- Evidence class: VERIFIED FACT — skilled placement beats naive by BSS +0.453 /
+  +14.3 pts accuracy (5 seeds); an emergent lead-time-vs-meander-coverage
+  tradeoff exists (`spread` ≈ `upwindLine`). See PLAYTEST_LOG 2026-07-10 ~20:45.
+- Why: it makes the promised verb real and playable, creates a genuine skill
+  gap (novice on-town 77% → expert upwind 91%), and pulls expert accuracy into
+  a fallible band, addressing the "too easy" risk surfaced at Stage 4b.
+- Reversibility / exit condition: if a scarce-budget economy plus deeper sims
+  cannot keep expert play fallible and the placement metagame non-trivial,
+  reconsider the loop. Independent of the still-open DEMAND risk.

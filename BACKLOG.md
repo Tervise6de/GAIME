@@ -5,28 +5,36 @@ duplicating them. Rejected items keep a one-line reason.
 
 ## Now
 
-1. Session safety: claim `HEARTBEAT.md` before any write.
-2. Stage 1 — brief opportunity research (timebox: ≤ ~20% of the first run).
-3. Stage 2 — generate ≥ 10 meaningfully different concepts in `CONCEPTS.md`.
-4. Stage 3 — select two substantially different finalists; log in `DECISION_LOG.md`.
-5. Select prototype technology (must build and run in this environment);
-   record exact build/run commands in `CLAUDE.md` and `HANDOFF.md`.
+1. STORMWARDEN scarce-sensor ECONOMY: a small budget/upgrade path (buy, move
+   or upgrade sensors between days/seasons) so placement decisions compound.
+2. Deepen the truth sim so expert play stays FALLIBLE: named fronts that
+   evolve, occasional fast/erratic systems, a 2–3 day outlook (not just
+   tomorrow). Re-measure the skill gap after each change.
+3. Onboarding: teach "weather comes from the west; put sensors on the incoming
+   air" without a wall of text — the dashed "tomorrow's air" ring is a start.
+4. A real-audience DEMAND signal (the #1 open risk): a Steam-style capsule +
+   one-line pitch + the storm-front clip, put in front of actual humans. Needs
+   people — cannot be settled by AI reasoning.
+5. Keep HIVEMIND fallback runnable; do not develop it unless a demand test
+   fails.
 
 ## Next
 
-- Stage 4 — build two competing prototypes under `prototypes/`, each testing
-  its concept's hardest important dependency.
-- Stage 5 — run and inspect both; compare on the protocol's eight criteria;
-  pick winner + fallback; log the decision; record runs in `PLAYTEST_LOG.md`.
-- Begin Stage 6 development loop on the winner.
+- Reputation/consequence layer with texture: townsfolk who act on warnings,
+  false-alarm fatigue, a season arc with a climactic storm.
+- Confidence calibration scoring surfaced to the player (are your 70%s right
+  70% of the time?) — turns the confidence slider into a skill.
+- Visual identity pass: hand-drawn frontier map framing, isobars, warning flags.
 
 ## Later
 
-- Vertical slice of the winner.
-- Windows-runnable build where feasible, or exact reproducible launch instructions.
-- ≥ 3 gameplay screenshots, one core-hook image, short GIF/recording in `media/`.
+- Career across seasons/regions with different climates (each re-tests skill).
+- Windows-runnable build or exact reproducible launch instructions.
+- More screenshots + a short GIF of a storm being called a day out.
 - Stage 7 — rewrite `MORNING_REPORT.md` at end of the overnight run.
 
 ## Rejected
 
-(none yet)
+- Fixed, perfectly-placed lookouts (Stage 4b stub) — removed the actual
+  decision and left expert accuracy implausibly high. Replaced by placeable,
+  mis-placeable sensors (DECISION_LOG 2026-07-10).

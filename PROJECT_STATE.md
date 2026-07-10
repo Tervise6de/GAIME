@@ -20,13 +20,19 @@ snapshot — detail belongs in the logs and in git history.
   EXPERT-FALLIBLE once the player must choose WHERE to place a limited sensor
   budget (verb currently stubbed as fixed lookouts). And the dominant open
   risk: DEMAND for a forecasting game is UNKNOWN.
-- **Last known good commit:** 67c63ab (Stage 4b: STORMWARDEN prototype +
-  harness — both prototypes runnable).
+- **Last known good commit:** to be set to this Stage-6 commit (sensor
+  placement wired into the playable build; both prototypes runnable).
 - **Current build status:** runnable. Serve repo root and open the prototype
-  (see HANDOFF for exact commands). Node harness: `node tools/season.mjs`.
-- **Highest-value next action:** Stage 6 — implement the real sensor-placement
-  decision (scarce, mis-placeable sensors) and deepen the fallible skill
-  gradient; measure whether skilled placement still beats naive placement.
+  (see HANDOFF for exact commands). Harnesses: `node tools/season.mjs`,
+  `node tools/placement.mjs`.
+- **Stage 6 done so far:** sensor PLACEMENT is now the playable core decision
+  (place 3 sensors, then forecast). Proven: skilled placement beats naive by
+  BSS +0.453 / +14.3 pts (VERIFIED FACT); emergent lead-time-vs-coverage
+  metagame; expert accuracy now a fallible ~91%.
+- **Highest-value next actions:** (1) scarce-budget/upgrade economy (buy/move
+  sensors, better instruments) so placement compounds across a career; (2)
+  deepen the sim (named fronts, multi-day outlook) to keep expert play fallible;
+  (3) THE dominant open risk — a real-audience DEMAND test (needs humans).
 - **Blockers:** none (demand test needs real humans — deferred, not blocking).
 - **Morning report ready:** false
 

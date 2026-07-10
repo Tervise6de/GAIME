@@ -54,18 +54,28 @@ export function draw(R, a, ui) {
     }
   }
 
-  // upwind lookout sensors (the skill instrument, made visible)
+  // sensors: the player's placed budget if any, else the two ideal lookouts
   const pw = prevailingWind(a.time);
-  const stations = [
-    { x: TOWN.x - pw.x * 1.0, y: TOWN.y - pw.y * 1.0, label: 'LOOKOUT I' },
-    { x: TOWN.x - pw.x * 2.0, y: TOWN.y - pw.y * 2.0, label: 'LOOKOUT II' },
-  ];
+  const stations = (ui && ui.sensors && ui.sensors.length)
+    ? ui.sensors.map((s, i) => ({ x: s.x, y: s.y, label: 'S' + (i + 1) }))
+    : [{ x: TOWN.x - pw.x, y: TOWN.y - pw.y, label: 'LOOKOUT I' },
+       { x: TOWN.x - pw.x * 2, y: TOWN.y - pw.y * 2, label: 'LOOKOUT II' }];
   for (const s of stations) {
     const sx = s.x * CELL, sy = s.y * CELL;
     g.strokeStyle = '#7fe3ff'; g.lineWidth = 2;
     g.beginPath();
     g.moveTo(sx, sy - 7); g.lineTo(sx + 7, sy); g.lineTo(sx, sy + 7); g.lineTo(sx - 7, sy); g.closePath();
     g.stroke();
+    g.fillStyle = '#7fe3ff'; g.font = '10px ui-monospace,monospace';
+    g.fillText(s.label, sx - 6, sy - 10);
+  }
+  // during placement, show where tomorrow's air is coming from
+  if (ui && ui.phase === 'place') {
+    const nx = (TOWN.x - pw.x) * CELL, ny = (TOWN.y - pw.y) * CELL;
+    g.strokeStyle = 'rgba(127,227,255,0.5)'; g.setLineDash([4, 4]); g.lineWidth = 1.5;
+    g.beginPath(); g.arc(nx, ny, 16, 0, 7); g.stroke(); g.setLineDash([]);
+    g.fillStyle = 'rgba(127,227,255,0.85)'; g.font = '10px ui-monospace,monospace';
+    g.fillText("tomorrow's air", nx - 34, ny - 20);
   }
 
   // town
@@ -86,7 +96,9 @@ export function panelHTML(a, read, today, game) {
   const arrow = read.tend < -1.5 ? '▼▼ falling fast' : read.tend < -0.4 ? '▼ falling'
     : read.tend > 1.5 ? '▲▲ rising fast' : read.tend > 0.4 ? '▲ rising' : '► steady';
   const wdir = windCompass(read.wind);
-  const upwind = classify(read.lookNear.P, read.lookNear.Q);
+  const upwindHTML = read.lookNear
+    ? `<b style="color:${CAT_LABEL_COLOR[classify(read.lookNear.P, read.lookNear.Q)]}">${CATS[classify(read.lookNear.P, read.lookNear.Q)]}</b>`
+    : `<b style="color:#ff9a7a">— no sensor upwind —</b>`;
   return `
   <div class="ttl">STORMWARDEN — Day ${game.day}</div>
   <div class="sub">Frontier Meteorological Station</div>
@@ -97,7 +109,7 @@ export function panelHTML(a, read, today, game) {
   <div class="row"><span>Thermometer</span><b>${read.T.toFixed(1)}°C</b></div>
   <div class="row"><span>Wind vane</span><b>${wdir}</b></div>
   <hr>
-  <div class="row"><span>Upwind LOOKOUT I</span><b style="color:${CAT_LABEL_COLOR[upwind]}">${CATS[upwind]}</b></div>
+  <div class="row"><span>Nearest upwind sensor</span>${upwindHTML}</div>
   <div class="dim">reads the air ~1 day out, headed here</div>
   <hr>
   <div class="row"><span>Today's sky</span><b style="color:${CAT_LABEL_COLOR[today.cat]}">${CATS[today.cat]}</b></div>

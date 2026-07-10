@@ -142,3 +142,46 @@ and demand is carried forward as STORMWARDEN's #1 Stage-6 risk.
 Decision: WINNER = STORMWARDEN; FALLBACK = HIVEMIND (preserved, genuinely
 strong — the pivot target if a demand test comes back weak). Logged in
 DECISION_LOG 2026-07-10.
+
+## 2026-07-10 ~20:45 UTC — Stage 6: sensor PLACEMENT is a real decision @ 0947a3e→(this)
+- Hypothesis / what was tested: Stage 4b stubbed the concept's actual verb —
+  "place sensors" — as two fixed, perfectly-placed lookouts, so the player's
+  real decision (WHERE to spend a scarce sensor budget) was untested, and
+  expert accuracy sat implausibly high (92.7%). PRE-REGISTERED: "with the SAME
+  instrument decision rule, if SKILLED placement (sensors on the upwind
+  streamline) cannot beat NAIVE placement (sensors clustered on the town) by
+  Brier Skill Score >= +0.15 AND accuracy uplift >= +8 pts over a season, then
+  sensor placement is a fake choice and you would just cluster on the town."
+- How it was run: instruments.js made placement-aware (a mis-placed sensor
+  reports the WRONG airmass; sensors too far from the incoming streamline give
+  no upwind read at all → the forecaster falls back to the barometer alone,
+  lower confidence). tools/placement.mjs sweeps placements across 5 seeds x 60
+  days. Backward-compat verified: default (no sensors) instrument is unchanged
+  at Brier 0.186 (the Stage-4b number). Playable build wired up: human places 3
+  sensors by clicking, then forecasts the season; driven end-to-end via
+  Playwright (media/proto/sw_place.png, sw_forecast.png).
+- Observed result (facts, means over 5 seeds x 60 days, identical decision rule):
+    persistence (null)   Brier 0.500  acc 67.3%   storm hit/miss 6.6/2.4
+    onTown  (naive)      Brier 0.378  acc 77.0%   storm hit/miss 7.0/2.0
+    random  (blind)      Brier 0.392  acc 79.0%   storm hit/miss 7.8/1.2
+    spread  (hedge)      Brier 0.194  acc 92.3%   storm hit/miss 8.2/0.8
+    upwindLine (skill)   Brier 0.207  acc 91.3%   storm hit/miss 8.4/0.6
+    fixed lookouts (4b)  Brier 0.186  acc 92.7%   storm hit/miss 8.8/0.2
+  BSS skilled vs persistence +0.586; BSS skilled vs NAIVE +0.453; accuracy
+  uplift skilled−naive +14.3 pts. Pre-registered claim PASSED (~3x margin).
+  Playable human-driven run (seed 42, skilled placement + trust-upwind-sensor
+  heuristic): Brier 0.290, acc 90%, caught 12/14 storms, reputation +12 — a
+  believable human result sitting between naive and optimal. No page errors.
+- Evidence class: VERIFIED FACT (all numbers, this sim/seeds/rules).
+- Weaknesses found / surprises: (1) GOOD surprise — `spread` (0.194) edges out
+  `upwindLine` (0.207): hedging against wind-meander with N/S coverage beats
+  doubling up on the 2-day-upwind point. So placement is not a single dominant
+  answer — there's a real lead-time-vs-coverage metagame (the depth we wanted).
+  (2) Naive placement still beats persistence (0.378 vs 0.500) because the
+  barometer tendency is always available — so even a novice isn't helpless; the
+  skill gap is the ~14 pts from novice→expert. (3) Skilled expert accuracy is
+  now a fallible 91% (was 92.7% with ideal lookouts) — the "too easy" risk is
+  reduced but not gone; deeper sims (fronts, multi-day) should push it lower.
+- Action taken: kept and committed. Sensor placement is now a proven, playable
+  core decision. Next: a scarce-budget economy / upgrade path and a real
+  demand test are the top remaining items.

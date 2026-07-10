@@ -29,23 +29,34 @@ export const STRATEGIES = {
   climatology: () => CLIMO.slice(),
 
   // The skill claim: read the sky. What is upwind now arrives tomorrow, and a
-  // falling barometer means the low is closing in.
+  // falling barometer means the low is closing in. Uses whatever upwind sensor
+  // coverage the player has actually placed (r.lookNear/lookFar may be null if
+  // no sensor sits near the incoming streamline — then the barometer alone).
   instrument: (ctx) => {
     const r = ctx.read;
-    // project barometer tendency forward ~1 day (tend is the 12h change)
+    // barometer-only baseline: project the 12h tendency forward ~1 day
     const estP_tend = r.P + r.tend * 1.9;
+    const tendWet = r.tend < -1.2;
+
+    if (!r.lookNear) {
+      // no useful upwind sensor — barometer tendency only, low confidence
+      const estQ = r.Q + (tendWet ? 10 : r.tend > 1.2 ? -8 : 0);
+      return probsFromCat(classify(estP_tend, estQ), 0.55);
+    }
+
     const estP = 0.55 * r.lookNear.P + 0.45 * estP_tend;
     let estQ = 0.7 * r.lookNear.Q + 0.3 * r.Q;
     // a strong wet low still two days out lifts storm/rain odds a touch
-    if (r.lookFar.P < r.lookNear.P - 3 && r.lookFar.Q > 55) estQ += 4;
+    if (r.lookFar && r.lookFar.P < r.lookNear.P - 3 && r.lookFar.Q > 55) estQ += 4;
     const cat = classify(estP, estQ);
-    // confident when the upwind picture and the barometer agree
-    const tendWet = r.tend < -1.2;
+    // confident when the upwind picture and the barometer agree, and when the
+    // sensor actually sits near the incoming streamline (small offset)
     const lookWet = r.lookNear.Q > r.Q + 4 || r.lookNear.P < r.P - 3;
     let conf = 0.66;
     if (tendWet === lookWet) conf += 0.09;         // signals agree
-    if (r.lookFar.Q > 58 && r.lookNear.Q > 55) conf += 0.05;
-    conf = Math.min(0.83, conf);
+    if (r.lookFar && r.lookFar.Q > 58 && r.lookNear.Q > 55) conf += 0.05;
+    if (r.lookNear.offset > 5) conf -= 0.08;        // sensor off the streamline
+    conf = Math.max(0.5, Math.min(0.83, conf));
     return probsFromCat(cat, conf);
   },
 
