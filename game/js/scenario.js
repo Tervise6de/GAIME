@@ -27,8 +27,23 @@ export function updateScenario(sc, sim, world) {
   // reinforcement waves — summoned by the colony's own success
   while (sc.wavesSpawned < SCENARIO.waves.length && sim.foodStock >= SCENARIO.waves[sc.wavesSpawned].atStores) {
     const w = SCENARIO.waves[sc.wavesSpawned];
+    let wx = w.x, wy = w.y;
+    if (world.seed !== 7) {
+      // generated maps: press the road to the busiest remaining pile
+      const target = [...world.piles].sort((a, b) => (b.taken || 0) - (a.taken || 0))[0] || world.piles[0];
+      const t = 0.4 + world.rng() * 0.25;
+      const px = world.nest.x + (target.x - world.nest.x) * t;
+      const py = world.nest.y + (target.y - world.nest.y) * t;
+      const ang = world.rng() * Math.PI * 2, off = 50 + world.rng() * 90;
+      wx = Math.max(60, Math.min(1220, px + Math.cos(ang) * off));
+      wy = Math.max(60, Math.min(660, py + Math.sin(ang) * off));
+      if (Math.hypot(wx - world.nest.x, wy - world.nest.y) < 240) {
+        const a2 = Math.atan2(wy - world.nest.y, wx - world.nest.x);
+        wx = world.nest.x + Math.cos(a2) * 260; wy = world.nest.y + Math.sin(a2) * 260;
+      }
+    }
     world.spiders.push({
-      x: w.x, y: w.y, hx: w.x, hy: w.y, tr: w.tr,
+      x: wx, y: wy, hx: wx, hy: wy, tr: w.tr,
       hp: 260, maxhp: 260, a: world.rng() * 6.28, alive: true, arrived: sim.time,
     });
     sc.wavesSpawned++;

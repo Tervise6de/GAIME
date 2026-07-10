@@ -41,7 +41,11 @@ function mulberry32(seed) {
 
 
 // ===== world.js =====
-// World: geometry, fields, food, spiders, nest. Fixed layout, seeded variation.
+// World: geometry, fields, food, spiders, nest.
+// Seed 7 is the handcrafted "First Season" map (all balance evidence lives
+// there). Any other seed generates a territory with structural fairness
+// guarantees: every pile reachable from the nest, the two lesser piles
+// outside hunter ground, the richest pile guarded, dens away from the nest.
 
 
 const W = 1280, H = 720;
@@ -51,22 +55,8 @@ const GW = W / CELL, GH = H / CELL;   // 160 x 90
 const F = { LURE: 0, FEAR: 1, WAR: 2, TRAIL: 3 };
 const DECAY = [0.99971, 0.99971, 0.9988, 0.99808]; // per-tick @60Hz
 
-function makeWorld(seed) {
-  const rng = mulberry32(seed);
-  const fields = [0, 1, 2, 3].map(() => new Float32Array(GW * GH));
-  const scratch = new Float32Array(GW * GH);
+function buildBlocked(rocks) {
   const blocked = new Uint8Array(GW * GH);
-
-  // --- rocks: partial walls shaping three route options ---
-  const rocks = [];
-  function rock(x, y, r) { rocks.push({ x, y, r }); }
-  // wall segment above center corridor
-  for (let i = 0; i < 6; i++) rock(430 + i * 52, 150 + (rng() - 0.5) * 20, 34 + rng() * 10);
-  // wall segment below center, leaving a bottom lane
-  for (let i = 0; i < 5; i++) rock(520 + i * 56, 560 + (rng() - 0.5) * 24, 30 + rng() * 10);
-  // scatter
-  rock(330, 430, 40); rock(900, 170, 46); rock(1010, 330, 36); rock(770, 606, 34);
-
   for (const r of rocks) {
     const x0 = Math.max(0, ((r.x - r.r) / CELL) | 0), x1 = Math.min(GW - 1, ((r.x + r.r) / CELL) | 0);
     const y0 = Math.max(0, ((r.y - r.r) / CELL) | 0), y1 = Math.min(GH - 1, ((r.y + r.r) / CELL) | 0);
@@ -75,48 +65,133 @@ function makeWorld(seed) {
       if (dx * dx + dy * dy < r.r * r.r) blocked[gy * GW + gx] = 1;
     }
   }
-  // border walls
   for (let gx = 0; gx < GW; gx++) { blocked[gx] = 1; blocked[(GH - 1) * GW + gx] = 1; }
   for (let gy = 0; gy < GH; gy++) { blocked[gy * GW] = 1; blocked[gy * GW + GW - 1] = 1; }
+  return blocked;
+}
 
-  const nest = { x: 170, y: 360, r: 34 };
-
-  // --- home distance field (BFS from nest through walkable cells) ---
+function buildHomeDist(blocked, nest) {
   const homeDist = new Float32Array(GW * GH).fill(1e9);
-  {
-    const q = [];
-    const ngx = (nest.x / CELL) | 0, ngy = (nest.y / CELL) | 0;
-    homeDist[ngy * GW + ngx] = 0; q.push(ngx, ngy);
-    let head = 0;
-    while (head < q.length) {
-      const cx = q[head++], cy = q[head++];
-      const d = homeDist[cy * GW + cx];
-      for (const [ox, oy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]]) {
-        const nx = cx + ox, ny = cy + oy;
-        if (nx < 0 || ny < 0 || nx >= GW || ny >= GH) continue;
-        const idx = ny * GW + nx;
-        if (blocked[idx]) continue;
-        const nd = d + (ox && oy ? 1.4142 : 1);
-        if (nd < homeDist[idx]) { homeDist[idx] = nd; q.push(nx, ny); }
-      }
+  const q = [];
+  const ngx = (nest.x / CELL) | 0, ngy = (nest.y / CELL) | 0;
+  homeDist[ngy * GW + ngx] = 0; q.push(ngx, ngy);
+  let head = 0;
+  while (head < q.length) {
+    const cx = q[head++], cy = q[head++];
+    const d = homeDist[cy * GW + cx];
+    for (const [ox, oy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]]) {
+      const nx = cx + ox, ny = cy + oy;
+      if (nx < 0 || ny < 0 || nx >= GW || ny >= GH) continue;
+      const idx = ny * GW + nx;
+      if (blocked[idx]) continue;
+      const nd = d + (ox && oy ? 1.4142 : 1);
+      if (nd < homeDist[idx]) { homeDist[idx] = nd; q.push(nx, ny); }
     }
   }
+  return homeDist;
+}
 
-  // --- food piles: rich pile inside spider ground; safer piles further away ---
-  const piles = [
-    // rate: grains per second the pile can yield — one road is never enough
-    { x: 660, y: 300, amount: 900, r: 42, rate: 6, budget: 0, label: 'rich' },
-    { x: 1090, y: 560, amount: 700, r: 36, rate: 5, budget: 0, label: 'far' },
-    { x: 1060, y: 120, amount: 600, r: 32, rate: 4, budget: 0, label: 'high' },
-  ];
+function handcraftedLayout(rng) {
+  const rocks = [];
+  const rock = (x, y, r) => rocks.push({ x, y, r });
+  for (let i = 0; i < 6; i++) rock(430 + i * 52, 150 + (rng() - 0.5) * 20, 34 + rng() * 10);
+  for (let i = 0; i < 5; i++) rock(520 + i * 56, 560 + (rng() - 0.5) * 24, 30 + rng() * 10);
+  rock(330, 430, 40); rock(900, 170, 46); rock(1010, 330, 36); rock(770, 606, 34);
+  return {
+    rocks,
+    nest: { x: 170, y: 360, r: 34 },
+    piles: [
+      { x: 660, y: 300, amount: 900, r: 42, rate: 6, budget: 0, label: 'rich' },
+      { x: 1090, y: 560, amount: 700, r: 36, rate: 5, budget: 0, label: 'far' },
+      { x: 1060, y: 120, amount: 600, r: 32, rate: 4, budget: 0, label: 'high' },
+    ],
+    spiders: [
+      { x: 620, y: 260, hx: 620, hy: 260, tr: 120, hp: 260, maxhp: 260, a: rng() * 6.28, alive: true },
+      { x: 800, y: 400, hx: 800, hy: 400, tr: 110, hp: 260, maxhp: 260, a: rng() * 6.28, alive: true },
+    ],
+  };
+}
 
-  // --- spiders guarding the middle ---
-  const spiders = [
-    { x: 620, y: 260, hx: 620, hy: 260, tr: 120, hp: 260, maxhp: 260, a: rng() * 6.28, alive: true },
-    { x: 800, y: 400, hx: 800, hy: 400, tr: 110, hp: 260, maxhp: 260, a: rng() * 6.28, alive: true },
-  ];
+function generatedLayout(rng) {
+  const nest = { x: 130 + rng() * 90, y: 180 + rng() * 360, r: 34 };
+  const rocks = [];
+  const rock = (x, y, r) => rocks.push({ x, y, r });
+  // two loose wall motifs + scatter, none allowed to bury the nest
+  for (let w = 0; w < 2; w++) {
+    const segs = 4 + (rng() * 3 | 0);
+    let wx = 380 + rng() * 260, wy = 90 + rng() * 500;
+    const dir = rng() * Math.PI * (rng() < 0.5 ? 0.14 : -0.14);
+    for (let i = 0; i < segs; i++) {
+      rock(wx, wy, 30 + rng() * 12);
+      wx += Math.cos(dir) * 54; wy += Math.sin(dir) * 54;
+    }
+  }
+  for (let i = 0; i < 4; i++) {
+    let x, y;
+    do { x = 260 + rng() * 950; y = 60 + rng() * 600; }
+    while (Math.hypot(x - nest.x, y - nest.y) < 180);
+    rock(x, y, 30 + rng() * 18);
+  }
+  // piles: richest guarded later; amounts fixed, positions sampled
+  const amounts = [[900, 6, 42, 'rich'], [700, 5, 36, 'far'], [600, 4, 32, 'high']];
+  const piles = [];
+  for (const [amount, rate, r, label] of amounts) {
+    for (let tries = 0; tries < 80; tries++) {
+      const x = 480 + rng() * 720, y = 70 + rng() * 580;
+      if (Math.hypot(x - nest.x, y - nest.y) < 300) continue;
+      if (piles.some((p) => Math.hypot(x - p.x, y - p.y) < 260)) continue;
+      piles.push({ x, y, amount, r, rate, budget: 0, label });
+      break;
+    }
+  }
+  if (piles.length < 3) return null;
+  // hunter dens: one guards the richest pile, one roams mid-map
+  const rich = piles[0];
+  const ga = rng() * Math.PI * 2;
+  const guard = { hx: rich.x + Math.cos(ga) * 70, hy: rich.y + Math.sin(ga) * 70, tr: 115 + rng() * 15 };
+  let mid = null;
+  for (let tries = 0; tries < 80; tries++) {
+    const x = 420 + rng() * 560, y = 120 + rng() * 480;
+    if (Math.hypot(x - nest.x, y - nest.y) < 330) continue;
+    // the two lesser piles must stay outside hunter ground
+    if (piles.slice(1).some((p) => Math.hypot(x - p.x, y - p.y) < 115 + 40 + p.r)) continue;
+    if (Math.hypot(x - guard.hx, y - guard.hy) < 240) continue;
+    mid = { hx: x, hy: y, tr: 100 + rng() * 20 };
+    break;
+  }
+  if (!mid) return null;
+  if (piles.slice(1).some((p) => Math.hypot(guard.hx - p.x, guard.hy - p.y) < guard.tr + p.r)) return null;
+  const mkSpider = (d) => ({ x: d.hx, y: d.hy, hx: d.hx, hy: d.hy, tr: d.tr, hp: 260, maxhp: 260, a: rng() * 6.28, alive: true });
+  return { rocks, nest, piles, spiders: [mkSpider(guard), mkSpider(mid)] };
+}
 
-  return { rng, fields, scratch, blocked, rocks, nest, homeDist, piles, spiders };
+function makeWorld(seed) {
+  const rng = mulberry32(seed);
+  const fields = [0, 1, 2, 3].map(() => new Float32Array(GW * GH));
+  const scratch = new Float32Array(GW * GH);
+
+  for (let attempt = 0; attempt < 60; attempt++) {
+    const layout = seed === 7 ? handcraftedLayout(rng) : generatedLayout(rng);
+    if (!layout) continue;
+    const { rocks, nest, piles, spiders } = layout;
+    // nest must not be buried
+    const blocked = buildBlocked(rocks);
+    const nIdx = ((nest.y / CELL) | 0) * GW + ((nest.x / CELL) | 0);
+    if (blocked[nIdx]) continue;
+    const homeDist = buildHomeDist(blocked, nest);
+    // FAIRNESS GUARANTEE: every pile reachable from the nest on foot
+    const reachable = piles.every((p) => {
+      const idx = ((p.y / CELL) | 0) * GW + ((p.x / CELL) | 0);
+      return homeDist[idx] < 1e8;
+    });
+    if (!reachable) continue;
+    return { rng, fields, scratch, blocked, rocks, nest, homeDist, piles, spiders, seed, genAttempts: attempt + 1 };
+  }
+  // fallback: the handcrafted map always works
+  const layout = handcraftedLayout(rng);
+  const blocked = buildBlocked(layout.rocks);
+  const homeDist = buildHomeDist(blocked, layout.nest);
+  return { rng, fields, scratch, blocked, ...layout, homeDist, seed, genAttempts: -1 };
 }
 
 function idxAt(x, y) {
@@ -670,8 +745,23 @@ function updateScenario(sc, sim, world) {
   // reinforcement waves — summoned by the colony's own success
   while (sc.wavesSpawned < SCENARIO.waves.length && sim.foodStock >= SCENARIO.waves[sc.wavesSpawned].atStores) {
     const w = SCENARIO.waves[sc.wavesSpawned];
+    let wx = w.x, wy = w.y;
+    if (world.seed !== 7) {
+      // generated maps: press the road to the busiest remaining pile
+      const target = [...world.piles].sort((a, b) => (b.taken || 0) - (a.taken || 0))[0] || world.piles[0];
+      const t = 0.4 + world.rng() * 0.25;
+      const px = world.nest.x + (target.x - world.nest.x) * t;
+      const py = world.nest.y + (target.y - world.nest.y) * t;
+      const ang = world.rng() * Math.PI * 2, off = 50 + world.rng() * 90;
+      wx = Math.max(60, Math.min(1220, px + Math.cos(ang) * off));
+      wy = Math.max(60, Math.min(660, py + Math.sin(ang) * off));
+      if (Math.hypot(wx - world.nest.x, wy - world.nest.y) < 240) {
+        const a2 = Math.atan2(wy - world.nest.y, wx - world.nest.x);
+        wx = world.nest.x + Math.cos(a2) * 260; wy = world.nest.y + Math.sin(a2) * 260;
+      }
+    }
     world.spiders.push({
-      x: w.x, y: w.y, hx: w.x, hy: w.y, tr: w.tr,
+      x: wx, y: wy, hx: wx, hy: wy, tr: w.tr,
       hp: 260, maxhp: 260, a: world.rng() * 6.28, alive: true, arrived: sim.time,
     });
     sc.wavesSpawned++;

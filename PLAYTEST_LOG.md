@@ -117,3 +117,23 @@ Entry template:
   automatic (no player brood control — backlog: brood throttle verb);
   onboarding absent.
 - Action taken: committed; Loop 2 = onboarding.
+
+## 2026-07-10 ~23:20 UTC — Stage 6 Loop 3: generated territories with guarantees
+- Hypothesis / what was tested: [N] "new territory" can produce genuinely
+  different maps that keep the scenario structurally fair, without
+  invalidating the balance evidence on the handcrafted map.
+- How it was run: tools/gen_check.mjs across 40 seeds (1000..4783);
+  seed-7 regression via commander bot; dist rebuild verified from file://.
+- Observed result (facts): 40/40 generated maps satisfy all guarantees
+  (3 piles placed, every pile BFS-reachable from nest, both lesser piles
+  outside hunter ground, dens ≥240px from nest, nest never buried, no
+  generator fallbacks used). Seed 7 remains byte-identical in behaviour:
+  commander WINS at t=175. Escalation waves on generated maps now target
+  the road to the busiest pile instead of fixed coordinates.
+- Evidence class: VERIFIED FACT (structural guarantees); ASSUMPTION that
+  generated maps are also well-BALANCED (quota tuning was done on seed 7;
+  bot-winnability across seeds needs the generalized commander — next).
+- Weaknesses: no difficulty normalization across seeds; commander bot
+  cannot play generated maps (hardcoded waypoints) so winnability is
+  structurally plausible but unproven off seed 7.
+- Action taken: committed; balance sweep across seeds moved to backlog Now.

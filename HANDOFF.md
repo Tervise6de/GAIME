@@ -7,7 +7,7 @@ snapshot, not an accumulating history — history lives in git.
   MORNING_ASSESSMENT report already current as of overnight-1 end
 - **Active hypothesis:** humans can learn and enjoy the painting verb
   (scripted play proves depth exists; human feel is THE open question)
-- **What changed (overnight-1):** stages 1-5 completed end-to-end; two
+- **What changed (overnight-1):** stages 1-5 end-to-end; Stage 6 loops 1-3 (goal structure, onboarding, generated territories); two
   instrumented prototypes with falsification evidence; HIVEMIND selected
   and developed into a winnable/losable game with onboarding, economy,
   escalation, title/end cards; single-file distributable build; media
@@ -23,9 +23,9 @@ snapshot, not an accumulating history — history lives in git.
 - **Known blockers:** none technical. Human playtesting impossible from
   this environment — founder action or future integration needed.
 - **Next three actions (highest value first):**
-  1. Map generation with solvability guarantees (BFS-derived safe routes;
-     generalize commander bot to derived paths; verify N seeds all
-     bot-winnable) — unlocks replay + honest depth claims.
+  1. Generalize commander bot to BFS-derived paths; verify generated maps
+     are bot-WINNABLE across ≥20 seeds and normalize difficulty (fairness
+     guarantees shipped tonight; balance guarantees are the gap).
   2. Brood throttle verb (paint the nest: feed vs bank ratio) — removes
      the automatic-growth limitation found in Loop 1 economics.
   3. Juice pass: delivery pulse at nest, spider death burst, WebAudio

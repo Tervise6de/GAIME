@@ -5,8 +5,9 @@ duplicating them. Rejected items keep a one-line reason.
 
 ## Now
 
-1. Map generation with solvability guarantees + generalized commander bot;
-   verify bot-winnable across ≥20 seeds.
+1. Generalize commander bot to derived paths (BFS route extraction) and
+   verify generated maps are bot-WINNABLE (not just fair) across ≥20 seeds;
+   normalize difficulty.
 2. Brood throttle verb (paint the nest: grow vs bank) — player control over
    the growth economy discovered to dominate outcomes in Loop 1.
 3. Juice pass: nest delivery pulse, spider death burst, procedural WebAudio;

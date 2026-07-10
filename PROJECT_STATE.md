@@ -3,8 +3,8 @@
 Canonical current state. Update before ending every session. Keep it a
 snapshot — detail belongs in the logs and in git history.
 
-- **Current stage:** WINNER_DEVELOPMENT (loops 1-2 done: goal structure,
-  onboarding). Stages 1-5 complete. MORNING_REPORT.md is current.
+- **Current stage:** WINNER_DEVELOPMENT (loops 1-3 done: goal structure,
+  onboarding, generated territories with fairness guarantees). Stages 1-5 complete. MORNING_REPORT.md is current.
 - **Current concept:** C01 HIVEMIND — paint scent fields (LURE/FEAR/RALLY);
   thousands of autonomous ants respond; persuasion, never orders.
 - **Fallback concept:** C02 STORMWARDEN (runnable at
@@ -17,15 +17,14 @@ snapshot — detail belongs in the logs and in git history.
   builder, gameplay recorder).
 - **Active hypothesis:** humans can learn and enjoy the painting verb —
   scripted play proves the depth exists; human feel is the top unknown.
-- **Last known good commit:** e292a95 (Loop 2; commander WINS seed 7
-  t≈175, four lazy doctrines lose, single-file build verified). Later
-  commits change docs/media only.
+- **Last known good commit:** HEAD of main at end of overnight-1 (Loop 3;
+  40/40 generated maps pass fairness checks; seed-7 commander regression
+  WON t=175; dist verified from file://).
 - **Current build status:** GREEN — verified headless at 60fps; see
   CLAUDE.md for the one-line re-verification command.
-- **Highest-value next action:** map generation with solvability
-  guarantees + generalized commander bot (unlocks replay claims); if in
-  the final morning run: execute Stage 7 checklist in
-  AUTONOMOUS_STUDIO_PROTOCOL.md instead.
+- **Highest-value next action:** generalized commander bot + cross-seed
+  winnability/difficulty sweep; if in the final morning run: execute the
+  Stage 7 checklist in AUTONOMOUS_STUDIO_PROTOCOL.md instead.
 - **Blockers:** human playtesting cannot be done from this environment
   (founder action needed — see BACKLOG "Now" #5).
 - **Morning report ready:** true (written end of overnight-1; refresh if
