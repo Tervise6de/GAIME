@@ -112,12 +112,19 @@ else if (q.get('view')) {
   window.__DONE = true;
 }
 
-// ---------- human play ----------
+// ---------- human play: 3-day committed outlook, scored per lead ----------
 else {
-  const g = newGame();
   const conf = { 1: 0.50, 2: 0.62, 3: 0.78 };
   const BUDGET = 3;
-  const ui = { cat: 0, level: 2, phase: 'place', sensors: [], last: null };
+  const LEAD_LABEL = ['TOMORROW', '+2 DAYS', '+3 DAYS'];
+  // confidence honestly decays with lead — you cannot be as sure 3 days out
+  const confForLead = (L, lvl) => Math.max(0.35, conf[lvl] - (L - 1) * 0.14);
+
+  const g = newGame();
+  const scorers = { 1: makeScorer(), 2: makeScorer(), 3: makeScorer() };
+  let pending = [];               // {target, lead, probs} awaiting their day
+  let realized = 0;               // index of the last realized day (0 = baseline)
+  const ui = { outlook: [0, 0, 0], horizon: 0, level: 2, phase: 'place', sensors: [], resolved: null };
 
   function canvasPos(e) {
     const r = canvas.getBoundingClientRect();
@@ -125,9 +132,39 @@ else {
   }
   canvas.addEventListener('mousedown', (e) => {
     if (ui.phase !== 'place' || ui.sensors.length >= BUDGET) return;
-    ui.sensors.push(canvasPos(e));
-    refresh();
+    ui.sensors.push(canvasPos(e)); refresh();
   });
+
+  // One turn: forecast +1/+2/+3, advance a day, resolve everything due today.
+  function commitTurn() {
+    const read = readInstruments(g.atmo, g.noise, ui.sensors);
+    const turn = g.day;                                   // forecasting for day `turn`
+    for (let L = 1; L <= 3; L++) {
+      const probs = probsFromCat(ui.outlook[L - 1], confForLead(L, ui.level));
+      pending.push({ target: turn + (L - 1), lead: L, probs });
+    }
+    for (let i = 0; i < TICKS_PER_DAY; i++) step(g.atmo);
+    realized = turn;
+    const actual = townState(g.atmo).cat;
+    const resolvedNow = [];
+    pending = pending.filter((f) => {
+      if (f.target !== realized) return true;
+      scorers[f.lead].record(f.probs, actual);
+      resolvedNow.push({ lead: f.lead, pred: f.probs.indexOf(Math.max(...f.probs)), actual });
+      return false;
+    });
+    ui.resolved = { day: realized, actual, items: resolvedNow };
+    g.day++;
+    if (g.day > DAYS) {
+      window.__RESULTS = {
+        strategy: 'human', seed,
+        lead1: scorers[1].summary(),
+        brierByLead: { 1: scorers[1].summary().brier, 2: scorers[2].summary().brier, 3: scorers[3].summary().brier },
+        accByLead: { 1: scorers[1].summary().accuracy, 2: scorers[2].summary().accuracy, 3: scorers[3].summary().accuracy },
+      };
+      window.__DONE = true;
+    }
+  }
 
   function refresh() {
     draw(R, g.atmo, ui);
@@ -135,46 +172,51 @@ else {
     if (ui.phase === 'place') {
       panel.innerHTML = panelHTML(g.atmo, readInstruments(g.atmo, g.noise, ui.sensors), { cat: ts.cat }, { day: 0 })
         + `<hr><div class="ttl2">Place your weather sensors</div>`
-        + `<div class="dim">You have <b>${BUDGET - ui.sensors.length}</b> of ${BUDGET} left. Click the map to place them. Weather blows in from the WEST — sensors on the incoming air (dashed ring) warn you a day ahead. Sensors on the town only tell you today.</div>`
+        + `<div class="dim">You have <b>${BUDGET - ui.sensors.length}</b> of ${BUDGET} left. Click the map to place them. Weather blows in from the WEST — a sensor on the incoming air (dashed ring) warns you a day ahead; a sensor placed FARTHER west buys 2–3 days of warning but reads noisier.</div>`
         + `<div class="go" style="margin-top:8px">SPACE — begin the season (${ui.sensors.length}/${BUDGET} placed)</div>`;
       banner.innerHTML = `You are the frontier's weather station. Position your instruments, then forecast each day. Storms you miss cost lives.`;
       return;
     }
     const read = readInstruments(g.atmo, g.noise, ui.sensors);
+    const s1 = scorers[1].summary();
+    const rows = [0, 1, 2].map((h) =>
+      `<div class="opt ${h === ui.horizon ? 'sel' : ''}"><b>${LEAD_LABEL[h]}</b>: ${CATS[ui.outlook[h]]}`
+      + (scorers[h + 1].days ? ` <span class="dim">(${(scorers[h + 1].summary().accuracy * 100).toFixed(0)}% so far)</span>` : '') + `</div>`).join('');
     panel.innerHTML = panelHTML(g.atmo, read, { cat: ts.cat }, { day: g.day })
-      + `<hr><div class="ttl2">Your forecast for tomorrow</div>`
-      + CATS.map((c, i) => `<div class="opt ${i === ui.cat ? 'sel' : ''}">[${i + 1}] ${c}</div>`).join('')
-      + `<div class="conf">confidence [Q/W/E]: <b>${['LOW', 'MED', 'HIGH'][ui.level - 1]}</b></div>`
-      + `<div class="go">SPACE — issue forecast &amp; advance the day</div>`;
-    if (ui.last) {
-      const f = ui.last.p.indexOf(Math.max(...ui.last.p));
-      const ok = f === ui.last.actual;
-      const s = g.scorer.summary();
-      const missed = ui.last.actual === 3 && f !== 3;
-      banner.innerHTML = `Yesterday you called <b>${CATS[f]}</b> — sky was <b>${CATS[ui.last.actual]}</b> ${ok ? '<span style="color:#7fe3a0">✓</span>' : `<span style="color:#ff7a7a">✗${missed ? ' the storm caught the town unwarned' : ''}</span>`}`
-        + ` &nbsp;·&nbsp; day ${g.day > DAYS ? DAYS : g.day - 1}/${DAYS} · Brier <b>${s.brier}</b> · accuracy <b>${(s.accuracy * 100).toFixed(0)}%</b> · reputation <b>${s.reputation}</b>`;
+      + `<hr><div class="ttl2">Your 3-day outlook</div>`
+      + `<div class="dim">TAB picks a horizon · 1–4 set its sky · Q/W/E confidence</div>`
+      + rows
+      + `<div class="conf">confidence: <b>${['LOW', 'MED', 'HIGH'][ui.level - 1]}</b> (decays with lead)</div>`
+      + `<div class="go">SPACE — issue the outlook &amp; advance the day</div>`;
+    if (ui.resolved) {
+      const r = ui.resolved;
+      const l1 = r.items.find((it) => it.lead === 1);
+      const parts = [];
+      if (l1) {
+        const ok = l1.pred === l1.actual, missed = l1.actual === 3 && l1.pred !== 3;
+        parts.push(`Tomorrow-call <b>${CATS[l1.pred]}</b> → <b>${CATS[l1.actual]}</b> ${ok ? '<span style="color:#7fe3a0">✓</span>' : `<span style="color:#ff7a7a">✗${missed ? ' storm hit unwarned' : ''}</span>`}`);
+      }
+      for (const it of r.items.filter((x) => x.lead > 1)) {
+        const ok = it.pred === it.actual;
+        parts.push(`your +${it.lead}d outlook (day ${r.day}) <b>${CATS[it.pred]}</b>→<b>${CATS[it.actual]}</b> ${ok ? '<span style="color:#7fe3a0">✓</span>' : '<span style="color:#ff7a7a">✗</span>'}`);
+      }
+      banner.innerHTML = parts.join(' &nbsp;·&nbsp; ')
+        + ` &nbsp;·&nbsp; day ${realized}/${DAYS} · +1d acc <b>${(s1.accuracy * 100).toFixed(0)}%</b> · reputation <b>${s1.reputation}</b>`;
     } else {
-      banner.innerHTML = `Read the instruments. What is the sky doing tomorrow? The town is counting on you.`;
+      banner.innerHTML = `Read the instruments. Call the next three days — the town plans around your outlook. Longer forecasts are harder.`;
     }
   }
 
   window.addEventListener('keydown', (e) => {
-    if (e.key >= '1' && e.key <= '4') ui.cat = +e.key - 1;
+    if (e.key >= '1' && e.key <= '4') ui.outlook[ui.horizon] = +e.key - 1;
+    if (e.key === 'Tab') { e.preventDefault(); ui.horizon = (ui.horizon + 1) % 3; }
     if (e.key === 'q' || e.key === 'Q') ui.level = 1;
     if (e.key === 'w' || e.key === 'W') ui.level = 2;
     if (e.key === 'e' || e.key === 'E') ui.level = 3;
     if (e.code === 'Space') {
       e.preventDefault();
-      if (ui.phase === 'place') {
-        if (ui.sensors.length > 0) ui.phase = 'forecast';
-      } else if (g.day <= DAYS) {
-        const cat = ui.cat, c = conf[ui.level];
-        ui.last = playDay(g, () => probsFromCat(cat, c), ui.sensors);
-        if (g.day > DAYS) {
-          window.__RESULTS = { strategy: 'human', seed, ...g.scorer.summary() };
-          window.__DONE = true;
-        }
-      }
+      if (ui.phase === 'place') { if (ui.sensors.length > 0) ui.phase = 'forecast'; }
+      else if (g.day <= DAYS) commitTurn();
     }
     refresh();
   });

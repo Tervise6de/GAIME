@@ -213,3 +213,34 @@ DECISION_LOG 2026-07-10.
 - Action taken: committed tools/leadtime.mjs. This justifies a multi-day
   "outlook" as a concrete higher-skill tier / content axis (BACKLOG). Supports
   the "capable of supporting a larger game" mission criterion with real evidence.
+
+## 2026-07-10 ~21:15 UTC — Stage 6: 3-day OUTLOOK is now PLAYABLE
+- Hypothesis / what was tested: turn the measured lead-time depth into a felt,
+  played decision — does a committed 3-day outlook (call tomorrow, +2 and +3)
+  create a real, layered decision that ties to sensor placement, without
+  breaking the working build?
+- How it was run: rebuilt the human loop — each day the player commits a 3-day
+  outlook (TAB picks a horizon, 1–4 set its sky, Q/W/E set confidence which
+  honestly DECAYS with lead); each horizon is scored against the weather that
+  many days later via a pending-forecast buffer and per-lead scorers. Headless/
+  view/demo/auto modes left unchanged (committed evidence preserved). Driven
+  end-to-end via Playwright, seed 42, full 60-day season, NO page errors.
+- Observed result (facts, scripted "human" that reuses the 1-day upwind read
+  for ALL three horizons — deliberately naive on the longer leads):
+    +1d  Brier 0.290  acc 90%   (near sensor is right for tomorrow)
+    +2d  Brier 0.590  acc 56%
+    +3d  Brier 0.707  acc 33%
+  Reputation +13, caught 12/14 storms. The degradation 90→56→33% is the
+  INTENDED signal: reusing tomorrow's read for the whole outlook is a poor
+  long-range strategy; leadtime.mjs shows reading FARTHER-upwind sensors at
+  each lead recovers +3d to ~82%. So the outlook is a genuine harder decision
+  that rewards near-vs-far sensor placement. Screenshot media/proto/sw_outlook.png
+  shows the three horizons with live per-lead accuracy and multi-lead resolution.
+- Evidence class: VERIFIED FACT (ran it; numbers observed). The claim that
+  players will FIND this depth engaging is UNKNOWN (needs humans).
+- Weaknesses found: the scripted driver can't demonstrate a skilled far-sensor
+  outlook strategy through the UI (it always reads "nearest upwind"); a human
+  would place a far sensor and read it for +3d. The near-vs-far placement
+  tradeoff is now expressible but its optimum isn't yet auto-verified in-UI.
+- Action taken: committed. The playable core loop now layers placement +
+  multi-day forecasting — a vertical-slice-shaped loop, not just a toy.

@@ -25,10 +25,12 @@ snapshot — detail belongs in the logs and in git history.
 - **Current build status:** runnable. Serve repo root and open the prototype
   (see HANDOFF for exact commands). Harnesses: `node tools/season.mjs`,
   `node tools/placement.mjs`.
-- **Stage 6 done so far:** sensor PLACEMENT is now the playable core decision
-  (place 3 sensors, then forecast). Proven: skilled placement beats naive by
-  BSS +0.453 / +14.3 pts (VERIFIED FACT); emergent lead-time-vs-coverage
-  metagame; expert accuracy now a fallible ~91%.
+- **Stage 6 done so far:** the playable core loop now layers two decisions —
+  place 3 sensors (near/far tradeoff), then commit a 3-DAY OUTLOOK each day
+  (scored per lead). Proven (all VERIFIED FACT): instrument beats persistence
+  BSS +0.628; skilled placement beats naive BSS +0.453 / +14 pts; skill decays
+  gracefully with lead (+1/+2/+3d BSS +0.75/+0.63/+0.53) so long-range is a real
+  higher-skill tier; expert accuracy a fallible ~91% at +1d. Vertical-slice-shaped.
 - **Highest-value next actions:** (1) scarce-budget/upgrade economy (buy/move
   sensors, better instruments) so placement compounds across a career; (2)
   deepen the sim (named fronts, multi-day outlook) to keep expert play fallible;

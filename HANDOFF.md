@@ -24,9 +24,12 @@ snapshot, not an accumulating history — history lives in git.
 - Play (human): open
   `http://localhost:8137/prototypes/stormwarden/index.html`
   Controls: click the map to place 3 sensors (weather blows in from the WEST —
-  put them on the dashed "tomorrow's air" ring) → SPACE to begin → keys 1–4
-  pick tomorrow's sky (CLEAR/CLOUDY/RAIN/STORM), Q/W/E set confidence, SPACE
-  issues the forecast and advances a day. Season = 60 days.
+  a sensor on the dashed "tomorrow's air" ring warns 1 day out; a sensor placed
+  farther west buys 2–3 days of warning but reads noisier) → SPACE to begin →
+  then each day set a 3-day OUTLOOK: TAB picks a horizon (TOMORROW / +2 / +3),
+  keys 1–4 set that horizon's sky (CLEAR/CLOUDY/RAIN/STORM), Q/W/E set
+  confidence (it decays with lead), SPACE issues the outlook and advances a day.
+  Each horizon is scored against the weather that many days later. Season = 60 days.
 - Fallback (HIVEMIND): `http://localhost:8137/prototypes/hivemind/index.html`
 - Headless falsification (no browser):
   `node tools/season.mjs 60 7,11,23,42,101`   (skill vs persistence/climatology)
@@ -36,8 +39,8 @@ snapshot, not an accumulating history — history lives in git.
   `...stormwarden/index.html?view=1&seed=42&day=52`. Install deps first:
   `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install`.
 - Screenshots so far: `media/proto/sw_place.png` (sensor placement),
-  `sw_forecast.png` (daily loop), `sw_front.png` / `sw_storm.png` (the hook:
-  a storm front advecting onto the town).
+  `sw_outlook.png` (3-day outlook loop), `sw_forecast.png` (daily loop),
+  `sw_front.png` / `sw_storm.png` (the hook: a storm front advecting onto town).
 
 ## Next three actions
 
