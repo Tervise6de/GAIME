@@ -3,7 +3,7 @@
 Overwrite this ENTIRE file at the end of every session. It is a replaceable
 snapshot, not an accumulating history — history lives in git.
 
-- **Current stage:** WINNER_DEVELOPMENT (post Loop 2) → next loops below;
+- **Current stage:** WINNER_DEVELOPMENT (post Loop 3) → next loops below;
   MORNING_ASSESSMENT report already current as of overnight-1 end
 - **Active hypothesis:** humans can learn and enjoy the painting verb
   (scripted play proves depth exists; human feel is THE open question)
