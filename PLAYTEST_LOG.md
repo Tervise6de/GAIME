@@ -137,3 +137,53 @@ Entry template:
   cannot play generated maps (hardcoded waypoints) so winnability is
   structurally plausible but unproven off seed 7.
 - Action taken: committed; balance sweep across seeds moved to backlog Now.
+
+## 2026-07-11 ~00:15 UTC — Stage 6 Loop 4: cross-seed winnability sweep + curated whitelist
+- Hypothesis / what was tested: (1) a fully generalized "ceiling" bot can play
+  ANY generated map, so its win/lose result is a real winnability signal;
+  (2) generated maps that pass structural fairness (Loop 3) are actually
+  winnable and fairly difficult. Both were previously ASSUMPTION.
+- How it was run: generalized the commander bot to be map-agnostic (Dijkstra
+  corridors launched on separated bearings + FEAR containment of idle hunters;
+  seed 7 keeps its validated reference lanes). New browser-free harness
+  `tools/sweep.mjs` (imports the sim directly, reproduces the exact main-loop
+  tick order — verified identical to the Chromium harness on seed 7 commander
+  WIN t=175 and idle LOSE food 0). Swept commander over 64 generated seeds
+  (1000..1023, 2000..2039). Built `tools/build_whitelist.mjs` to select a
+  difficulty-normalized set.
+- Observed result (facts, deterministic seeded runs):
+  * Winnability by the ceiling bot: **50/64 generated seeds won (78%)**.
+    14 (22%) are UNWINNABLE even by perfect play (e.g. seed 1001 stalls at
+    882/1200, 1013 at 769, 2037 at 795) — structural fairness does NOT imply
+    balance.
+  * Difficulty (win-time proxy) among winners spans **143.6s .. 470.1s**
+    (~3.3x) — raw generation is NOT difficulty-normalized.
+  * Root failure mode found & fixed: on generated maps the old bot marched
+    ants through hunters (seed 1000: food 0, 9429 deaths — the colony
+    bankrupted itself respawning slaughtered foragers). FEAR walls over idle
+    hunters fixed it (seed 1000 -> WIN t=282, 225 deaths).
+  * A second dynamic found: LURE decays slowly (~40s half-life) and TRAIL
+    self-reinforces, so roads that merge at the nest mouth lock the swarm onto
+    one pile and STARVE the others (far pile got 0/700). Launching each road
+    on a separated bearing restores concurrent multi-pile harvest.
+  * Curated whitelist: `build_whitelist.mjs` scanned 1000..1030 and kept 16
+    seeds that the ceiling bot wins in [210,360]s AND idle loses. The kept set
+    spans just **212.6s..347.5s (median 281.7s)** — a tight, fair band. The
+    [N] "new territory" key now draws from this list (game/js/seeds.js), so
+    players never meet an unwinnable or trivially easy generated map.
+  * Regressions clean: seed 7 commander byte-identical (WIN t=175, rich 881 /
+    far 700 / high 490); falsification harness holds (smart 949 food/1 death
+    >> naive 0 food/4446 deaths); single-file dist rebuilt (47.2KB) and runs
+    from file://.
+- Evidence class: winnability & difficulty numbers = VERIFIED FACT
+  (deterministic). "Ceiling bot ~= a strong human's reachable outcome" =
+  STRONG PROXY (bot is competent but not provably optimal; a true-optimal
+  player might win a few of the 14 "unwinnable" seeds — so 78% is a lower
+  bound on winnability). Whether the 281s band feels fun to a human = ASSUMPTION.
+- Weaknesses: winnability measured by one bot, not proven-optimal play;
+  whitelist is 16 seeds (variety adequate, not huge); generation still emits
+  ~22% unfair maps — the whitelist hides them from players but the generator
+  itself is not yet balance-aware.
+- Action taken: committed bot + harness (3ccac25); whitelist + main.js wiring
+  + dist this commit. Next: make the generator itself balance-aware (cheap
+  structural proxies) so the whitelist can be larger / on-the-fly.

@@ -9,10 +9,7 @@
 //                        [--seedlist 7,11,23] [--maxtime 480]
 // Prints one line per seed + a summary. Exit code 1 if any invariant fails
 // (a seed the bot cannot win, or a positive control that unexpectedly wins).
-import { makeWorld } from '../game/js/world.js';
-import { makeSim, step, antsAlive } from '../game/js/sim.js';
-import { makeScenarioState, updateScenario, SCENARIO } from '../game/js/scenario.js';
-import { makeAutoPlayer } from '../game/js/auto.js';
+import { runSeed as runSeedShared, SCENARIO } from './sim_runner.mjs';
 
 const args = process.argv.slice(2);
 const opt = (n, d) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : d; };
@@ -29,28 +26,7 @@ const seeds = seedlist
   ? seedlist.split(',').map((s) => parseInt(s.trim(), 10))
   : Array.from({ length: nSeeds }, (_, i) => from + i);
 
-function runSeed(seed) {
-  const world = makeWorld(seed);
-  const sim = makeSim(world);
-  const sc = makeScenarioState();
-  const auto = makeAutoPlayer(autoName);
-  const DT = 1 / 60;
-  const hardStop = Math.ceil((maxTime + 2) * 60);
-  while (!sc.over && sim.tick < hardStop) {
-    if (auto) auto(sim);
-    step(sim, DT);
-    updateScenario(sc, sim, world);
-  }
-  const totalFood = world.piles.reduce((a, p) => a + p.amount + (p.taken || 0), 0);
-  return {
-    seed, genAttempts: world.genAttempts,
-    won: !!sc.won, food: Math.round(sim.foodStock), quota: SCENARIO.quota,
-    time: +sim.time.toFixed(1), died: sim.antsDied, slain: sim.spidersKilled,
-    colony: antsAlive(sim),
-    mapFood: totalFood,
-    piles: world.piles.map((p) => ({ label: p.label, taken: p.taken || 0, left: Math.max(0, Math.round(p.amount)) })),
-  };
-}
+const runSeed = (seed) => runSeedShared(seed, autoName, maxTime);
 
 if (!json) console.log(`sweep auto=${autoName} quota=${SCENARIO.quota} timeLimit=${maxTime}s  (${seeds.length} seeds)`);
 const rows = [];

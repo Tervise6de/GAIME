@@ -5,6 +5,7 @@ import { makeRenderer, draw, hudText, drawEndCard, drawTitle } from './render.js
 import { makeAutoPlayer } from './auto.js';
 import { SCENARIO, makeScenarioState, updateScenario } from './scenario.js';
 import { makeOnboarding, updateOnboarding, drawOnboarding } from './onboarding.js';
+import { CURATED_SEEDS } from './seeds.js';
 
 const q = new URLSearchParams(location.search);
 const seed = parseInt(q.get('seed') || '7', 10);
@@ -47,7 +48,13 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'p' || e.key === 'P') ui.paused = !ui.paused;
   if (sc.over) {
     if (e.key === 'r' || e.key === 'R') location.search = `?seed=${seed}`;
-    if (e.key === 'n' || e.key === 'N') location.search = `?seed=${(Math.random() * 100000) | 0}`;
+    // [N] draws a fresh map from the curated, difficulty-vetted whitelist — not
+    // a raw random seed (which would occasionally be unwinnable or trivial).
+    if (e.key === 'n' || e.key === 'N') {
+      const pool = CURATED_SEEDS.filter((s) => s !== seed);
+      const next = (pool.length ? pool : CURATED_SEEDS)[(Math.random() * (pool.length || CURATED_SEEDS.length)) | 0];
+      location.search = `?seed=${next}`;
+    }
   }
 });
 

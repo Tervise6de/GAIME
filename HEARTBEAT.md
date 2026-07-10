@@ -11,6 +11,6 @@ commit. Never force-push.
 ```
 status: active
 session: overnight-2-20260711
-last_update_utc: 2026-07-10T23:35:00Z
-note: WINNER_DEVELOPMENT loop 4 — generalized commander bot (map-agnostic corridors + FEAR containment) + node sweep harness; running cross-seed winnability sweep; branch claude/ecstatic-ride-vekd19
+last_update_utc: 2026-07-10T23:57:00Z
+note: WINNER_DEVELOPMENT loop 4 — winnability sweep done (50/64 winnable); curated 16-seed whitelist shipped for [N]; branch claude/ecstatic-ride-vekd19
 ```

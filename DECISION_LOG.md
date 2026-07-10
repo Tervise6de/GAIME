@@ -113,3 +113,29 @@ Entry template:
 - Reversibility / exit condition: SW fallback stays runnable; pivot if HM
   onboarding/readability work fails to make scripted-novice completion
   possible, or morning verdict rejects it.
+
+## 2026-07-11 — D: ship curated seeds, not raw random; keep seed 7 as showcase
+- Decision: the [N] "new territory" key draws from a pre-validated whitelist
+  (game/js/seeds.js), NOT a raw random seed. Seed 7 stays the hand-crafted
+  default/showcase map. The commander bot is now hybrid: reference lanes on
+  seed 7, map-agnostic corridors + FEAR containment on generated maps.
+- Why: a 64-seed ceiling-bot sweep showed 22% of structurally-fair generated
+  maps are UNWINNABLE by perfect play and win-times span 143-470s (3.3x) —
+  raw random would hand a meaningful fraction of players unfair or wildly
+  uneven maps on their second session. Curation guarantees every generated
+  map a player sees is winnable and inside a ~210-360s difficulty band.
+- Alternatives considered:
+  * Make the generator balance-aware directly (reject bad layouts at gen time
+    via structural proxies). Better long-term, but requires proxies that
+    correlate with the sim's actual difficulty — unproven, and a full sim per
+    gen attempt is too slow at page load. Deferred to backlog; the whitelist
+    is the reliable path tonight.
+  * Ship raw random and accept the misses. Rejected: an unwinnable second map
+    reads as a broken game, not a hard one.
+- Evidence class: VERIFIED FACT (deterministic sweep) that raw seeds are
+  uneven/unfair; STRONG PROXY that the ceiling bot ~= reachable human outcome
+  (so the whitelist is conservative — a few rejected "too hard" seeds may in
+  fact be winnable by a great player).
+- Reversibility: fully reversible. seeds.js is regenerable
+  (`tools/build_whitelist.mjs`); widening the band or moving to a gen-time
+  balance gate later just replaces the list. No content locked in.
