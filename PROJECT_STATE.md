@@ -3,18 +3,21 @@
 Canonical current state. Update before ending every session. Keep it a
 snapshot — detail belongs in the logs and in git history.
 
-- **Current stage:** TWO_FINALISTS (stages 1–3 complete)
-- **Current concept:** finalists — C01 HIVEMIND (pheromone-painting swarm
-  command) and C02 STORMWARDEN (frontier weather-forecasting expertise sim)
-- **Fallback concept:** C03 GRAINSIEGE (noted runner-up, not prototyped)
-- **Current implementation:** none yet — prototypes next
-- **Active hypothesis:** A: deliberate pheromone painting beats naive
-  blobbing (control is real). B: instrument-informed forecasting beats
-  persistence forecasting (skill gradient is real).
-- **Last known good commit:** setup commit (first commit in repository)
-- **Current build status:** not started
-- **Highest-value next action:** build both prototypes (Stage 4), each
-  testing its hardest assumption
+- **Current stage:** WINNER_DEVELOPMENT (stages 1–5 complete)
+- **Current concept:** C01 HIVEMIND — indirect swarm command by painting
+  pheromone fields; the colony is persuaded, never ordered
+- **Fallback concept:** C02 STORMWARDEN (playable prototype preserved at
+  prototypes/stormwarden/, core skill-gradient assumption VERIFIED)
+- **Current implementation:** two playable prototypes under prototypes/;
+  winner development on hivemind beginning
+- **Active hypothesis:** HIVEMIND can be made goal-directed, teachable and
+  replayable (win/lose + onboarding + generated maps) without losing the
+  verified strategic depth
+- **Last known good commit:** 7207c84 (both prototypes verified runnable)
+- **Current build status:** GREEN — both prototypes run at 60fps headless;
+  serve repo root and open prototypes/<name>/index.html
+- **Highest-value next action:** Stage 6 loop 1 — win/lose scenario
+  structure with scripted-play verification
 - **Blockers:** none
 - **Morning report ready:** false
 
