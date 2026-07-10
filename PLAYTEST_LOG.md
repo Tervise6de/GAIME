@@ -84,3 +84,36 @@ Entry template:
   (4) human fun/tension untested and untestable in this environment.
 - Action taken: committed as Stage 4 second prototype; proceed to Stage 5
   comparison.
+
+## 2026-07-10 ~22:00 UTC — HIVEMIND Stage 6 Loop 1: goal structure (game/)
+- Hypothesis / what was tested: a win/lose scenario ("The First Season")
+  can make every verb NECESSARY and discriminate competence: full play
+  wins; each lazy doctrine loses differently.
+- How it was run: five scripted doctrines (commander / warband / smart /
+  naive / idle) headless on seed 7 after each tuning change; per-pile
+  extraction instrumented.
+- Observed result (facts, final tuning): commander WINS t=175s (stores
+  1200/1200, 4 hunters slain); warband loses 511/1200 (war without
+  economy); smart loses 348/1200 (roads without war); naive loses by
+  colony collapse t=30s (queued its nation inside a hunter's territory);
+  idle loses 0/1200. Full escalation (progress-triggered waves at stores
+  300/700/1100) unfolds before the win.
+- Design knowledge extracted along the way (each verified by a failed run):
+  (1) free respawns → meatgrinder play dominates → brood must cost food;
+  (2) a large starting colony + instant roads → quota sniped in 15s → start
+      small (250), earn the swarm;
+  (3) clock-triggered waves can be outrun → trigger escalation on PROGRESS;
+  (4) unlimited pile flow → one firehose road suffices → rate-limit piles
+      (6/5/4 per s) so parallel roads are the skill;
+  (5) unbounded WAR conversion bankrupts the economy → soldier caste capped
+      at 35% of colony; war is a managed slice;
+  (6) an accidental 38px terrain pinch silently killed a route — terrain
+      passability must be readable (real-game art requirement);
+  (7) rate-limited piles make queuing IN danger lethal — teachable drama.
+- Evidence class: VERIFIED FACT (deterministic seeded runs, this map);
+  bot doctrines are proxies for player skill levels (STRONG PROXY for
+  discrimination, ASSUMPTION for human pacing/fun).
+- Weaknesses: single map (seed-7 waypoints hardcoded in bots); growth is
+  automatic (no player brood control — backlog: brood throttle verb);
+  onboarding absent.
+- Action taken: committed; Loop 2 = onboarding.
