@@ -185,3 +185,31 @@ DECISION_LOG 2026-07-10.
 - Action taken: kept and committed. Sensor placement is now a proven, playable
   core decision. Next: a scarce-budget economy / upgrade path and a real
   demand test are the top remaining items.
+
+## 2026-07-10 ~21:00 UTC — Stage 6 DEPTH probe: skill vs forecast lead time
+- Hypothesis / what was tested: is there skill HEADROOM beyond a 1-day forecast,
+  or is the game thin (tomorrow easy, 2+ days a coin-flip)? For each day the
+  forecaster reads the air ~L days upwind (town − wind·L) and calls the sky L
+  days out; scored against the realized weather L days later. Persistence at
+  lead L = today's sky. Farther-upwind reads are noisier and the "wind holds"
+  assumption decays with L, so this measures real information vs lead time.
+- How it was run: tools/leadtime.mjs, 5 seeds x 90-day seasons, no browser
+  (ideal upwind sampling — an information upper-ish bound, not placed sensors).
+- Observed result (facts, means over 5 seeds x 90 days):
+    lead  instrument Brier/acc   persistence Brier/acc   BSS(inst vs pers)
+     +1d  0.163 / 92%            0.649 / 52%             +0.748
+     +2d  0.283 / 87%            0.771 / 40%             +0.633
+     +3d  0.400 / 82%            0.846 / 33%             +0.527
+  Instrument skill decays gracefully with lead (Brier 0.163→0.283→0.400; acc
+  92→87→82%) yet still beats persistence decisively at every range. Persistence
+  collapses with lead (52→40→33%), so the ACCURACY GAP widens at range (+40,
+  +47, +49 pts) — long-range forecasting is where expertise matters most.
+- Evidence class: VERIFIED FACT (this sim/seeds/rules). Note this uses ideal
+  upwind sampling, so real placed-sensor play would sit a little below these
+  curves — the SHAPE (graceful decay, persistent skill gap) is the finding.
+- Weaknesses found: single-front toy sim; a real game needs richer dynamics
+  (evolving/merging fronts, seasonality) to sustain the +3d challenge over long
+  play. But the core question is answered: depth exists.
+- Action taken: committed tools/leadtime.mjs. This justifies a multi-day
+  "outlook" as a concrete higher-skill tier / content axis (BACKLOG). Supports
+  the "capable of supporting a larger game" mission criterion with real evidence.
