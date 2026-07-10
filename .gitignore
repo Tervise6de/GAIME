@@ -1,0 +1,4 @@
+# OS/editor junk — extend with technology-specific rules once a stack is chosen
+.DS_Store
+Thumbs.db
+*.swp
