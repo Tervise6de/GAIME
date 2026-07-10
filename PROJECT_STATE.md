@@ -3,16 +3,18 @@
 Canonical current state. Update before ending every session. Keep it a
 snapshot — detail belongs in the logs and in git history.
 
-- **Current stage:** SETUP_COMPLETE
-- **Current concept:** none
-- **Fallback concept:** none
-- **Current implementation:** none
-- **Active hypothesis:** none
-- **Last known good commit:** setup commit (the first commit in this
-  repository — `git rev-list --max-parents=0 HEAD`)
+- **Current stage:** TWO_FINALISTS (stages 1–3 complete)
+- **Current concept:** finalists — C01 HIVEMIND (pheromone-painting swarm
+  command) and C02 STORMWARDEN (frontier weather-forecasting expertise sim)
+- **Fallback concept:** C03 GRAINSIEGE (noted runner-up, not prototyped)
+- **Current implementation:** none yet — prototypes next
+- **Active hypothesis:** A: deliberate pheromone painting beats naive
+  blobbing (control is real). B: instrument-informed forecasting beats
+  persistence forecasting (skill gradient is real).
+- **Last known good commit:** setup commit (first commit in repository)
 - **Current build status:** not started
-- **Highest-value next action:** brief market research and concept generation
-  (Protocol Stages 1–2)
+- **Highest-value next action:** build both prototypes (Stage 4), each
+  testing its hardest assumption
 - **Blockers:** none
 - **Morning report ready:** false
 
