@@ -66,7 +66,11 @@ node tools/tradeoff.mjs 90        # near/far placement tradeoff, per lead
 - `sw_place.png` — the sensor-placement decision (the "tomorrow's air" ring).
 - `sw_outlook.png` — the 3-day outlook loop with live per-lead accuracy.
 - `sw_forecast.png` — a clearing day, the daily judgment.
-- (No GIF captured yet — a storm-approach clip is a quick next step.)
+- `sw_scorecard.png` — end-of-season scorecard (accuracy by lead, storms
+  warned/missed, reputation grade).
+- (No GIF: this environment has no image/video tooling. A storm-approach clip
+  is a quick next step once tooling is available — the two hook stills above
+  already show the front advecting onto the town across two days.)
 
 ## The two prototypes & why STORMWARDEN won
 - **HIVEMIND** (pheromone-painting swarm command): its pre-registered

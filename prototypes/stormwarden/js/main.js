@@ -156,6 +156,7 @@ else {
     ui.resolved = { day: realized, actual, items: resolvedNow };
     g.day++;
     if (g.day > DAYS) {
+      ui.phase = 'done';
       window.__RESULTS = {
         strategy: 'human', seed,
         lead1: scorers[1].summary(),
@@ -169,6 +170,27 @@ else {
   function refresh() {
     draw(R, g.atmo, ui);
     const ts = townState(g.atmo);
+    if (ui.phase === 'done') {
+      const s1 = scorers[1].summary();
+      const grade = s1.reputation >= 25 ? 'The town trusts you with their lives.'
+        : s1.reputation >= 10 ? 'A dependable warden.'
+        : s1.reputation >= 0 ? 'Still learning the sky.'
+        : 'People were caught out. Study the barometer.';
+      const line = (L) => { const s = scorers[L].summary(); return `<div class="row"><span>${LEAD_LABEL[L - 1]}</span><b>${(s.accuracy * 100).toFixed(0)}% · Brier ${s.brier}</b></div>`; };
+      panel.innerHTML = `<div class="ttl">Season complete — ${DAYS} days</div>`
+        + `<div class="sub">Frontier Meteorological Station</div><hr>`
+        + `<div class="ttl2">Forecast accuracy by lead</div>` + line(1) + line(2) + line(3)
+        + `<hr><div class="ttl2">Storm warnings</div>`
+        + `<div class="row"><span>Storms</span><b>${s1.stormDays}</b></div>`
+        + `<div class="row"><span>Warned in time</span><b style="color:#7fe3a0">${s1.hits}</b></div>`
+        + `<div class="row"><span>Missed (lives lost)</span><b style="color:#ff7a7a">${s1.misses}</b></div>`
+        + `<div class="row"><span>False alarms</span><b>${s1.falseAlarms}</b></div>`
+        + `<hr><div class="row"><span>Reputation</span><b>${s1.reputation}</b></div>`
+        + `<div class="go" style="margin-top:8px">${grade}</div>`
+        + `<div class="dim" style="margin-top:6px">Reload to forecast a new season.</div>`;
+      banner.innerHTML = `Season over. Your tomorrow-calls landed <b>${(s1.accuracy * 100).toFixed(0)}%</b>; you warned <b>${s1.hits}/${s1.stormDays}</b> storms in time. <b>${grade}</b>`;
+      return;
+    }
     if (ui.phase === 'place') {
       panel.innerHTML = panelHTML(g.atmo, readInstruments(g.atmo, g.noise, ui.sensors), { cat: ts.cat }, { day: 0 })
         + `<hr><div class="ttl2">Place your weather sensors</div>`

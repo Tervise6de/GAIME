@@ -1,7 +1,7 @@
 # HEARTBEAT — session lock
 
 Mechanism: see `AUTONOMOUS_STUDIO_PROTOCOL.md` § Session safety. Before any
-write, fetch `origin/main` and read this file. If `status: active` from
+write, fetch `origin/main` and read this file. If `status: released` from
 another session and `last_update_utc` is under 45 minutes old, do read-only
 work or exit. To claim: set the fields below, commit and push immediately —
 a rejected push means another session holds the lock. Refresh
@@ -9,8 +9,8 @@ a rejected push means another session holds the lock. Refresh
 commit. Never force-push.
 
 ```
-status: active
+status: released
 session: overnight-1-20260710
-last_update_utc: 2026-07-10T21:36:00Z
-note: overnight run cont. — Stage 4b (STORMWARDEN prototype + falsification), then Stage 5 comparison and Stage 6 winner development. Work on branch claude/ecstatic-ride-2dq8wm.
+last_update_utc: 2026-07-10T21:45:00Z
+note: session end — reached Stage 6 (WINNER_DEVELOPMENT): STORMWARDEN vertical-slice loop, five verified experiments, morning report. Lock released.
 ```

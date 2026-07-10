@@ -20,12 +20,14 @@ snapshot — detail belongs in the logs and in git history.
   EXPERT-FALLIBLE once the player must choose WHERE to place a limited sensor
   budget (verb currently stubbed as fixed lookouts). And the dominant open
   risk: DEMAND for a forecasting game is UNKNOWN.
-- **Last known good commit:** 41fecac (playable 3-day outlook + sensor
-  placement; both prototypes runnable, all harnesses green, verified via
-  Playwright end-to-end).
-- **Current build status:** runnable. Serve repo root and open the prototype
-  (see HANDOFF for exact commands). Harnesses: `node tools/season.mjs`,
-  `node tools/placement.mjs`.
+- **Last known good commit:** this session's final commit on branch
+  `claude/ecstatic-ride-2dq8wm` (playable loop with season scorecard; both
+  prototypes runnable; season/placement/leadtime/tradeoff harnesses green;
+  verified via Playwright end-to-end). Prior good: 41fecac.
+- **Current build status:** runnable, with a complete loop (place sensors →
+  daily 3-day outlook → season scorecard). Serve repo root and open the
+  prototype (see HANDOFF for exact commands). Harnesses: `node tools/season.mjs`,
+  `node tools/placement.mjs`, `node tools/leadtime.mjs`, `node tools/tradeoff.mjs`.
 - **Stage 6 done so far:** the playable core loop now layers two decisions —
   place 3 sensors (near/far tradeoff), then commit a 3-DAY OUTLOOK each day
   (scored per lead). Proven (all VERIFIED FACT): instrument beats persistence

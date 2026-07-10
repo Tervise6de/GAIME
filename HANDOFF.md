@@ -40,7 +40,11 @@ snapshot, not an accumulating history — history lives in git.
   `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install`.
 - Screenshots so far: `media/proto/sw_place.png` (sensor placement),
   `sw_outlook.png` (3-day outlook loop), `sw_forecast.png` (daily loop),
-  `sw_front.png` / `sw_storm.png` (the hook: a storm front advecting onto town).
+  `sw_scorecard.png` (season closure), `sw_front.png` / `sw_storm.png` (the
+  hook: a storm front advecting onto the town).
+- Playable loop is now complete with closure: place sensors → daily 3-day
+  outlook → end-of-season scorecard (accuracy by lead, storms warned/missed,
+  reputation grade). Season length via `?days=N`, seed via `?seed=N`.
 
 ## Next three actions
 
