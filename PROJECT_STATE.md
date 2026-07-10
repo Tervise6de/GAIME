@@ -3,23 +3,33 @@
 Canonical current state. Update before ending every session. Keep it a
 snapshot — detail belongs in the logs and in git history.
 
-- **Current stage:** WINNER_DEVELOPMENT (stages 1–5 complete)
-- **Current concept:** C01 HIVEMIND — indirect swarm command by painting
-  pheromone fields; the colony is persuaded, never ordered
-- **Fallback concept:** C02 STORMWARDEN (playable prototype preserved at
-  prototypes/stormwarden/, core skill-gradient assumption VERIFIED)
-- **Current implementation:** two playable prototypes under prototypes/;
-  winner development on hivemind beginning
-- **Active hypothesis:** HIVEMIND can be made goal-directed, teachable and
-  replayable (win/lose + onboarding + generated maps) without losing the
-  verified strategic depth
-- **Last known good commit:** 7207c84 (both prototypes verified runnable)
-- **Current build status:** GREEN — both prototypes run at 60fps headless;
-  serve repo root and open prototypes/<name>/index.html
-- **Highest-value next action:** Stage 6 loop 1 — win/lose scenario
-  structure with scripted-play verification
-- **Blockers:** none
-- **Morning report ready:** false
+- **Current stage:** WINNER_DEVELOPMENT (loops 1-2 done: goal structure,
+  onboarding). Stages 1-5 complete. MORNING_REPORT.md is current.
+- **Current concept:** C01 HIVEMIND — paint scent fields (LURE/FEAR/RALLY);
+  thousands of autonomous ants respond; persuasion, never orders.
+- **Fallback concept:** C02 STORMWARDEN (runnable at
+  prototypes/stormwarden/; skill-gradient assumption VERIFIED on held-out
+  seeds — see PLAYTEST_LOG).
+- **Current implementation:** `game/` — winnable/losable "First Season"
+  scenario + onboarding + economy + escalation; `game/dist/HIVEMIND.html`
+  single-file distributable; two frozen prototypes; `tools/` verification
+  harness (headless runner, bot matrix, UI click tests, single-file
+  builder, gameplay recorder).
+- **Active hypothesis:** humans can learn and enjoy the painting verb —
+  scripted play proves the depth exists; human feel is the top unknown.
+- **Last known good commit:** e292a95 (Loop 2; commander WINS seed 7
+  t≈175, four lazy doctrines lose, single-file build verified). Later
+  commits change docs/media only.
+- **Current build status:** GREEN — verified headless at 60fps; see
+  CLAUDE.md for the one-line re-verification command.
+- **Highest-value next action:** map generation with solvability
+  guarantees + generalized commander bot (unlocks replay claims); if in
+  the final morning run: execute Stage 7 checklist in
+  AUTONOMOUS_STUDIO_PROTOCOL.md instead.
+- **Blockers:** human playtesting cannot be done from this environment
+  (founder action needed — see BACKLOG "Now" #5).
+- **Morning report ready:** true (written end of overnight-1; refresh if
+  later sessions change the build).
 
 ## Stages
 
@@ -27,11 +37,11 @@ SETUP_COMPLETE precedes stage 1. Definitions are in
 `AUTONOMOUS_STUDIO_PROTOCOL.md`; VERTICAL_SLICE is the maturation of
 WINNER_DEVELOPMENT (Protocol Stage 6).
 
-1. RESEARCH
-2. CONCEPTS
-3. TWO_FINALISTS
-4. DUAL_PROTOTYPES
-5. PROTOTYPE_COMPARISON
-6. WINNER_DEVELOPMENT
+1. RESEARCH ✓
+2. CONCEPTS ✓
+3. TWO_FINALISTS ✓
+4. DUAL_PROTOTYPES ✓
+5. PROTOTYPE_COMPARISON ✓
+6. WINNER_DEVELOPMENT ← current
 7. VERTICAL_SLICE
-8. MORNING_ASSESSMENT
+8. MORNING_ASSESSMENT (report current; final morning run pending)

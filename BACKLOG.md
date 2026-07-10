@@ -5,28 +5,42 @@ duplicating them. Rejected items keep a one-line reason.
 
 ## Now
 
-1. Session safety: claim `HEARTBEAT.md` before any write.
-2. Stage 1 — brief opportunity research (timebox: ≤ ~20% of the first run).
-3. Stage 2 — generate ≥ 10 meaningfully different concepts in `CONCEPTS.md`.
-4. Stage 3 — select two substantially different finalists; log in `DECISION_LOG.md`.
-5. Select prototype technology (must build and run in this environment);
-   record exact build/run commands in `CLAUDE.md` and `HANDOFF.md`.
+1. Map generation with solvability guarantees + generalized commander bot;
+   verify bot-winnable across ≥20 seeds.
+2. Brood throttle verb (paint the nest: grow vs bank) — player control over
+   the growth economy discovered to dominate outcomes in Loop 1.
+3. Juice pass: nest delivery pulse, spider death burst, procedural WebAudio;
+   re-capture media afterwards.
+4. Second scenario ("The Long Drought") reusing systems, no new tech.
+5. Founder-facing: arrange 5-10 human playtests of game/dist/HIVEMIND.html
+   (measure: season completed ≤3 attempts; all verbs used; voluntary
+   restarts; kill-signal: "ants won't obey" quits).
 
 ## Next
 
-- Stage 4 — build two competing prototypes under `prototypes/`, each testing
-  its concept's hardest important dependency.
-- Stage 5 — run and inspect both; compare on the protocol's eight criteria;
-  pick winner + fallback; log the decision; record runs in `PLAYTEST_LOG.md`.
-- Begin Stage 6 development loop on the winner.
+- Art direction spike (palette, ant silhouettes, terrain texture) — current
+  look is programmer-glow; strong in motion, thin in stills.
+- Fauna variety: 2-3 non-spider threats/prey with distinct field responses.
+- Difficulty curve: scenario parameter sweep via bot matrix (keep commander
+  win-time 250-350s per scenario).
+- Steam wrapper decision (Electron/Tauri vs engine port) — only after human
+  playtests pass.
 
 ## Later
 
-- Vertical slice of the winner.
-- Windows-runnable build where feasible, or exact reproducible launch instructions.
-- ≥ 3 gameplay screenshots, one core-hook image, short GIF/recording in `media/`.
-- Stage 7 — rewrite `MORNING_REPORT.md` at end of the overnight run.
+- Campaign structure (15-25 scenarios, biomes), sandbox mode.
+- Multi-nest play; pheromone verb expansion (harvest priority, brood caste).
+- Wishlist/demo funnel experiment (real market data, not proxies).
+- STORMWARDEN: if pivot triggered — next step is human tension playtest of
+  its daily loop; sky-learnability already proven.
 
 ## Rejected
 
-(none yet)
+- Building the smallest finished game first — protocol forbids; goal is
+  concept validation.
+- Choosing winner from written scoring alone — replaced by dual-prototype
+  implementation evidence (protocol Stage 5).
+- C03 GRAINSIEGE as finalist — hook overlaps Noita's proven ground; kept as
+  concept only.
+- Time-triggered escalation waves — competent play outruns them; replaced
+  by progress-triggered waves (evidence in PLAYTEST_LOG 22:00 entry).

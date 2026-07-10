@@ -54,8 +54,18 @@ protocol stage is enough to begin. Consult the logs only when relevant.
 
 ## Build & test commands
 
-None yet — no technology has been selected. When it is, record the exact
-build / run / test commands HERE and in `HANDOFF.md`, and keep them current.
+Tech: vanilla JS + Canvas 2D, zero runtime deps. Dev tooling: Playwright
+(`npm install` restores it; browsers are pre-provisioned in this env).
+
+- Serve:            `python3 -m http.server 8123` (from repo root)
+- Play the game:    http://localhost:8123/game/index.html?seed=7
+- Prototypes:       http://localhost:8123/prototypes/{hivemind,stormwarden}/index.html
+- Single-file build:`node tools/build_single.mjs` → `game/dist/HIVEMIND.html` (double-click runs anywhere)
+- Headless run/measure/screenshot: `node tools/run_proto.mjs "<url>" --max 120 --out shot.png`
+  - Bot matrix (game balance): url `game/index.html?seed=7&auto=<commander|warband|smart|naive|idle>&fast=12`
+    Expected: commander WINS (~t=175 on seed 7), all others lose.
+  - Stormwarden falsification: `?auto=<climo|persist|instrument>&days=400&seed=N`
+- UI click-through tests: `node tools/click_test_hivemind.mjs`, `tools/click_test_stormwarden.mjs`
 
 ## File map
 

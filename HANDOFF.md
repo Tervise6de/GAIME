@@ -3,21 +3,35 @@
 Overwrite this ENTIRE file at the end of every session. It is a replaceable
 snapshot, not an accumulating history — history lives in git.
 
-- **Current stage:** SETUP_COMPLETE
-- **Active hypothesis:** none — no game work has begun (setup session was
-  deliberately restricted to repository infrastructure)
-- **What changed:** Repository operating system created: CLAUDE.md boot
-  sequence, studio protocol, state/handoff/backlog, logs and templates,
-  heartbeat session lock. No research, concepts or code exist yet.
-- **Current build status:** not started — no technology selected
-- **Last known good commit:** the setup commit (first commit in this repository)
-- **Known blockers:** none
-- **Next three actions:**
-  1. Claim `HEARTBEAT.md`, then run Stage 1: brief opportunity research,
-     timeboxed to ≤ ~20% of the run.
-  2. Stage 2: generate ≥ 10 meaningfully different concepts in `CONCEPTS.md`
-     against all fifteen criteria.
-  3. Stage 3: select two substantially different finalists (preserve at least
-     one unconventional high-conviction concept); log it in `DECISION_LOG.md`.
-- **Exact build and run commands:** none yet — when technology is selected,
-  record exact commands here and in `CLAUDE.md`.
+- **Current stage:** WINNER_DEVELOPMENT (post Loop 2) → next loops below;
+  MORNING_ASSESSMENT report already current as of overnight-1 end
+- **Active hypothesis:** humans can learn and enjoy the painting verb
+  (scripted play proves depth exists; human feel is THE open question)
+- **What changed (overnight-1):** stages 1-5 completed end-to-end; two
+  instrumented prototypes with falsification evidence; HIVEMIND selected
+  and developed into a winnable/losable game with onboarding, economy,
+  escalation, title/end cards; single-file distributable build; media
+  (GIF/webm/screenshots); MORNING_REPORT.md written (CONTINUE WITH
+  CONDITIONS).
+- **Current build status:** GREEN. `game/` verified: commander bot WINS
+  seed 7 at t≈175 (deterministic), four lazy doctrines lose differently;
+  single-file build `game/dist/HIVEMIND.html` verified identical from
+  file://. Both prototypes still run.
+- **Last known good commit:** see latest main (every commit tonight was
+  verified before push; if anything regresses, `git log` — each commit
+  message states what was verified).
+- **Known blockers:** none technical. Human playtesting impossible from
+  this environment — founder action or future integration needed.
+- **Next three actions (highest value first):**
+  1. Map generation with solvability guarantees (BFS-derived safe routes;
+     generalize commander bot to derived paths; verify N seeds all
+     bot-winnable) — unlocks replay + honest depth claims.
+  2. Brood throttle verb (paint the nest: feed vs bank ratio) — removes
+     the automatic-growth limitation found in Loop 1 economics.
+  3. Juice pass: delivery pulse at nest, spider death burst, WebAudio
+     blips (all procedural, licence-clean) + re-capture GIF.
+- **Exact build and run commands:** see CLAUDE.md "Build & test commands"
+  (serve, play URL, single-file build, bot-matrix verification, UI tests).
+  Quick verify after any sim change:
+  `for s in commander idle; do node tools/run_proto.mjs "http://localhost:8123/game/index.html?seed=7&auto=$s&fast=12" --max 150; done`
+  → commander must WIN, idle must lose.

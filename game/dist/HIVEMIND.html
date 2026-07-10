@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>HIVEMIND — the first season</title>
+<style>
+  html,body{margin:0;padding:0;background:#070505;overflow:hidden;height:100%}
+  #wrap{display:flex;align-items:center;justify-content:center;height:100%}
+  canvas{image-rendering:auto;max-width:100vw;max-height:100vh;aspect-ratio:16/9;cursor:crosshair}
+  #hud{position:fixed;left:12px;top:10px;color:#cfe8e4;font:13px/1.5 ui-monospace,monospace;
+       text-shadow:0 1px 2px #000;user-select:none;pointer-events:none}
+  #hud b{color:#ffd27d}
+  #legend{position:fixed;right:12px;top:10px;color:#9db8b4;font:12px/1.6 ui-monospace,monospace;
+       text-align:right;text-shadow:0 1px 2px #000;user-select:none;pointer-events:none}
+  #legend span{font-weight:bold}
+</style>
+</head>
+<body>
+<div id="wrap"><canvas id="cv" width="1280" height="720"></canvas></div>
+<div id="hud"></div>
+<div id="legend">
+  <span style="color:#59e3d2">[1] LURE</span> &nbsp;<span style="color:#b08cff">[2] FEAR</span> &nbsp;<span style="color:#ff6a5e">[3] RALLY</span><br>
+  paint: left mouse &nbsp;·&nbsp; erase: right mouse<br>
+  brush size: wheel &nbsp;·&nbsp; pause: P<br>
+  the colony is not yours to command —<br>only to persuade
+</div>
+<script>
+'use strict';
+
+// ===== rng.js =====
+// Deterministic RNG (mulberry32) so scripted comparisons are reproducible.
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+
+// ===== world.js =====
+// World: geometry, fields, food, spiders, nest. Fixed layout, seeded variation.
+
+
+const W = 1280, H = 720;
+const CELL = 8;                       // field grid cell size (px)
+const GW = W / CELL, GH = H / CELL;   // 160 x 90
+
+const F = { LURE: 0, FEAR: 1, WAR: 2, TRAIL: 3 };
+const DECAY = [0.99971, 0.99971, 0.9988, 0.99808]; // per-tick @60Hz
+
+function makeWorld(seed) {
+  const rng = mulberry32(seed);
+  const fields = [0, 1, 2, 3].map(() => new Float32Array(GW * GH));
+  const scratch = new Float32Array(GW * GH);
+  const blocked = new Uint8Array(GW * GH);
+
+  // --- rocks: partial walls shaping three route options ---
+  const rocks = [];
+  function rock(x, y, r) { rocks.push({ x, y, r }); }
+  // wall segment above center corridor
+  for (let i = 0; i < 6; i++) rock(430 + i * 52, 150 + (rng() - 0.5) * 20, 34 + rng() * 10);
+  // wall segment below center, leaving a bottom lane
+  for (let i = 0; i < 5; i++) rock(520 + i * 56, 560 + (rng() - 0.5) * 24, 30 + rng() * 10);
+  // scatter
+  rock(330, 430, 40); rock(900, 170, 46); rock(1010, 330, 36); rock(770, 606, 34);
+
+  for (const r of rocks) {
+    const x0 = Math.max(0, ((r.x - r.r) / CELL) | 0), x1 = Math.min(GW - 1, ((r.x + r.r) / CELL) | 0);
+    const y0 = Math.max(0, ((r.y - r.r) / CELL) | 0), y1 = Math.min(GH - 1, ((r.y + r.r) / CELL) | 0);
+    for (let gy = y0; gy <= y1; gy++) for (let gx = x0; gx <= x1; gx++) {
+      const dx = gx * CELL + CELL / 2 - r.x, dy = gy * CELL + CELL / 2 - r.y;
+      if (dx * dx + dy * dy < r.r * r.r) blocked[gy * GW + gx] = 1;
+    }
+  }
+  // border walls
+  for (let gx = 0; gx < GW; gx++) { blocked[gx] = 1; blocked[(GH - 1) * GW + gx] = 1; }
+  for (let gy = 0; gy < GH; gy++) { blocked[gy * GW] = 1; blocked[gy * GW + GW - 1] = 1; }
+
+  const nest = { x: 170, y: 360, r: 34 };
+
+  // --- home distance field (BFS from nest through walkable cells) ---
+  const homeDist = new Float32Array(GW * GH).fill(1e9);
+  {
+    const q = [];
+    const ngx = (nest.x / CELL) | 0, ngy = (nest.y / CELL) | 0;
+    homeDist[ngy * GW + ngx] = 0; q.push(ngx, ngy);
+    let head = 0;
+    while (head < q.length) {
+      const cx = q[head++], cy = q[head++];
+      const d = homeDist[cy * GW + cx];
+      for (const [ox, oy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]]) {
+        const nx = cx + ox, ny = cy + oy;
+        if (nx < 0 || ny < 0 || nx >= GW || ny >= GH) continue;
+        const idx = ny * GW + nx;
+        if (blocked[idx]) continue;
+        const nd = d + (ox && oy ? 1.4142 : 1);
+        if (nd < homeDist[idx]) { homeDist[idx] = nd; q.push(nx, ny); }
+      }
+    }
+  }
+
+  // --- food piles: rich pile inside spider ground; safer piles further away ---
+  const piles = [
+    // rate: grains per second the pile can yield — one road is never enough
+    { x: 660, y: 300, amount: 900, r: 42, rate: 6, budget: 0, label: 'rich' },
+    { x: 1090, y: 560, amount: 700, r: 36, rate: 5, budget: 0, label: 'far' },
+    { x: 1060, y: 120, amount: 600, r: 32, rate: 4, budget: 0, label: 'high' },
+  ];
+
+  // --- spiders guarding the middle ---
+  const spiders = [
+    { x: 620, y: 260, hx: 620, hy: 260, tr: 120, hp: 260, maxhp: 260, a: rng() * 6.28, alive: true },
+    { x: 800, y: 400, hx: 800, hy: 400, tr: 110, hp: 260, maxhp: 260, a: rng() * 6.28, alive: true },
+  ];
+
+  return { rng, fields, scratch, blocked, rocks, nest, homeDist, piles, spiders };
+}
+
+function idxAt(x, y) {
+  const gx = Math.min(GW - 1, Math.max(0, (x / CELL) | 0));
+  const gy = Math.min(GH - 1, Math.max(0, (y / CELL) | 0));
+  return gy * GW + gx;
+}
+
+// stamp a radial blob into a field: v = max(v, s*falloff)
+function stamp(field, x, y, r, s) {
+  const x0 = Math.max(0, ((x - r) / CELL) | 0), x1 = Math.min(GW - 1, ((x + r) / CELL) | 0);
+  const y0 = Math.max(0, ((y - r) / CELL) | 0), y1 = Math.min(GH - 1, ((y + r) / CELL) | 0);
+  for (let gy = y0; gy <= y1; gy++) for (let gx = x0; gx <= x1; gx++) {
+    const dx = gx * CELL + CELL / 2 - x, dy = gy * CELL + CELL / 2 - y;
+    const d2 = dx * dx + dy * dy;
+    if (d2 < r * r) {
+      const f = 1 - Math.sqrt(d2) / r;
+      const i = gy * GW + gx;
+      const v = s * f;
+      if (v > field[i]) field[i] = v;
+    }
+  }
+}
+
+function erase(fields, x, y, r) {
+  const x0 = Math.max(0, ((x - r) / CELL) | 0), x1 = Math.min(GW - 1, ((x + r) / CELL) | 0);
+  const y0 = Math.max(0, ((y - r) / CELL) | 0), y1 = Math.min(GH - 1, ((y + r) / CELL) | 0);
+  for (let gy = y0; gy <= y1; gy++) for (let gx = x0; gx <= x1; gx++) {
+    const dx = gx * CELL + CELL / 2 - x, dy = gy * CELL + CELL / 2 - y;
+    if (dx * dx + dy * dy < r * r) {
+      const i = gy * GW + gx;
+      for (const k of [F.LURE, F.FEAR, F.WAR]) fields[k][i] *= 0.15;
+    }
+  }
+}
+
+
+// ===== sim.js =====
+// Simulation: ants (physarum-style sensing), spiders, field decay/diffusion.
+
+
+const ST = { FORAGE: 0, RETURN: 1, SOLDIER: 2 };
+const MAX_ANTS = 2600;
+const SENSE_D = 14, SENSE_A = 0.55;   // sensor distance / angle
+const TURN = 0.35;
+
+function makeSim(world) {
+  return {
+    world,
+    // struct-of-arrays for speed
+    ax: new Float32Array(MAX_ANTS), ay: new Float32Array(MAX_ANTS),
+    ah: new Float32Array(MAX_ANTS),                    // heading
+    astate: new Uint8Array(MAX_ANTS),
+    acarry: new Uint8Array(MAX_ANTS),
+    alive: new Uint8Array(MAX_ANTS),
+    count: 0, tick: 0, time: 0,
+    foodBanked: 0, antsDied: 0, spidersKilled: 0, antsSpawned: 0,
+    foodStock: 30,           // net colony wealth: gains on delivery, pays for brood
+  };
+}
+
+const FREE_SPAWNS = 700;     // the first summer's brood is free
+const SPAWN_COST = 0.20;     // food per ant afterwards
+
+function spawnAnt(s) {
+  if (s.count >= MAX_ANTS && !(s.freeList && s.freeList.length)) return;
+  // brood beyond the initial reserves costs food — dead ants are not free
+  if (s.antsSpawned >= FREE_SPAWNS) {
+    if (s.foodStock < SPAWN_COST) return;
+    s.foodStock -= SPAWN_COST;
+  }
+  // reuse dead slots first
+  let i = -1;
+  if (s.freeList && s.freeList.length) i = s.freeList.pop();
+  else i = s.count++;
+  const { nest, rng } = s.world;
+  s.ax[i] = nest.x + (rng() - 0.5) * 20;
+  s.ay[i] = nest.y + (rng() - 0.5) * 20;
+  s.ah[i] = rng() * Math.PI * 2;
+  s.astate[i] = ST.FORAGE; s.acarry[i] = 0; s.alive[i] = 1;
+  s.antsSpawned++;
+}
+
+// score a sample point for a foraging ant
+function forageScore(fields, i) {
+  return 2.6 * fields[F.LURE][i] + 1.6 * fields[F.TRAIL][i]
+       - 3.2 * fields[F.FEAR][i] + 1.9 * fields[F.WAR][i];
+}
+
+function step(s, dt) {
+  const { fields, blocked, homeDist, nest, piles, spiders, rng } = s.world;
+  s.tick++; s.time += dt;
+
+  // --- population ---
+  if (!s.freeList) s.freeList = [];
+  const target = Math.min(MAX_ANTS, 250 + Math.floor(s.time * 10)); // start small, earn the swarm
+  let deficit = target - (s.count - s.freeList.length);
+  while (deficit-- > 0) spawnAnt(s);
+
+  // --- field decay (+ light diffusion on TRAIL every 3rd tick) ---
+  for (let k = 0; k < 4; k++) {
+    const f = fields[k], d = DECAY[k];
+    for (let i = 0; i < f.length; i++) f[i] *= d;
+  }
+  if (s.tick % 3 === 0) diffuse(fields[F.TRAIL], s.world.scratch, 0.22);
+
+  // --- pile extraction budgets (rate-limited sources) ---
+  for (const p of piles) p.budget = Math.min(6, p.budget + p.rate * dt);
+
+  // --- ants ---
+  const spd = 70 * dt, spdSol = 86 * dt;
+  let soldiers = 0;
+  for (let i = 0; i < s.count; i++) if (s.alive[i] && s.astate[i] === ST.SOLDIER) soldiers++;
+  const aliveNow = s.count - (s.freeList ? s.freeList.length : 0);
+  const soldierCap = Math.floor(aliveNow * 0.35);
+  for (let i = 0; i < s.count; i++) {
+    if (!s.alive[i]) continue;
+    let x = s.ax[i], y = s.ay[i], h = s.ah[i];
+    const state = s.astate[i];
+    const warHere = fields[F.WAR][idxAt(x, y)];
+
+    // promotion / demotion to soldier (the war caste is a managed slice,
+    // never the whole colony)
+    if (state !== ST.SOLDIER && warHere > 0.25 && soldiers < soldierCap) { s.astate[i] = ST.SOLDIER; soldiers++; }
+    else if (state === ST.SOLDIER && warHere < 0.05) { s.astate[i] = ST.FORAGE; soldiers--; }
+
+    if (s.astate[i] === ST.RETURN) {
+      // descend home-distance; deposit trail. FEAR inflates perceived
+      // distance so players can wall the way home away from danger.
+      let best = -1, bestD = 1e18;
+      for (const da of [-SENSE_A, 0, SENSE_A]) {
+        const sx = x + Math.cos(h + da) * SENSE_D, sy = y + Math.sin(h + da) * SENSE_D;
+        const si = idxAt(sx, sy);
+        const d = homeDist[si] + fields[F.FEAR][si] * 30 + rng() * 0.4;
+        if (d < bestD) { bestD = d; best = da; }
+      }
+      h += Math.sign(best) * Math.min(TURN, Math.abs(best)) + (rng() - 0.5) * 0.12;
+      const ti = idxAt(x, y);
+      fields[F.TRAIL][ti] = Math.min(1, fields[F.TRAIL][ti] + 0.085);
+      // reached nest?
+      const dx = x - nest.x, dy = y - nest.y;
+      if (dx * dx + dy * dy < nest.r * nest.r) {
+        if (s.acarry[i]) { s.foodBanked += s.acarry[i]; s.foodStock += s.acarry[i]; s.acarry[i] = 0; }
+        s.astate[i] = ST.FORAGE; h = rng() * Math.PI * 2;
+      }
+    } else if (s.astate[i] === ST.SOLDIER) {
+      // ascend WAR field
+      let bestV = -1, bestA = 0;
+      for (const da of [-SENSE_A, 0, SENSE_A]) {
+        const sx = x + Math.cos(h + da) * SENSE_D, sy = y + Math.sin(h + da) * SENSE_D;
+        const v = fields[F.WAR][idxAt(sx, sy)] + rng() * 0.02;
+        if (v > bestV) { bestV = v; bestA = da; }
+      }
+      h += Math.sign(bestA) * Math.min(TURN, Math.abs(bestA)) + (rng() - 0.5) * 0.3;
+    } else {
+      // FORAGE: physarum sensing over combined score
+      let bestV = -1e9, bestA = 0;
+      for (const da of [-SENSE_A, 0, SENSE_A]) {
+        const sx = x + Math.cos(h + da) * SENSE_D, sy = y + Math.sin(h + da) * SENSE_D;
+        const v = forageScore(fields, idxAt(sx, sy)) + rng() * 0.03;
+        if (v > bestV) { bestV = v; bestA = da; }
+      }
+      h += Math.sign(bestA) * Math.min(TURN, Math.abs(bestA)) + (rng() - 0.5) * 0.22;
+      // food pickup — foragers carry up to two grains
+      for (const p of piles) {
+        if (p.amount <= 0) continue;
+        const dx = x - p.x, dy = y - p.y;
+        const rr = p.r * (0.35 + 0.65 * Math.min(1, p.amount / 600));
+        if (dx * dx + dy * dy < rr * rr) {
+          const take = Math.min(2, p.amount, Math.floor(p.budget));
+          if (take > 0) {
+            p.amount -= take; p.budget -= take; p.taken = (p.taken || 0) + take;
+            s.acarry[i] = take; s.astate[i] = ST.RETURN;
+            h = Math.atan2(nest.y - y, nest.x - x) + (rng() - 0.5) * 0.6;
+          }
+          break;
+        }
+      }
+    }
+
+    // move with obstacle check
+    const v = s.astate[i] === ST.SOLDIER ? spdSol : spd;
+    let nx = x + Math.cos(h) * v, ny = y + Math.sin(h) * v;
+    if (blocked[idxAt(nx, ny)]) { h += (rng() < 0.5 ? 1 : -1) * (1.2 + rng()); nx = x; ny = y; }
+    nx = Math.max(2, Math.min(W - 2, nx)); ny = Math.max(2, Math.min(H - 2, ny));
+    s.ax[i] = nx; s.ay[i] = ny; s.ah[i] = h;
+  }
+
+  // --- spiders: wander territory, kill nearby ants, take soldier damage ---
+  for (const sp of spiders) {
+    if (!sp.alive) continue;
+    sp.a += (rng() - 0.5) * 0.6;
+    // stay near home
+    const hdx = sp.hx - sp.x, hdy = sp.hy - sp.y;
+    if (hdx * hdx + hdy * hdy > sp.tr * sp.tr * 0.5) sp.a = Math.atan2(hdy, hdx) + (rng() - 0.5) * 0.5;
+    sp.x += Math.cos(sp.a) * 26 * dt; sp.y += Math.sin(sp.a) * 26 * dt;
+
+    // interactions (cheap distance scan — spider count is tiny)
+    let soldiersNear = 0, killsLeft = Math.ceil(90 * dt); // kill rate cap/tick
+    const KR = 26, KR2 = KR * KR, AR = 17, AR2 = AR * AR;
+    for (let i = 0; i < s.count; i++) {
+      if (!s.alive[i]) continue;
+      const dx = s.ax[i] - sp.x, dy = s.ay[i] - sp.y;
+      const d2 = dx * dx + dy * dy;
+      if (d2 < AR2 && s.astate[i] === ST.SOLDIER) soldiersNear++;
+      if (d2 < KR2 && killsLeft > 0 && rng() < (s.astate[i] === ST.SOLDIER ? 0.10 : 0.16)) {
+        s.alive[i] = 0; s.freeList.push(i); s.antsDied++; killsLeft--;
+      }
+    }
+    sp.hp -= soldiersNear * 34 * dt;
+    if (sp.hp <= 0) { sp.alive = false; s.spidersKilled++; }
+  }
+}
+
+function diffuse(f, scratch, mix) {
+  for (let gy = 1; gy < GH - 1; gy++) {
+    for (let gx = 1; gx < GW - 1; gx++) {
+      const i = gy * GW + gx;
+      const n = (f[i - 1] + f[i + 1] + f[i - GW] + f[i + GW]) * 0.25;
+      scratch[i] = f[i] * (1 - mix) + n * mix;
+    }
+  }
+  f.set(scratch);
+}
+
+function antsAlive(s) {
+  return s.count - (s.freeList ? s.freeList.length : 0);
+}
+
+
+// ===== render.js =====
+// Rendering: soil, fields as luminous washes, ants as oriented sparks.
+
+
+
+function makeRenderer(canvas) {
+  const ctx = canvas.getContext('2d');
+  // pre-render soil background
+  const bg = document.createElement('canvas'); bg.width = W; bg.height = H;
+  const b = bg.getContext('2d');
+  b.fillStyle = '#0e0a07'; b.fillRect(0, 0, W, H);
+  let s = 12345;
+  const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 2600; i++) {
+    b.fillStyle = `rgba(${30 + r() * 26},${22 + r() * 18},${14 + r() * 12},${0.25 + r() * 0.3})`;
+    b.beginPath(); b.arc(r() * W, r() * H, 0.6 + r() * 2.2, 0, 7); b.fill();
+  }
+  // field overlay canvas (grid resolution, scaled up with smoothing)
+  const fc = document.createElement('canvas'); fc.width = GW; fc.height = GH;
+  const fctx = fc.getContext('2d');
+  const fimg = fctx.createImageData(GW, GH);
+
+  return { ctx, bg, fc, fctx, fimg };
+}
+
+function draw(R, sim, ui) {
+  const { ctx } = R;
+  const { world } = sim;
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.drawImage(R.bg, 0, 0);
+
+  // rocks
+  for (const rk of world.rocks) {
+    const g = ctx.createRadialGradient(rk.x - rk.r * 0.3, rk.y - rk.r * 0.4, rk.r * 0.1, rk.x, rk.y, rk.r);
+    g.addColorStop(0, '#3a3733'); g.addColorStop(1, '#191715');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(rk.x, rk.y, rk.r, 0, 7); ctx.fill();
+  }
+
+  // spider territory rings — the danger must be readable
+  for (const sp of world.spiders) {
+    if (!sp.alive) continue;
+    const pulse = sp.arrived && sim.time - sp.arrived < 4 ? (Math.sin(sim.time * 9) + 1) * 0.06 : 0;
+    ctx.fillStyle = `rgba(180,40,30,${0.045 + pulse})`;
+    ctx.beginPath(); ctx.arc(sp.hx, sp.hy, sp.tr, 0, 7); ctx.fill();
+    ctx.strokeStyle = `rgba(255,80,60,${0.22 + pulse * 2})`;
+    ctx.setLineDash([8, 10]); ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(sp.hx, sp.hy, sp.tr, 0, 7); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // fields → single RGBA image (additive feel via channel mixing)
+  const L = world.fields[F.LURE], Fe = world.fields[F.FEAR], Wr = world.fields[F.WAR], T = world.fields[F.TRAIL];
+  const d = R.fimg.data;
+  for (let i = 0, p = 0; i < L.length; i++, p += 4) {
+    const l = L[i], f = Fe[i], w = Wr[i], t = T[i];
+    // LURE cyan, FEAR violet, WAR red, TRAIL warm white
+    const rr = w * 235 + f * 120 + t * 150;
+    const gg = l * 190 + t * 170 + w * 40;
+    const bb = l * 170 + f * 235 + t * 120;
+    const a = Math.min(0.85, l * 0.55 + f * 0.5 + w * 0.6 + t * 0.75);
+    d[p] = Math.min(255, rr); d[p + 1] = Math.min(255, gg); d[p + 2] = Math.min(255, bb);
+    d[p + 3] = a * 255;
+  }
+  R.fctx.putImageData(R.fimg, 0, 0);
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(R.fc, 0, 0, GW, GH, 0, 0, W, H);
+  ctx.restore();
+
+  // food piles
+  for (const p of world.piles) {
+    if (p.amount <= 0) continue;
+    const rr = p.r * (0.35 + 0.65 * Math.min(1, p.amount / 600));
+    const g = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, rr);
+    g.addColorStop(0, '#ffe9a8'); g.addColorStop(0.55, '#e8a93d'); g.addColorStop(1, 'rgba(120,70,10,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, rr, 0, 7); ctx.fill();
+  }
+
+  // nest
+  {
+    const n = world.nest;
+    const g = ctx.createRadialGradient(n.x, n.y, 2, n.x, n.y, n.r + 26);
+    g.addColorStop(0, '#ffd9a0'); g.addColorStop(0.4, '#7a4b20'); g.addColorStop(1, 'rgba(40,22,8,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(n.x, n.y, n.r + 26, 0, 7); ctx.fill();
+  }
+
+  // ants — oriented 3px streaks, colored by role
+  ctx.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < sim.count; i++) {
+    if (!sim.alive[i]) continue;
+    const x = sim.ax[i], y = sim.ay[i], h = sim.ah[i];
+    const st = sim.astate[i];
+    ctx.strokeStyle = st === ST.SOLDIER ? 'rgba(255,96,80,0.95)'
+                    : sim.acarry[i]     ? 'rgba(255,205,110,0.95)'
+                                        : 'rgba(150,235,225,0.8)';
+    ctx.lineWidth = st === ST.SOLDIER ? 2.2 : 1.6;
+    ctx.beginPath();
+    ctx.moveTo(x - Math.cos(h) * 2.6, y - Math.sin(h) * 2.6);
+    ctx.lineTo(x + Math.cos(h) * 2.6, y + Math.sin(h) * 2.6);
+    ctx.stroke();
+  }
+  ctx.globalCompositeOperation = 'source-over';
+
+  // spiders
+  for (const sp of world.spiders) {
+    if (!sp.alive) continue;
+    ctx.save(); ctx.translate(sp.x, sp.y); ctx.rotate(sp.a);
+    ctx.strokeStyle = '#2b0f0c'; ctx.lineWidth = 2.4;
+    for (let k = 0; k < 4; k++) {
+      const a = (k / 4) * Math.PI - Math.PI / 2 + 0.35;
+      ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(a) * 16, Math.sin(a) * 16); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-Math.cos(a) * 16, Math.sin(a) * 16); ctx.stroke();
+    }
+    const g = ctx.createRadialGradient(0, 0, 1, 0, 0, 11);
+    g.addColorStop(0, '#6e1f18'); g.addColorStop(1, '#240b08');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, 10, 0, 7); ctx.fill();
+    ctx.restore();
+    // hp arc
+    ctx.strokeStyle = 'rgba(255,90,70,0.8)'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(sp.x, sp.y, 15, -Math.PI / 2, -Math.PI / 2 + (sp.hp / sp.maxhp) * Math.PI * 2); ctx.stroke();
+  }
+
+  // brush cursor + tool label
+  if (ui && ui.showBrush) {
+    const toolCol = ['rgba(89,227,210,0.8)', 'rgba(176,140,255,0.8)', 'rgba(255,106,94,0.8)'][ui.tool];
+    ctx.strokeStyle = toolCol;
+    ctx.setLineDash([6, 6]); ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(ui.mx, ui.my, ui.brush, 0, 7); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = toolCol;
+    ctx.font = 'bold 11px ui-monospace, monospace';
+    ctx.fillText(['LURE', 'FEAR', 'RALLY'][ui.tool], ui.mx + ui.brush * 0.72, ui.my - ui.brush * 0.72);
+  }
+}
+
+function hudText(sim, fps, SCEN) {
+  const left = Math.max(0, SCEN.timeLimit - sim.time);
+  const alive = antsAlive(sim);
+  const colonyWarn = alive < SCEN.colonyFloor * 1.4 ? ' style="color:#ff8a70"' : '';
+  const pct = Math.min(100, (sim.foodStock / SCEN.quota) * 100).toFixed(0);
+  return `HIVEMIND — the first season
+stores <b>${sim.foodStock.toFixed(0)} / ${SCEN.quota}</b> (${pct}%) · winter in <b>${left.toFixed(0)}s</b>
+colony <span${colonyWarn}>${alive}</span> (keep above ${SCEN.colonyFloor}) · fallen ${sim.antsDied} · hunters slain ${sim.spidersKilled}
+${fps} fps`;
+}
+
+function drawEndCard(ctx, s, SCEN) {
+  ctx.fillStyle = 'rgba(8,6,5,0.78)';
+  ctx.fillRect(0, 0, W, H);
+  ctx.textAlign = 'center';
+  ctx.fillStyle = s.won ? '#8ee6c2' : '#ff8a70';
+  ctx.font = 'bold 54px Georgia, serif';
+  ctx.fillText(s.won ? 'THE COLONY ENDURES' : 'THE COLONY FALLS', W / 2, 250);
+  ctx.fillStyle = '#e8e2d2'; ctx.font = '19px Georgia, serif';
+  ctx.fillText(s.reason || '', W / 2, 296);
+  ctx.font = '15px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(232,226,210,0.85)';
+  const lines = [
+    `stores ${s.foodStock} / ${SCEN.quota}   ·   gathered ${s.gathered}   ·   season lasted ${s.time}s`,
+    `colony ${s.colony}   ·   fallen ${s.died}   ·   hunters slain ${s.spidersSlain}`,
+  ];
+  lines.forEach((l, i) => ctx.fillText(l, W / 2, 345 + i * 26));
+  ctx.fillStyle = 'rgba(200,230,215,0.75)';
+  ctx.font = 'bold 15px ui-monospace, monospace';
+  ctx.fillText('[R] same season again      [N] new territory', W / 2, 430);
+  ctx.textAlign = 'left';
+}
+
+function drawTitle(ctx) {
+  ctx.fillStyle = 'rgba(8,6,5,0.68)';
+  ctx.fillRect(0, 0, W, H);
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#9fe8dc';
+  ctx.font = 'bold 64px Georgia, serif';
+  ctx.fillText('H I V E M I N D', W / 2, 268);
+  ctx.fillStyle = 'rgba(232,226,210,0.9)';
+  ctx.font = 'italic 21px Georgia, serif';
+  ctx.fillText('the colony is not yours to command — only to persuade', W / 2, 312);
+  ctx.font = '15px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(200,230,215,0.85)';
+  ctx.fillText('paint scent, not orders: [1] LURE roads · [2] FEAR walls · [3] RALLY warbands', W / 2, 380);
+  ctx.fillText('fill the winter stores before the season ends · keep the colony alive', W / 2, 406);
+  ctx.fillStyle = '#ffe9bd';
+  ctx.font = 'bold 17px ui-monospace, monospace';
+  ctx.fillText('— click to begin the first season —', W / 2, 470);
+  ctx.textAlign = 'left';
+}
+
+
+// ===== auto.js =====
+// Scripted painting strategies — the falsification harness.
+// Pre-registered hypothesis (PLAYTEST_LOG 2026-07-10): if SMART cannot beat
+// NAIVE by >=1.25x food with <=0.6x deaths on the same seed, the painting
+// verb is hollow (pointing would be as good as routing).
+
+
+function stampLine(field, x0, y0, x1, y1, r, s, spacing = 26) {
+  const dx = x1 - x0, dy = y1 - y0, len = Math.hypot(dx, dy);
+  const n = Math.max(1, Math.round(len / spacing));
+  for (let i = 0; i <= n; i++) stamp(field, x0 + (dx * i) / n, y0 + (dy * i) / n, r, s);
+}
+
+// naive player: paint a straight lure line from nest to the richest pile
+// (straight through spider territory) and a blob on the pile.
+function naive(sim) {
+  const { fields, nest, piles } = sim.world;
+  const rich = piles[0];
+  stampLine(fields[F.LURE], nest.x, nest.y, rich.x, rich.y, 34, 0.95);
+  stamp(fields[F.LURE], rich.x, rich.y, 90, 1.0);
+}
+
+// smart player: safe corridors around both spider territories to the two
+// unguarded piles, plus FEAR walls over spider ground.
+const BOTTOM = [[170, 360], [230, 560], [300, 662], [520, 680], [800, 680], [1010, 640], [1090, 560]];
+const TOP = [[170, 360], [220, 200], [300, 80], [520, 62], [720, 66], [900, 88], [1060, 120]];
+function smart(sim) {
+  const { fields, spiders } = sim.world;
+  for (const path of [BOTTOM, TOP]) {
+    for (let i = 0; i < path.length - 1; i++) {
+      stampLine(fields[F.LURE], path[i][0], path[i][1], path[i + 1][0], path[i + 1][1], 30, 0.9);
+    }
+  }
+  stamp(fields[F.LURE], 1090, 560, 60, 1.0);
+  stamp(fields[F.LURE], 1060, 120, 60, 1.0);
+  for (const sp of spiders) if (sp.alive) stamp(fields[F.FEAR], sp.hx, sp.hy, sp.tr + 30, 1.0);
+}
+
+// warband: same greedy route as naive, but first rallies the colony to
+// destroy the guarding spider — tests verb composition (RALLY + LURE).
+function warband(sim) {
+  const { fields, nest, piles, spiders } = sim.world;
+  const rich = piles[0];
+  const sp = spiders[0];
+  if (sp.alive) {
+    // feed soldiers toward the spider along a rally line
+    stampLine(fields[F.WAR], nest.x + 60, nest.y, sp.x, sp.y, 40, 1.0);
+    stamp(fields[F.WAR], sp.x, sp.y, 80, 1.0);
+    stampLine(fields[F.LURE], nest.x, nest.y, sp.x - 60, sp.y, 30, 0.7);
+  } else {
+    stampLine(fields[F.LURE], nest.x, nest.y, rich.x, rich.y, 34, 0.95);
+    stamp(fields[F.LURE], rich.x, rich.y, 90, 1.0);
+  }
+}
+
+// idle: paints nothing — the incompetence baseline the goal must punish
+function idle() {}
+
+// commander: the full-competence bot — clears the guard, harvests the rich
+// pile, roads out to the far piles, and rallies against every hunter that
+// threatens the nest approaches. If the scenario is winnable, this wins it.
+function commander(sim) {
+  const { fields, nest, piles, spiders } = sim.world;
+  const rich = piles[0];
+  // fight ONE battle at a time: nearest live hunter that matters — either
+  // pressing the nest approaches or guarding an unexhausted rich pile
+  const targets = spiders.filter((sp) => sp.alive &&
+    (Math.hypot(sp.hx - nest.x, sp.hy - nest.y) < 340 || (sp === spiders[0] && rich.amount > 0)));
+  targets.sort((p, q) => Math.hypot(p.x - nest.x, p.y - nest.y) - Math.hypot(q.x - nest.x, q.y - nest.y));
+  const threat = targets[0];
+  if (threat) {
+    // short approach line + strike blob: converts a warband, not the nation
+    const ang = Math.atan2(threat.y - nest.y, threat.x - nest.x);
+    const ax = threat.x - Math.cos(ang) * 150, ay = threat.y - Math.sin(ang) * 150;
+    stampLine(fields[F.LURE], nest.x, nest.y, ax, ay, 26, 0.8);   // march route
+    stampLine(fields[F.WAR], ax, ay, threat.x, threat.y, 44, 1.0); // conversion zone
+    stamp(fields[F.WAR], threat.x, threat.y, 90, 1.0);
+  }
+  if (!spiders[0].alive && rich.amount > 0) {
+    stampLine(fields[F.LURE], nest.x, nest.y, rich.x, rich.y, 34, 0.95);
+    stamp(fields[F.LURE], rich.x, rich.y, 70, 1.0);
+  }
+  // roads to the unguarded piles (bottom + top lanes)
+  for (const path of [BOTTOM, TOP]) {
+    for (let i = 0; i < path.length - 1; i++) {
+      stampLine(fields[F.LURE], path[i][0], path[i][1], path[i + 1][0], path[i + 1][1], 28, 0.85);
+    }
+  }
+  stamp(fields[F.LURE], 1090, 560, 55, 1.0);
+  stamp(fields[F.LURE], 1060, 120, 55, 1.0);
+}
+
+const STRATEGIES = { naive, smart, warband, idle, commander };
+
+function makeAutoPlayer(name, periodTicks = 240) {
+  const fn = STRATEGIES[name];
+  if (!fn) return null;
+  return (sim) => {
+    if (sim.tick % periodTicks === 1) fn(sim);
+  };
+}
+
+
+// ===== scenario.js =====
+// Scenario: goal structure, escalation, win/lose. "The First Season".
+// Tuned so that no single lazy verb wins: the quota (1100 net of ~2200 on
+// the map) requires the guarded rich pile AND the distant piles; the waves
+// march hunters onto the nest's doorstep and must be answered; the colony
+// starts small so the swarm itself must be grown from harvest.
+const SCENARIO = {
+  quota: 1200,            // foodStock to win — demands most of the map
+  timeLimit: 480,         // seconds
+  colonyFloor: 150,       // lose if colony falls below this after grace
+  graceTime: 30,
+  // waves trigger on PROGRESS, not clock — success summons the hunters
+  waves: [
+    { atStores: 300, x: 460, y: 470, tr: 110 },   // presses the bottom lane
+    { atStores: 700, x: 350, y: 430, tr: 110 },   // squeezes the nest approaches
+    { atStores: 1100, x: 250, y: 250, tr: 100 },  // at the doorstep
+  ],
+};
+
+function makeScenarioState() {
+  return { over: false, won: false, reason: '', wavesSpawned: 0, endStats: null };
+}
+
+function updateScenario(sc, sim, world) {
+  if (sc.over) return;
+  const alive = sim.count - (sim.freeList ? sim.freeList.length : 0);
+
+  // reinforcement waves — summoned by the colony's own success
+  while (sc.wavesSpawned < SCENARIO.waves.length && sim.foodStock >= SCENARIO.waves[sc.wavesSpawned].atStores) {
+    const w = SCENARIO.waves[sc.wavesSpawned];
+    world.spiders.push({
+      x: w.x, y: w.y, hx: w.x, hy: w.y, tr: w.tr,
+      hp: 260, maxhp: 260, a: world.rng() * 6.28, alive: true, arrived: sim.time,
+    });
+    sc.wavesSpawned++;
+  }
+
+  if (sim.foodStock >= SCENARIO.quota) {
+    sc.over = true; sc.won = true; sc.reason = 'The stockpile is full. The colony will outlive the winter.';
+  } else if (sim.time > SCENARIO.graceTime && alive < SCENARIO.colonyFloor) {
+    sc.over = true; sc.won = false; sc.reason = 'The colony dwindled below survival. The nest falls silent.';
+  } else if (sim.time >= SCENARIO.timeLimit) {
+    sc.over = true; sc.won = false; sc.reason = `Winter came. ${Math.round(sim.foodStock)} of ${SCENARIO.quota} stores gathered.`;
+  }
+
+  if (sc.over && !sc.endStats) {
+    sc.endStats = {
+      won: sc.won,
+      reason: sc.reason,
+      foodStock: Math.round(sim.foodStock),
+      gathered: sim.foodBanked,
+      died: sim.antsDied,
+      spidersSlain: sim.spidersKilled,
+      time: +sim.time.toFixed(1),
+      colony: alive,
+    };
+  }
+}
+
+
+// ===== onboarding.js =====
+// Contextual onboarding: one hint at a time, each dismissed by the player
+// actually DOING the thing. The core lesson is counterintuitive and must be
+// taught: ants smell only a few steps ahead — you build roads, not orders.
+
+
+function makeOnboarding() {
+  return { done: new Set(), lurePainted: 0, active: null };
+}
+
+const HINTS = [
+  {
+    id: 'paint-road',
+    when: (ob, sim) => sim.time > 3,
+    until: (ob) => ob.lurePainted > 260,
+    text: 'Hold LEFT MOUSE and paint a scent road from the nest toward food — start with the unguarded piles east.',
+    marker: (sim) => ({ from: sim.world.nest, to: { x: 1060, y: 120 } }),
+  },
+  {
+    id: 'road-continuity',
+    when: (ob, sim) => ob.done.has('paint-road') && sim.time > 10,
+    until: (ob, sim) => sim.foodBanked >= 12,
+    text: 'Ants smell only a few steps ahead. A road must be CONTINUOUS from nest to pile — extend it the whole way.',
+    marker: null,
+  },
+  {
+    id: 'rally',
+    when: (ob, sim) => sim.world.spiders.some((sp) => sp.alive && sim.time > 20),
+    until: (ob, sim) => sim.spidersKilled >= 1,
+    text: 'Hunters (red webs) eat your workers. Press [3] and paint RALLY on a hunter to raise a warband against it.',
+    marker: (sim) => {
+      const sp = sim.world.spiders.find((s) => s.alive);
+      return sp ? { at: { x: sp.hx, y: sp.hy } } : null;
+    },
+  },
+  {
+    id: 'parallel-roads',
+    when: (ob, sim) => sim.foodBanked > 150,
+    until: (ob, sim) => {
+      const active = sim.world.piles.filter((p) => (p.taken || 0) > 60).length;
+      return active >= 2;
+    },
+    text: 'Each pile yields only so fast — one road can starve while the map is rich. Run SEVERAL roads at once.',
+    marker: null,
+  },
+  {
+    id: 'fear',
+    when: (ob, sim) => sim.antsDied > 260,
+    until: (ob, sim) => ob.fearPainted > 120,
+    text: 'Workers are wandering to their deaths. Press [2] and paint FEAR over danger to wall them away from it.',
+    marker: null,
+  },
+];
+
+function updateOnboarding(ob, sim, ui) {
+  // track painting for completion conditions
+  if (ui.painting === 1) {
+    if (ui.tool === 0) ob.lurePainted++;
+    if (ui.tool === 1) ob.fearPainted = (ob.fearPainted || 0) + 1;
+  }
+  ob.active = null;
+  for (const h of HINTS) {
+    if (ob.done.has(h.id)) continue;
+    if (!h.when(ob, sim)) continue;
+    if (h.until(ob, sim)) { ob.done.add(h.id); continue; }
+    ob.active = h;
+    break;
+  }
+}
+
+function drawOnboarding(ctx, ob, sim, W, H) {
+  const h = ob.active;
+  if (!h) return;
+  // guidance banner
+  ctx.save();
+  ctx.textAlign = 'center';
+  ctx.font = '15px Georgia, serif';
+  const text = h.text;
+  const tw = ctx.measureText(text).width + 44;
+  ctx.fillStyle = 'rgba(10,8,6,0.78)';
+  ctx.fillRect((W - tw) / 2, H - 64, tw, 38);
+  ctx.strokeStyle = 'rgba(255,210,125,0.45)';
+  ctx.strokeRect((W - tw) / 2 + 0.5, H - 63.5, tw, 38);
+  ctx.fillStyle = '#ffe9bd';
+  ctx.fillText(text, W / 2, H - 40);
+  // marker
+  const m = h.marker && h.marker(sim);
+  if (m) {
+    const pulse = (Math.sin(sim.time * 5) + 1) / 2;
+    ctx.strokeStyle = `rgba(255,220,140,${0.35 + pulse * 0.4})`;
+    ctx.lineWidth = 2;
+    if (m.at) {
+      ctx.beginPath(); ctx.arc(m.at.x, m.at.y, 30 + pulse * 10, 0, 7); ctx.stroke();
+    } else if (m.from && m.to) {
+      // dotted guide from nest toward the suggested target
+      const dx = m.to.x - m.from.x, dy = m.to.y - m.from.y, L = Math.hypot(dx, dy);
+      const n = 14;
+      for (let i = 1; i <= n; i++) {
+        const t = i / n;
+        ctx.globalAlpha = 0.25 + 0.5 * pulse * (1 - Math.abs(t - pulse));
+        ctx.beginPath();
+        ctx.arc(m.from.x + dx * t, m.from.y + dy * t - Math.sin(t * Math.PI) * 40, 3, 0, 7);
+        ctx.fillStyle = '#ffe9bd'; ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+  }
+  ctx.restore();
+}
+
+
+// ===== main.js =====
+// HIVEMIND — winner development build. Boot, loop, input, scenario, instrumentation.
+
+
+
+
+
+
+
+const q = new URLSearchParams(location.search);
+const seed = parseInt(q.get('seed') || '7', 10);
+const fast = parseInt(q.get('fast') || '0', 10);        // sim ticks per frame (0 = realtime)
+const stopTicks = parseInt(q.get('ticks') || '0', 10);  // hard stop after N ticks (harness)
+const autoName = q.get('auto');
+
+const canvas = document.getElementById('cv');
+const hud = document.getElementById('hud');
+const world = makeWorld(seed);
+const sim = makeSim(world);
+const R = makeRenderer(canvas);
+const auto = autoName ? makeAutoPlayer(autoName) : null;
+const sc = makeScenarioState();
+const ob = makeOnboarding();
+
+const ui = { tool: 0, brush: 42, mx: 0, my: 0, painting: 0, showBrush: !auto, paused: false, started: !!(auto || fast) };
+const PLAYER_FIELDS = [F.LURE, F.FEAR, F.WAR];
+
+// --- input ---
+function canvasPos(e) {
+  const r = canvas.getBoundingClientRect();
+  return [(e.clientX - r.left) * (W / r.width), (e.clientY - r.top) * (H / r.height)];
+}
+canvas.addEventListener('mousemove', (e) => { [ui.mx, ui.my] = canvasPos(e); });
+canvas.addEventListener('mousedown', (e) => {
+  if (!ui.started) { ui.started = true; return; }
+  ui.painting = e.button === 2 ? 2 : 1;
+});
+window.addEventListener('mouseup', () => { ui.painting = 0; });
+canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+canvas.addEventListener('wheel', (e) => {
+  ui.brush = Math.max(14, Math.min(120, ui.brush - Math.sign(e.deltaY) * 8));
+  e.preventDefault();
+}, { passive: false });
+window.addEventListener('keydown', (e) => {
+  if (e.key === '1') ui.tool = 0;
+  if (e.key === '2') ui.tool = 1;
+  if (e.key === '3') ui.tool = 2;
+  if (e.key === 'p' || e.key === 'P') ui.paused = !ui.paused;
+  if (sc.over) {
+    if (e.key === 'r' || e.key === 'R') location.search = `?seed=${seed}`;
+    if (e.key === 'n' || e.key === 'N') location.search = `?seed=${(Math.random() * 100000) | 0}`;
+  }
+});
+
+// --- instrumentation ---
+const DT = 1 / 60;
+let frames = 0, lastFpsT = performance.now(), fps = 0;
+let simMsTotal = 0, simTicksTotal = 0;
+window.__SIM = sim;
+window.__SC = sc;
+window.__OB = ob;
+window.__DONE = false;
+
+function finish() {
+  window.__DONE = true;
+  window.__RESULTS = {
+    strategy: autoName || 'human', seed,
+    ...sc.endStats,
+    piles: world.piles.map((p) => ({ label: p.label, left: Math.max(0, p.amount), taken: p.taken || 0 })),
+    msPerTick: +(simMsTotal / Math.max(1, simTicksTotal)).toFixed(3),
+  };
+}
+
+function tickOnce() {
+  if (ui.painting === 1) stamp(world.fields[PLAYER_FIELDS[ui.tool]], ui.mx, ui.my, ui.brush, 1.0);
+  if (ui.painting === 2) erase(world.fields, ui.mx, ui.my, ui.brush);
+  if (auto) auto(sim);
+  const t0 = performance.now();
+  step(sim, DT);
+  updateScenario(sc, sim, world);
+  if (!auto) updateOnboarding(ob, sim, ui);
+  simMsTotal += performance.now() - t0; simTicksTotal++;
+  if (sc.over && !window.__DONE) finish();
+  if (stopTicks && sim.tick >= stopTicks && !window.__DONE) {
+    sc.endStats = sc.endStats || {
+      won: false, foodStock: Math.round(sim.foodStock), gathered: sim.foodBanked,
+      died: sim.antsDied, spidersSlain: sim.spidersKilled, time: +sim.time.toFixed(1),
+      colony: antsAlive(sim),
+    };
+    finish();
+  }
+}
+
+function frame() {
+  if (!ui.paused && !sc.over && ui.started) {
+    const n = fast > 0 ? fast : 1;
+    for (let i = 0; i < n; i++) { tickOnce(); if (sc.over || window.__DONE) break; }
+  }
+  draw(R, sim, ui);
+  if (!ui.started) drawTitle(R.ctx);
+  if (!auto && !sc.over && ui.started) drawOnboarding(R.ctx, ob, sim, W, H);
+  if (sc.over && sc.endStats) drawEndCard(R.ctx, sc.endStats, SCENARIO);
+  frames++;
+  const now = performance.now();
+  if (now - lastFpsT > 500) {
+    fps = Math.round((frames * 1000) / (now - lastFpsT));
+    frames = 0; lastFpsT = now;
+    hud.innerHTML = hudText(sim, fps, SCENARIO) + (auto ? `<br>auto: <b>${autoName}</b>` : '');
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+
+</script>
+</body>
+</html>

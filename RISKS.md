@@ -1,13 +1,16 @@
 # RISKS
 
-Live register. Update status as evidence arrives; add game-specific design,
-production, market and legal risks as soon as they are known.
+Live register. Update status as evidence arrives. Severity: high/med/low.
 
 | Risk | Class | Severity | Status | Mitigation / test |
 |---|---|---|---|---|
-| AI judgment gets treated as market validation | process | high | open | Evidence classes enforced everywhere; morning report separates proven vs assumed |
-| Overlapping autonomous sessions make competing writes | process | medium | mitigated | `HEARTBEAT.md` lock; never force-push; push early and often |
-| Headless remote environment limits engine choice, running and capture | production | medium | open | Verify a candidate technology builds AND runs here before adopting it |
-| Unknown-licence or ripped assets contaminate the project | legal | high | mitigated | `THIRD_PARTY_ASSETS.md` entry required before any asset is committed |
-| Concept chosen from written analysis alone proves hollow in play | design | high | open | Dual prototypes and implementation-evidence comparison (Stages 4–5) |
-| Sessions declare victory early and stop producing | process | medium | open | Protocol: one feature/build/playtest ≠ done; continue while runtime remains |
+| Humans bounce off indirect control ("ants won't obey") | design | high | OPEN — top risk | Onboarding built; NEXT: 5-10 human playtests of single-file build; kill-signal defined in MORNING_REPORT |
+| Depth claims rest on ONE handcrafted map | design | high | open | Map generator with solvability guarantees + bot-winnable verification across seeds (BACKLOG Now #1) |
+| AI judgment treated as market validation | process | high | mitigated | Evidence classes enforced; report separates proven vs assumed; no wishlist data claimed |
+| Programmer-art ceiling caps marketability | production | med | open | Art-direction spike before any marketing beat (report condition #3) |
+| Automatic colony growth removes a core economic choice | design | med | open | Brood throttle verb planned (BACKLOG Now #2); economics quantified in PLAYTEST_LOG |
+| Human playtesting impossible from this environment | process | med | open | Founder-run playtests of zero-install build; results feed PLAYTEST_LOG |
+| Steam packaging of web tech (wrapper, perf, cert) | production | low-med | open | Known paths (Electron/Tauri/port); decide after playtests pass |
+| Overlapping autonomous sessions corrupt state | process | med | mitigated (worked in practice) | HEARTBEAT.md lock; never force-push; push early |
+| Unknown-licence assets contaminate project | legal | high | mitigated | Zero third-party runtime assets so far; THIRD_PARTY_ASSETS.md gate stands |
+| Concept chosen from analysis alone proves hollow | design | high | CLOSED | Dual prototypes + falsification tests done (Stages 4-5) |

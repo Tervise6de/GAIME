@@ -165,3 +165,23 @@ export function drawEndCard(ctx, s, SCEN) {
   ctx.fillText('[R] same season again      [N] new territory', W / 2, 430);
   ctx.textAlign = 'left';
 }
+
+export function drawTitle(ctx) {
+  ctx.fillStyle = 'rgba(8,6,5,0.68)';
+  ctx.fillRect(0, 0, W, H);
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#9fe8dc';
+  ctx.font = 'bold 64px Georgia, serif';
+  ctx.fillText('H I V E M I N D', W / 2, 268);
+  ctx.fillStyle = 'rgba(232,226,210,0.9)';
+  ctx.font = 'italic 21px Georgia, serif';
+  ctx.fillText('the colony is not yours to command — only to persuade', W / 2, 312);
+  ctx.font = '15px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(200,230,215,0.85)';
+  ctx.fillText('paint scent, not orders: [1] LURE roads · [2] FEAR walls · [3] RALLY warbands', W / 2, 380);
+  ctx.fillText('fill the winter stores before the season ends · keep the colony alive', W / 2, 406);
+  ctx.fillStyle = '#ffe9bd';
+  ctx.font = 'bold 17px ui-monospace, monospace';
+  ctx.fillText('— click to begin the first season —', W / 2, 470);
+  ctx.textAlign = 'left';
+}

@@ -1,7 +1,7 @@
 // HIVEMIND — winner development build. Boot, loop, input, scenario, instrumentation.
 import { W, H, F, makeWorld, stamp, erase } from './world.js';
 import { makeSim, step, antsAlive } from './sim.js';
-import { makeRenderer, draw, hudText, drawEndCard } from './render.js';
+import { makeRenderer, draw, hudText, drawEndCard, drawTitle } from './render.js';
 import { makeAutoPlayer } from './auto.js';
 import { SCENARIO, makeScenarioState, updateScenario } from './scenario.js';
 import { makeOnboarding, updateOnboarding, drawOnboarding } from './onboarding.js';
@@ -21,7 +21,7 @@ const auto = autoName ? makeAutoPlayer(autoName) : null;
 const sc = makeScenarioState();
 const ob = makeOnboarding();
 
-const ui = { tool: 0, brush: 42, mx: 0, my: 0, painting: 0, showBrush: !auto, paused: false };
+const ui = { tool: 0, brush: 42, mx: 0, my: 0, painting: 0, showBrush: !auto, paused: false, started: !!(auto || fast) };
 const PLAYER_FIELDS = [F.LURE, F.FEAR, F.WAR];
 
 // --- input ---
@@ -30,7 +30,10 @@ function canvasPos(e) {
   return [(e.clientX - r.left) * (W / r.width), (e.clientY - r.top) * (H / r.height)];
 }
 canvas.addEventListener('mousemove', (e) => { [ui.mx, ui.my] = canvasPos(e); });
-canvas.addEventListener('mousedown', (e) => { ui.painting = e.button === 2 ? 2 : 1; });
+canvas.addEventListener('mousedown', (e) => {
+  if (!ui.started) { ui.started = true; return; }
+  ui.painting = e.button === 2 ? 2 : 1;
+});
 window.addEventListener('mouseup', () => { ui.painting = 0; });
 canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 canvas.addEventListener('wheel', (e) => {
@@ -88,12 +91,13 @@ function tickOnce() {
 }
 
 function frame() {
-  if (!ui.paused && !sc.over) {
+  if (!ui.paused && !sc.over && ui.started) {
     const n = fast > 0 ? fast : 1;
     for (let i = 0; i < n; i++) { tickOnce(); if (sc.over || window.__DONE) break; }
   }
   draw(R, sim, ui);
-  if (!auto && !sc.over) drawOnboarding(R.ctx, ob, sim, W, H);
+  if (!ui.started) drawTitle(R.ctx);
+  if (!auto && !sc.over && ui.started) drawOnboarding(R.ctx, ob, sim, W, H);
   if (sc.over && sc.endStats) drawEndCard(R.ctx, sc.endStats, SCENARIO);
   frames++;
   const now = performance.now();
