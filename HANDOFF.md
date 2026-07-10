@@ -51,6 +51,6 @@ snapshot, not an accumulating history — history lives in git.
 3. Prepare a real-audience DEMAND test (capsule + one-line pitch + storm-front
    clip) — the dominant open risk; it needs actual humans, not AI judgment.
 
-- **Last known good commit:** the Stage-6 commit that adds this HANDOFF (sensor
-  placement wired into the playable build; both prototypes runnable, harnesses
-  green). Previous good commit: 0947a3e.
+- **Last known good commit:** 41fecac (playable 3-day outlook + sensor
+  placement; both prototypes runnable; season/placement/leadtime harnesses
+  green; verified end-to-end via Playwright).

@@ -20,8 +20,9 @@ snapshot — detail belongs in the logs and in git history.
   EXPERT-FALLIBLE once the player must choose WHERE to place a limited sensor
   budget (verb currently stubbed as fixed lookouts). And the dominant open
   risk: DEMAND for a forecasting game is UNKNOWN.
-- **Last known good commit:** 1477af5 (sensor placement wired into the playable
-  build; both prototypes runnable, harnesses green).
+- **Last known good commit:** 41fecac (playable 3-day outlook + sensor
+  placement; both prototypes runnable, all harnesses green, verified via
+  Playwright end-to-end).
 - **Current build status:** runnable. Serve repo root and open the prototype
   (see HANDOFF for exact commands). Harnesses: `node tools/season.mjs`,
   `node tools/placement.mjs`.
