@@ -2,6 +2,7 @@
   "name": "gaime",
   "version": "1.0.0",
   "description": "GAIME is an experiment in autonomous game development: fresh Claude Code sessions run overnight to discover, compare, prototype and begin developing a commercially credible PC game intended for Steam. The goal is not to ship the smallest finished game — it is to find out whether a distinctive, compelling, potentially marketable concept exists and deserves continued investment.",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
