@@ -120,12 +120,16 @@ export function draw(R, sim, ui) {
     ctx.beginPath(); ctx.arc(sp.x, sp.y, 15, -Math.PI / 2, -Math.PI / 2 + (sp.hp / sp.maxhp) * Math.PI * 2); ctx.stroke();
   }
 
-  // brush cursor
+  // brush cursor + tool label
   if (ui && ui.showBrush) {
-    ctx.strokeStyle = ['rgba(89,227,210,0.7)', 'rgba(176,140,255,0.7)', 'rgba(255,106,94,0.7)'][ui.tool];
+    const toolCol = ['rgba(89,227,210,0.8)', 'rgba(176,140,255,0.8)', 'rgba(255,106,94,0.8)'][ui.tool];
+    ctx.strokeStyle = toolCol;
     ctx.setLineDash([6, 6]); ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.arc(ui.mx, ui.my, ui.brush, 0, 7); ctx.stroke();
     ctx.setLineDash([]);
+    ctx.fillStyle = toolCol;
+    ctx.font = 'bold 11px ui-monospace, monospace';
+    ctx.fillText(['LURE', 'FEAR', 'RALLY'][ui.tool], ui.mx + ui.brush * 0.72, ui.my - ui.brush * 0.72);
   }
 }
 

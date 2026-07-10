@@ -4,6 +4,7 @@ import { makeSim, step, antsAlive } from './sim.js';
 import { makeRenderer, draw, hudText, drawEndCard } from './render.js';
 import { makeAutoPlayer } from './auto.js';
 import { SCENARIO, makeScenarioState, updateScenario } from './scenario.js';
+import { makeOnboarding, updateOnboarding, drawOnboarding } from './onboarding.js';
 
 const q = new URLSearchParams(location.search);
 const seed = parseInt(q.get('seed') || '7', 10);
@@ -18,6 +19,7 @@ const sim = makeSim(world);
 const R = makeRenderer(canvas);
 const auto = autoName ? makeAutoPlayer(autoName) : null;
 const sc = makeScenarioState();
+const ob = makeOnboarding();
 
 const ui = { tool: 0, brush: 42, mx: 0, my: 0, painting: 0, showBrush: !auto, paused: false };
 const PLAYER_FIELDS = [F.LURE, F.FEAR, F.WAR];
@@ -52,6 +54,7 @@ let frames = 0, lastFpsT = performance.now(), fps = 0;
 let simMsTotal = 0, simTicksTotal = 0;
 window.__SIM = sim;
 window.__SC = sc;
+window.__OB = ob;
 window.__DONE = false;
 
 function finish() {
@@ -71,6 +74,7 @@ function tickOnce() {
   const t0 = performance.now();
   step(sim, DT);
   updateScenario(sc, sim, world);
+  if (!auto) updateOnboarding(ob, sim, ui);
   simMsTotal += performance.now() - t0; simTicksTotal++;
   if (sc.over && !window.__DONE) finish();
   if (stopTicks && sim.tick >= stopTicks && !window.__DONE) {
@@ -89,6 +93,7 @@ function frame() {
     for (let i = 0; i < n; i++) { tickOnce(); if (sc.over || window.__DONE) break; }
   }
   draw(R, sim, ui);
+  if (!auto && !sc.over) drawOnboarding(R.ctx, ob, sim, W, H);
   if (sc.over && sc.endStats) drawEndCard(R.ctx, sc.endStats, SCENARIO);
   frames++;
   const now = performance.now();

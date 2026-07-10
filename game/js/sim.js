@@ -87,11 +87,13 @@ export function step(s, dt) {
     else if (state === ST.SOLDIER && warHere < 0.05) { s.astate[i] = ST.FORAGE; soldiers--; }
 
     if (s.astate[i] === ST.RETURN) {
-      // descend home-distance; deposit trail
+      // descend home-distance; deposit trail. FEAR inflates perceived
+      // distance so players can wall the way home away from danger.
       let best = -1, bestD = 1e18;
       for (const da of [-SENSE_A, 0, SENSE_A]) {
         const sx = x + Math.cos(h + da) * SENSE_D, sy = y + Math.sin(h + da) * SENSE_D;
-        const d = homeDist[idxAt(sx, sy)] + rng() * 0.4;
+        const si = idxAt(sx, sy);
+        const d = homeDist[si] + fields[F.FEAR][si] * 30 + rng() * 0.4;
         if (d < bestD) { bestD = d; best = da; }
       }
       h += Math.sign(best) * Math.min(TURN, Math.abs(best)) + (rng() - 0.5) * 0.12;
