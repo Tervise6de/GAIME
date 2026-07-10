@@ -244,3 +244,30 @@ DECISION_LOG 2026-07-10.
   tradeoff is now expressible but its optimum isn't yet auto-verified in-UI.
 - Action taken: committed. The playable core loop now layers placement +
   multi-day forecasting — a vertical-slice-shaped loop, not just a toy.
+
+## 2026-07-10 ~21:30 UTC — Stage 6: the near/far placement tradeoff is genuine
+- Hypothesis / what was tested: does sensor placement pose a REAL tradeoff, or
+  is it a single dominant "put them upwind" answer? Scored placed-sensor
+  forecasts PER LEAD for three placements: nearCluster (all ~1 day upwind),
+  farReach (spanning 1/2/3 days), allFar (all ~3 days upwind).
+- How it was run: tools/tradeoff.mjs, 5 seeds x 90-day seasons, no browser.
+  Per-lead forecast = read the sensor nearest the L-day-upwind point (barometer
+  fallback if none within range), scored vs weather L days later.
+- Observed result (facts, Brier (acc%) per lead):
+    placement     +1d           +2d           +3d
+    nearCluster   0.217 (90%)   0.521 (65%)   0.667 (49%)
+    farReach      0.214 (90%)   0.354 (82%)   0.499 (70%)
+    allFar        0.550 (65%)   0.412 (79%)   0.450 (77%)
+  Best at +1d = farReach; +2d = farReach; +3d = allFar. The tradeoff is REAL:
+  allFar wins the +3d outlook (0.450) but is WORSE THAN PERSISTENCE at tomorrow
+  (65% acc — the near air has already blown past the far sensors); nearCluster
+  is great at tomorrow and collapses at range. Over-committing to long-range
+  warning leaves you blind to tomorrow — a punishing, learnable mistake.
+- Evidence class: VERIFIED FACT (this sim/seeds/rules).
+- Weaknesses found: farReach (spanning) is a strong general answer, so the
+  decision is "specialize for long-lead warning vs. hedge" rather than a hard
+  rock-paper-scissors; a sensor budget/economy would sharpen it (can't afford
+  to cover every lead). That is the next build item.
+- Action taken: committed tools/tradeoff.mjs. Placement is confirmed a genuine
+  decision with non-trivial per-lead tradeoffs — the metagame the playable loop
+  now exposes is real, not decorative.
