@@ -73,3 +73,33 @@ Entry template:
   MEASURE and SCREENSHOT real behaviour — the protocol's core loop.
 - Reversibility: prototypes are disposable by design; tech re-evaluated at
   WINNER_DEVELOPMENT and VERTICAL_SLICE.
+
+## 2026-07-10 — Prototype winner: STORMWARDEN (C02); HIVEMIND (C01) fallback
+- Stage: PROTOTYPE_COMPARISON (Stage 5)
+- Decision: Select C02 STORMWARDEN as the winner to develop in Stage 6.
+  Preserve C01 HIVEMIND as the fallback (kept runnable at prototypes/hivemind,
+  last exercised @ c7f1bca).
+- Alternatives considered: continue HIVEMIND (better-evidenced audience,
+  higher visual/responsiveness ceiling). Rejected as the winner — not on taste
+  but on implementation evidence: HIVEMIND's pre-registered falsification test
+  FAILED on its own metric and its verb only showed value after an in-run
+  economy reframing, with a naive strategy still competitive; STORMWARDEN's
+  hardest-assumption test PASSED cleanly and decisively (Brier Skill Score
+  +0.628, +25pts accuracy vs the persistence null, 5 seeds, no redefinition),
+  with the skill landing exactly on the storm-warning stakes.
+- Evidence class: prototype comparison numbers are VERIFIED FACT (ran both).
+  HIVEMIND's audience advantage is a STRONG PROXY (EotU sales/reviews), NOT
+  validation of THIS game. STORMWARDEN's market demand is UNKNOWN. The winner
+  choice itself is CREATIVE JUDGMENT constrained by the Stage-5 criteria, which
+  weight "is the central promise present in play" — where STORMWARDEN is ahead.
+- Why: Stage 5 selects on implementation evidence and the eight prototype
+  criteria (promise-in-play, meaningful decisions, clarity, depth, repeatability,
+  visual communication, production burden). STORMWARDEN leads five, HIVEMIND two,
+  one even. Lower production/technical risk and a sharper one-line hook
+  ("Papers, Please but you're a frontier weather forecaster") reinforce it.
+- Reversibility / exit condition: STORMWARDEN's dominant unresolved risk is
+  DEMAND (unknown), not the core loop. If a cheap real-audience demand signal
+  (Steam capsule / wishlist / short clip test with actual humans) comes back
+  weak, PIVOT to the preserved HIVEMIND, whose audience is already evidenced.
+  Secondary exit: if Stage-6 work cannot keep expert play fallible (skill
+  ceiling proves too shallow once sensors are placed), reassess.

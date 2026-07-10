@@ -92,3 +92,53 @@ Entry template:
 - Action taken: prototype kept and committed. Proceed to Stage 5 comparison,
   then Stage 6 targets weakness (2)/(1): a real sensor-placement decision and
   a deeper, fallible skill gradient.
+
+## 2026-07-10 ~20:25 UTC — Stage 5 comparison: HIVEMIND vs STORMWARDEN
+Both prototypes built and exercised (HIVEMIND @ c7f1bca; STORMWARDEN @ 67c63ab).
+Compared on the protocol's eight Stage-5 criteria using IMPLEMENTATION evidence
+only. Score: + favours that prototype, ~ even.
+
+- Central promise present in play (the decisive criterion):
+    STORMWARDEN +  — its hardest assumption (a learnable skill gradient beating
+    the naive null) PASSED cleanly, pre-registered, across 5 seeds, first tuned
+    run, no metric redefinition. HIVEMIND ~ — its pre-registered throughput
+    claim FAILED; the verb only showed value after an in-run brood-economy
+    reframing (then routing → 4.5x colony), and a naive "warband" still matches
+    throughput. Real but messier, conditional evidence. [VERIFIED FACT both]
+- Meaningful decisions: STORMWARDEN + — each forecast is a crisp judgment with
+    a consequence (Brier + lives). HIVEMIND ~ — decisions exist but are muddied
+    by legibility gaps (invisible spider territory, no long-range lure).
+- Clarity / onboarding: STORMWARDEN + — read instruments → call tomorrow.
+    HIVEMIND − — indirect field-painting reads as "mushy"; players must build
+    roads not point (per its own playtest weaknesses).
+- Responsiveness / game feel: HIVEMIND + — thousands of agents reacting to a
+    brushstroke is tactile and immediate. STORMWARDEN ~ — turn-based daily loop,
+    satisfying-reveal but not kinetic. [CREATIVE JUDGMENT]
+- Visual communication: HIVEMIND + (spectacle ceiling: swarm rivers, mass
+    battles) vs STORMWARDEN + (a legible weather map with a violet storm front
+    visibly bearing down on the town — see media/proto/sw_front|storm.png).
+    Both screenshot-strong; call it ~, HIVEMIND slightly higher ceiling.
+- Depth potential: ~ even. HIVEMIND: emergent ecology, species, scenarios.
+    STORMWARDEN: sensor-budget economy, seasons/regions, multi-day forecasts,
+    townsfolk stakes. Both have credible content axes.
+- Repeatability: STORMWARDEN + — deterministic seeded seasons, trivially
+    reproducible (node harness). HIVEMIND + — also seeded/deterministic. ~.
+- Production burden: STORMWARDEN + — a systemic sim + UI; no swarm-scale perf
+    or cross-biome AI-legibility problem. HIVEMIND − — perf at 3200+ agents
+    (measured ~1ms/tick, OK now) plus AI legibility across many biomes is the
+    stated hard production risk.
+
+Tally: STORMWARDEN leads on central-promise, decisions, clarity, repeatability,
+production burden; HIVEMIND leads on responsiveness and visual ceiling; depth
+even. The criteria Stage 5 weighs most (is the promise actually in play?
+meaningful decisions? clarity? feasible to build?) favour STORMWARDEN.
+
+The one axis HIVEMIND clearly wins is OUTSIDE these eight: audience demand —
+Empires of the Undergrowth (~16.8k reviews, Overwhelmingly Positive) is a
+STRONG PROXY that HIVEMIND's audience exists, while STORMWARDEN's demand is
+UNKNOWN (near-empty niche). Protocol forbids treating that proxy as validation,
+and demand is carried forward as STORMWARDEN's #1 Stage-6 risk.
+
+Decision: WINNER = STORMWARDEN; FALLBACK = HIVEMIND (preserved, genuinely
+strong — the pivot target if a demand test comes back weak). Logged in
+DECISION_LOG 2026-07-10.
