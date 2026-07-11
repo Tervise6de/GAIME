@@ -137,3 +137,21 @@ Entry template:
 - Follow-ups: normalize difficulty across the pool (oracle win-times span
   148-466s); optionally grow the pool; a real in-generation winnability
   estimator remains open research (would need a fast sim-lite proxy).
+
+## 2026-07-11 — Defer the brood-throttle verb (not start it this session)
+- Decision: do NOT begin the brood-throttle ("grow vs bank") economy verb in
+  overnight-2, despite it being the top remaining depth lever (BACKLOG Now #2).
+- Reasoning: (1) it changes the core spawn/food economy, which would
+  invalidate the 95-seed winnability certification just established — every
+  change needs a full re-sweep + re-certify (~30+ min) to restore a trustworthy
+  pool; (2) its actual value is the FELT quality of the grow-vs-bank tradeoff,
+  which is human-dependent and cannot be validated in this environment; (3)
+  starting it with uncertain remaining runtime risks ending on an unbalanced,
+  uncertified, half-built state — worse than a clean verified milestone.
+- What was done instead (all certification-neutral, fully verified): widened
+  winnability evidence to 95/100 and grew the certified/CORE pools; shipped the
+  juice + procedural audio + mute; refreshed report media; polished the title
+  controls. All green, all pushed.
+- Next session: implement brood-throttle ADDITIVELY (default-off so the bot —
+  and thus certification — is unaffected unless a human uses it), then re-run
+  win_sweep and re-certify seeds.js. Keep base economy untouched.
