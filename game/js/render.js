@@ -2,6 +2,7 @@
 import { W, H, CELL, GW, GH, F } from './world.js';
 import { ST, antsAlive } from './sim.js';
 import { sfxDelivery, sfxSpiderDeath } from './audio.js';
+import { SCENARIO } from './scenario.js';
 
 export function makeRenderer(canvas, world) {
   const ctx = canvas.getContext('2d');
@@ -273,9 +274,17 @@ export function hudText(sim, fps, SCEN) {
   const left = Math.max(0, SCEN.timeLimit - sim.time);
   const alive = antsAlive(sim);
   const colonyWarn = alive < SCEN.colonyFloor * 1.4 ? ' style="color:#ff8a70"' : '';
-  const pct = Math.min(100, (sim.foodStock / SCEN.quota) * 100).toFixed(0);
-  return `HIVEMIND — the first season
-stores <b>${sim.foodStock.toFixed(0)} / ${SCEN.quota}</b> (${pct}%) · winter in <b>${left.toFixed(0)}s</b>
+  let goalLine;
+  if (SCEN.type === 'endure') {
+    const upkeep = alive * SCEN.upkeep * Math.min(1, sim.time / SCEN.upkeepRampT);
+    const starving = sim.foodStock < SCEN.reserve;
+    goalLine = `stores <b${starving ? ' style="color:#ff8a70"' : ''}>${sim.foodStock.toFixed(0)}</b> (rains must find ${SCEN.reserve}) · rains in <b>${left.toFixed(0)}s</b> · colony eats ${upkeep.toFixed(1)}/s`;
+  } else {
+    const pct = Math.min(100, (sim.foodStock / SCEN.quota) * 100).toFixed(0);
+    goalLine = `stores <b>${sim.foodStock.toFixed(0)} / ${SCEN.quota}</b> (${pct}%) · winter in <b>${left.toFixed(0)}s</b>`;
+  }
+  return `HIVEMIND — ${SCEN.name}
+${goalLine}
 colony <span${colonyWarn}>${alive}</span> (keep above ${SCEN.colonyFloor})${sim.broodHeld ? ' · <span style="color:#c9a0ff">brood held</span>' : ''} · fallen ${sim.antsDied} · hunters slain ${sim.spidersKilled}
 ${fps} fps`;
 }
@@ -291,14 +300,15 @@ export function drawEndCard(ctx, s, SCEN) {
   ctx.fillText(s.reason || '', W / 2, 296);
   ctx.font = '15px ui-monospace, monospace';
   ctx.fillStyle = 'rgba(232,226,210,0.85)';
+  const goal = SCEN.type === 'endure' ? `stores ${s.foodStock} (rains ask ${SCEN.reserve})` : `stores ${s.foodStock} / ${SCEN.quota}`;
   const lines = [
-    `stores ${s.foodStock} / ${SCEN.quota}   ·   gathered ${s.gathered}   ·   spent on brood ${s.broodSpent ?? 0}   ·   season lasted ${s.time}s`,
+    `${goal}   ·   gathered ${s.gathered}   ·   spent on brood ${s.broodSpent ?? 0}   ·   lasted ${s.time}s`,
     `colony ${s.colony}   ·   fallen ${s.died}   ·   hunters slain ${s.spidersSlain}`,
   ];
   lines.forEach((l, i) => ctx.fillText(l, W / 2, 345 + i * 26));
   ctx.fillStyle = 'rgba(200,230,215,0.75)';
   ctx.font = 'bold 15px ui-monospace, monospace';
-  ctx.fillText('[R] same season again      [N] new territory', W / 2, 430);
+  ctx.fillText('[R] try this territory again      [N] new territory', W / 2, 430);
   ctx.textAlign = 'left';
 }
 
@@ -315,9 +325,15 @@ export function drawTitle(ctx) {
   ctx.font = '15px ui-monospace, monospace';
   ctx.fillStyle = 'rgba(200,230,215,0.85)';
   ctx.fillText('paint scent, not orders: [1] LURE roads · [2] FEAR walls · [3] RALLY warbands', W / 2, 380);
-  ctx.fillText('fill the winter stores before the season ends · keep the colony alive', W / 2, 406);
+  const goal = SCENARIO.type === 'endure'
+    ? 'the piles wither and every ant eats · reach the rains with seed to replant'
+    : 'fill the winter stores before the season ends · keep the colony alive';
+  ctx.fillText(goal, W / 2, 406);
   ctx.fillStyle = '#ffe9bd';
   ctx.font = 'bold 17px ui-monospace, monospace';
-  ctx.fillText('— click to begin the first season —', W / 2, 470);
+  ctx.fillText(`— click to begin ${SCENARIO.name} —`, W / 2, 470);
+  ctx.fillStyle = 'rgba(200,230,215,0.6)';
+  ctx.font = '13px ui-monospace, monospace';
+  ctx.fillText('[S] switch scenario', W / 2, 500);
   ctx.textAlign = 'left';
 }

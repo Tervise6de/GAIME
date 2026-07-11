@@ -7,12 +7,14 @@
 // RELATIVE variance across generated maps: are they consistently reachable and
 // harvestable, or do some collapse / trivialise?
 //
-// Usage: node tools/win_sweep.mjs [count] [fast] [firstSeed] [stride]
+// Usage: node tools/win_sweep.mjs [count] [fast] [firstSeed] [stride] [--scn=drought]
 import { chromium } from 'playwright';
 
 // Either a strided range (count fast first stride) or an explicit seed list
 // via --seeds=1,2,3 (fast is then argv[3] if numeric, else default 60).
 const seedsArg = process.argv.find((a) => a.startsWith('--seeds='));
+const scnArg = process.argv.find((a) => a.startsWith('--scn='));
+const scn = scnArg ? scnArg.slice('--scn='.length) : '';
 const explicit = seedsArg ? seedsArg.slice('--seeds='.length).split(',').map(Number) : null;
 const N = parseInt(process.argv[2] || '16', 10);
 const fast = parseInt((process.argv[3] && /^\d+$/.test(process.argv[3]) ? process.argv[3] : '') || '40', 10);
@@ -30,7 +32,7 @@ for (const seed of seeds) {
   // matches run_proto's behaviour and keeps wall-time honest.
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
   page.on('pageerror', (e) => console.error('[pageerror]', e.message));
-  await page.goto(`http://localhost:8123/game/index.html?seed=${seed}&auto=gcommander&fast=${fast}`, { waitUntil: 'load' });
+  await page.goto(`http://localhost:8123/game/index.html?seed=${seed}&auto=gcommander&fast=${fast}${scn ? `&scn=${scn}` : ''}`, { waitUntil: 'load' });
   // poll __DONE like tools/run_proto.mjs does — waitForFunction proved
   // unreliable on long/losing games (false timeouts; see CLAUDE.md note,
   // now fixed here)
@@ -64,9 +66,9 @@ const stores = done.map((r) => r.stores).sort((a, b) => a - b);
 const mean = stores.reduce((a, b) => a + b, 0) / (stores.length || 1);
 const median = stores.length ? stores[stores.length >> 1] : 0;
 console.log(JSON.stringify({
-  bot: 'gcommander', seeds: seeds.length, completed: done.length,
+  bot: 'gcommander', scn: scn || 'first', seeds: seeds.length, completed: done.length,
   wins, winRate: +(wins / (done.length || 1)).toFixed(3),
   storesMean: Math.round(mean), storesMedian: median,
   storesMin: stores[0], storesMax: stores[stores.length - 1],
-  quota: 1200, rows,
+  goal: scn === 'drought' ? 'reserve 200 at t=420' : 'quota 1200', rows,
 }, null, 2));

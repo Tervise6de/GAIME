@@ -11,6 +11,6 @@ commit. Never force-push.
 ```
 status: active
 session: dev-20260711-afternoon-9pfynq
-last_update_utc: 2026-07-11T15:34:00Z
-note: session start — continuing vertical slice; priorities: second scenario (The Long Drought), art direction, hivemind.gif refresh
+last_update_utc: 2026-07-11T16:10:00Z
+note: The Long Drought scenario implemented and winning on seed 7 (gcommander 205/200, all non-throttle bots starve); cross-seed drought sweep running
 ```

@@ -15,7 +15,7 @@ export function makeSim(world) {
     astate: new Uint8Array(MAX_ANTS),
     acarry: new Uint8Array(MAX_ANTS),
     alive: new Uint8Array(MAX_ANTS),
-    count: 0, tick: 0, time: 0,
+    count: 0, tick: 0, time: 0, heldTime: 0,
     foodBanked: 0, antsDied: 0, spidersKilled: 0, antsSpawned: 0,
     broodSpent: 0,           // food paid for brood — the grow-vs-bank ledger
     foodStock: 30,           // net colony wealth: gains on delivery, pays for brood
@@ -61,7 +61,14 @@ export function step(s, dt) {
   // colony banks food instead of spending it on growth (grow vs bank is the
   // player's call; late-game growth is pure waste once piles are rate-bound)
   s.broodHeld = fields[F.FEAR][idxAt(nest.x, nest.y)] > 0.35;
-  const target = Math.min(MAX_ANTS, 250 + Math.floor(s.time * 10)); // start small, earn the swarm
+  // holding brood PAUSES the growth clock — it never banks a deficit. A
+  // release must resume gentle growth from where the colony is, not spawn a
+  // catch-up burst to where the clock says it should be (measured: a t=218
+  // release after 150s held spawned ~1600 ants in one tick and starved the
+  // colony instantly). heldTime subtracts exactly, so never-held runs keep
+  // the original bit-for-bit growth curve.
+  if (s.broodHeld) s.heldTime += dt;
+  const target = Math.min(MAX_ANTS, 250 + Math.floor((s.time - s.heldTime) * 10)); // start small, earn the swarm
   let deficit = s.broodHeld ? 0 : target - (s.count - s.freeList.length);
   while (deficit-- > 0) spawnAnt(s);
 

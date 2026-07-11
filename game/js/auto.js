@@ -239,7 +239,25 @@ function gcommander(sim) {
   // manpower buffer and let the FEAR decay re-open brood on its own if the
   // colony thins out.
   const pop = antsAlive(sim);
-  if (pop > 1400 && sim.foodStock > 500 && sim.foodStock < SCENARIO.quota) {
+  if (SCENARIO.type === 'endure') {
+    // drought doctrine: growth is a mortgage — every ant eats until the
+    // rains, and a colony can never shrink, only stop growing. Cap the
+    // population at what the still-living piles can feed with margin; when
+    // the map is nearly dry that cap collapses and brood stays held for good.
+    const liveRate = piles.reduce((a, p) => a + (p.amount > 0 ? p.rate : 0), 0);
+    const cap = liveRate > 0 ? 700 : 450; // lean while harvesting, tiny after
+    // hysteresis: once holding, KEEP restamping until pop falls to the
+    // release line — a gap where we neither stamp nor erase lets the nest
+    // FEAR decay through the 0.35 threshold and reopen brood by accident
+    const hold = st.banked ? pop >= cap * 0.8 : pop > cap;
+    if (hold) {
+      stamp(fields[F.FEAR], nest.x, nest.y, 44, 1.0);
+      if (!st.banked) { st.banked = true; st.log.push(`${sim.time.toFixed(0)}s brood-held pop=${pop} cap=${cap | 0}`); }
+    } else if (st.banked) {
+      erase(fields, nest.x, nest.y, 48); // reopen brood fast if we thinned out
+      st.banked = false; st.log.push(`${sim.time.toFixed(0)}s brood-open pop=${pop} cap=${cap | 0}`);
+    }
+  } else if (pop > 1400 && sim.foodStock > 500 && sim.foodStock < SCENARIO.quota) {
     stamp(fields[F.FEAR], nest.x, nest.y, 44, 1.0);
     if (!st.banked) { st.banked = true; st.log.push(`${sim.time.toFixed(0)}s brood-held pop=${pop}`); }
   }

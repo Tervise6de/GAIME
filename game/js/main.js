@@ -3,7 +3,7 @@ import { W, H, F, makeWorld, stamp, erase } from './world.js';
 import { makeSim, step, antsAlive } from './sim.js';
 import { makeRenderer, draw, hudText, drawEndCard, drawTitle } from './render.js';
 import { makeAutoPlayer } from './auto.js';
-import { SCENARIO, makeScenarioState, updateScenario } from './scenario.js';
+import { SCENARIO, SCENARIOS, selectScenario, makeScenarioState, updateScenario } from './scenario.js';
 import { makeOnboarding, updateOnboarding, drawOnboarding } from './onboarding.js';
 import { initAudio } from './audio.js';
 
@@ -12,11 +12,14 @@ const seed = parseInt(q.get('seed') || '7', 10);
 const fast = parseInt(q.get('fast') || '0', 10);        // sim ticks per frame (0 = realtime)
 const stopTicks = parseInt(q.get('ticks') || '0', 10);  // hard stop after N ticks (harness)
 const autoName = q.get('auto');
+selectScenario(q.get('scn'));
+const scnParam = SCENARIO.key === 'first' ? '' : `&scn=${SCENARIO.key}`;
 
 const canvas = document.getElementById('cv');
 const hud = document.getElementById('hud');
 const world = makeWorld(seed);
 const sim = makeSim(world);
+if (SCENARIO.startStock != null) sim.foodStock = SCENARIO.startStock;
 const R = makeRenderer(canvas, world);
 const auto = autoName ? makeAutoPlayer(autoName) : null;
 const sc = makeScenarioState();
@@ -47,9 +50,15 @@ window.addEventListener('keydown', (e) => {
   if (e.key === '2') ui.tool = 1;
   if (e.key === '3') ui.tool = 2;
   if (e.key === 'p' || e.key === 'P') ui.paused = !ui.paused;
+  if (!ui.started && (e.key === 's' || e.key === 'S')) {
+    // cycle scenario on the title screen (reload keeps everything deterministic)
+    const keys = Object.keys(SCENARIOS);
+    const next = keys[(keys.indexOf(SCENARIO.key) + 1) % keys.length];
+    location.search = `?seed=${seed}` + (next === 'first' ? '' : `&scn=${next}`);
+  }
   if (sc.over) {
-    if (e.key === 'r' || e.key === 'R') location.search = `?seed=${seed}`;
-    if (e.key === 'n' || e.key === 'N') location.search = `?seed=${(Math.random() * 100000) | 0}`;
+    if (e.key === 'r' || e.key === 'R') location.search = `?seed=${seed}${scnParam}`;
+    if (e.key === 'n' || e.key === 'N') location.search = `?seed=${(Math.random() * 100000) | 0}${scnParam}`;
   }
 });
 
@@ -65,7 +74,7 @@ window.__DONE = false;
 function finish() {
   window.__DONE = true;
   window.__RESULTS = {
-    strategy: autoName || 'human', seed,
+    strategy: autoName || 'human', seed, scn: SCENARIO.key,
     ...sc.endStats,
     piles: world.piles.map((p) => ({ label: p.label, left: Math.max(0, p.amount), taken: p.taken || 0 })),
     msPerTick: +(simMsTotal / Math.max(1, simTicksTotal)).toFixed(3),
@@ -79,7 +88,7 @@ function tickOnce() {
   if (auto) auto(sim);
   const t0 = performance.now();
   step(sim, DT);
-  updateScenario(sc, sim, world);
+  updateScenario(sc, sim, world, DT);
   if (!auto) updateOnboarding(ob, sim, ui);
   simMsTotal += performance.now() - t0; simTicksTotal++;
   if (sc.over && !window.__DONE) finish();

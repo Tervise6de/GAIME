@@ -2,6 +2,7 @@
 // actually DOING the thing. The core lesson is counterintuitive and must be
 // taught: ants smell only a few steps ahead — you build roads, not orders.
 import { F } from './world.js';
+import { SCENARIO } from './scenario.js';
 
 export function makeOnboarding() {
   return { done: new Set(), lurePainted: 0, active: null };
@@ -58,6 +59,28 @@ const HINTS = [
   },
 ];
 
+// the drought re-teaches the same verbs under an inverted goal: harvest
+// before the sun does, and treat growth as a debt (upkeep never stops)
+const HINTS_DROUGHT = [
+  HINTS[0], HINTS[1],
+  {
+    id: 'sun-tax',
+    when: (ob, sim) => sim.time > 14,
+    until: (ob, sim) => sim.foodBanked >= 60,
+    text: 'The sun is drinking the piles — food left ungathered is LOST. Get roads out to every pile early.',
+    marker: null,
+  },
+  HINTS[2], // rally
+  {
+    id: 'brood-throttle-drought',
+    when: (ob, sim) => sim.time > 70,
+    until: (ob, sim) => !!sim.broodHeld,
+    text: 'Every ant EATS until the rains — and a colony never shrinks. Paint FEAR on the NEST to hold new brood.',
+    marker: (sim) => ({ at: { x: sim.world.nest.x, y: sim.world.nest.y } }),
+  },
+  HINTS[4], // fear walls
+];
+
 export function updateOnboarding(ob, sim, ui) {
   // track painting for completion conditions
   if (ui.painting === 1) {
@@ -65,7 +88,8 @@ export function updateOnboarding(ob, sim, ui) {
     if (ui.tool === 1) ob.fearPainted = (ob.fearPainted || 0) + 1;
   }
   ob.active = null;
-  for (const h of HINTS) {
+  const hints = SCENARIO.type === 'endure' ? HINTS_DROUGHT : HINTS;
+  for (const h of hints) {
     if (ob.done.has(h.id)) continue;
     if (!h.when(ob, sim)) continue;
     if (h.until(ob, sim)) { ob.done.add(h.id); continue; }
