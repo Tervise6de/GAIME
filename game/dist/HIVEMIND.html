@@ -451,12 +451,27 @@ function makeRenderer(canvas) {
   const fctx = fc.getContext('2d');
   const fimg = fctx.createImageData(GW, GH);
 
-  return { ctx, bg, fc, fctx, fimg };
+  // juice state — transient effects driven by sim EVENTS, never the reverse.
+  // Nothing here feeds back into the simulation, so game balance is untouched.
+  return { ctx, bg, fc, fctx, fimg, bursts: [], burstDone: new WeakSet(), prevBanked: 0, nestGlow: 0 };
 }
 
 function draw(R, sim, ui) {
   const { ctx } = R;
   const { world } = sim;
+
+  // --- juice bookkeeping (render-only): a burst where each hunter fell, and a
+  // nest that brightens as food streams home. Detected from sim counters so
+  // it works at any speed and cannot perturb the simulation. ---
+  for (const sp of world.spiders) {
+    if (!sp.alive && !R.burstDone.has(sp)) {
+      R.burstDone.add(sp);
+      R.bursts.push({ x: sp.x, y: sp.y, life: 36, max: 36 });
+    }
+  }
+  const dBank = sim.foodBanked - R.prevBanked; R.prevBanked = sim.foodBanked;
+  R.nestGlow = Math.min(1.3, R.nestGlow * 0.9 + Math.min(0.6, dBank * 0.04));
+
   ctx.globalCompositeOperation = 'source-over';
   ctx.drawImage(R.bg, 0, 0);
 
@@ -514,6 +529,16 @@ function draw(R, sim, ui) {
     const g = ctx.createRadialGradient(n.x, n.y, 2, n.x, n.y, n.r + 26);
     g.addColorStop(0, '#ffd9a0'); g.addColorStop(0.4, '#7a4b20'); g.addColorStop(1, 'rgba(40,22,8,0)');
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(n.x, n.y, n.r + 26, 0, 7); ctx.fill();
+    // delivery pulse: the hearth flares as stores arrive — the reward read
+    if (R.nestGlow > 0.02) {
+      const rad = n.r + 22 + R.nestGlow * 22;
+      const gg = ctx.createRadialGradient(n.x, n.y, 2, n.x, n.y, rad);
+      gg.addColorStop(0, `rgba(255,228,158,${Math.min(0.5, R.nestGlow * 0.42)})`);
+      gg.addColorStop(1, 'rgba(255,205,120,0)');
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      ctx.fillStyle = gg; ctx.beginPath(); ctx.arc(n.x, n.y, rad, 0, 7); ctx.fill();
+      ctx.restore();
+    }
   }
 
   // ants — oriented 3px streaks, colored by role
@@ -550,6 +575,30 @@ function draw(R, sim, ui) {
     // hp arc
     ctx.strokeStyle = 'rgba(255,90,70,0.8)'; ctx.lineWidth = 2.5;
     ctx.beginPath(); ctx.arc(sp.x, sp.y, 15, -Math.PI / 2, -Math.PI / 2 + (sp.hp / sp.maxhp) * Math.PI * 2); ctx.stroke();
+  }
+
+  // hunter-death bursts: an expanding ring + embers where a hunter fell — the
+  // colony's hardest-won moments get a beat of spectacle. (Transient, additive.)
+  if (R.bursts.length) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    for (let i = R.bursts.length - 1; i >= 0; i--) {
+      const bu = R.bursts[i];
+      bu.life--;
+      if (bu.life <= 0) { R.bursts.splice(i, 1); continue; }
+      const t = bu.life / bu.max;                 // 1 → 0 over the burst's life
+      const rad = 12 + (1 - t) * 52;
+      ctx.strokeStyle = `rgba(255,${90 + 70 * t},60,${t * 0.75})`;
+      ctx.lineWidth = 1.5 + t * 2.5;
+      ctx.beginPath(); ctx.arc(bu.x, bu.y, rad, 0, 7); ctx.stroke();
+      for (let k = 0; k < 7; k++) {
+        const a = (k / 7) * Math.PI * 2 + bu.max;
+        const er = rad * (0.7 + (k % 3) * 0.12);
+        ctx.fillStyle = `rgba(255,${160 + 40 * t},90,${t * 0.6})`;
+        ctx.beginPath(); ctx.arc(bu.x + Math.cos(a) * er, bu.y + Math.sin(a) * er, 1.4 + t * 1.6, 0, 7); ctx.fill();
+      }
+    }
+    ctx.restore();
   }
 
   // brush cursor + tool label
