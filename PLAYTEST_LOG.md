@@ -189,3 +189,12 @@ Entry template:
 - Action taken: shipped commanderGeneral + the far-guard gate + the headless
   sweep harness; logged the residual tail to RISKS/BACKLOG rather than
   over-tuning a working game late in the session.
+
+### Addendum (same session) — out-of-sample winnability confirmation
+- Ran the commander over a FRESH 60-seed set (2000..2059) not used during
+  tuning: 45/60 generated WON (75%), seed 7 WON (anchor), win-time avg 318s.
+  Corroborates the 23/30 (77%) tuning-set figure — robust estimate ~75%.
+- The residual ~25% includes not just near-misses but some colony collapses
+  (e.g. 2002/2013/2040/2050/2057 → 0 stock) and rich-pile-sealed maps —
+  confirms the tail is a genuine balance/AI limit, not sampling luck. Honest
+  headline: generated maps are COMMONLY (≈3-in-4) bot-winnable, not always.

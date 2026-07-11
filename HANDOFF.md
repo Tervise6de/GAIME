@@ -24,11 +24,15 @@ snapshot, not an accumulating history — history lives in git.
   - New headless oracles: `tools/sweep_seeds.mjs` (serial) and
     `tools/sweep_parallel.mjs` + `tools/sweep_worker.mjs` (all-core). They
     run the FULL game loop in Node — no browser — for fast winnability sweeps.
+- **What changed (Loop 5):** render-only juice pass — nest hearth flares as
+  food banks; expanding ring + embers where each hunter falls. Driven by sim
+  counters (foodBanked / spider.alive deltas), so balance is untouched.
 - **Current build status:** GREEN. Full-game sweep: commander WINS seed 7
-  (t=175, died 679) + 23/30 generated seeds (77%, avg win-time 308s). Negative
-  control HOLDS on generated maps: idle & naive LOSE (naive marches into the
-  guard, colony collapses). gen_check 40/40. Single-file build + UI click
-  test re-run clean (no pageerror).
+  (t=175, died 679) + ~75% of generated seeds (23/30 tuning set, 45/60
+  out-of-sample 2000-2059, avg win-time ~315s). Negative control HOLDS on
+  generated maps: idle & naive LOSE (naive marches into the guard, colony
+  collapses). gen_check 40/40. Single-file build + UI click test clean; juice
+  verified error-free in realtime + headless.
 - **Known blockers:** none technical. Human playtesting still impossible from
   this environment. ~23% of generated maps remain NOT bot-winnable (a real
   balance/AI tail — see RISKS + BACKLOG Now #1).

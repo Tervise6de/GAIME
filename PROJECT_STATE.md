@@ -20,9 +20,10 @@ snapshot — detail belongs in the logs and in git history.
 - **Active hypothesis:** humans can learn and enjoy the painting verb —
   scripted play proves the depth exists; human feel is the top unknown.
 - **Last known good commit:** HEAD of branch `claude/ecstatic-ride-2ijakk`
-  after Loop 4 (map-general commander; 23/30 generated seeds bot-WON;
-  seed-7 commander regression WON t=175 unchanged; 40/40 fairness intact;
-  idle/naive lose on generated maps; single-file build + gen_check green).
+  after Loops 4-5 (map-general commander; ~75% of generated seeds bot-WON —
+  23/30 tuning + 45/60 out-of-sample; seed-7 commander regression WON t=175
+  unchanged; 40/40 fairness intact; idle/naive lose on generated maps;
+  render-only juice pass; single-file build + gen_check + click test green).
   NOTE: overnight-2 developed on branch `claude/ecstatic-ride-2ijakk`
   (task-scoped), not `main` — merge to main when integrating.
 - **Current build status:** GREEN — headless full-game sweep + gen_check +
