@@ -19,18 +19,21 @@ snapshot — detail belongs in the logs and in git history.
   `gcommander` (plays any generated territory).
 - **Active hypothesis:** humans can learn and enjoy the painting verb —
   scripted play proves the depth exists; human feel is the top unknown.
-- **Last known good commit:** HEAD of main at end of overnight-1 (Loop 3;
-  40/40 generated maps pass fairness checks; seed-7 commander regression
-  WON t=175; dist verified from file://).
+- **Last known good commit:** tip of branch
+  `claude/gaime-steam-autonomous-studio-fok54l` (this session; every commit
+  verified before push — seed-7 commander WON t=175, idle lost, gcommander
+  34/40 on the full set, dist rebuilt). Prior known-good: end of overnight-1
+  Loop 3 on main.
 - **Current build status:** GREEN — verified this session (2026-07-11,
   fok54l): seed-7 commander WON 1200/1200 @175s, idle lost; gcommander seed-7
   unchanged at 1062; full 40-seed sweep re-run (34/40 = 85%); single-file
   HIVEMIND.html rebuilt (48.7KB); UI click test exit 0. See CLAUDE.md for the
   one-line re-verification command.
-- **Highest-value next action:** human play (still the top unknown), then
-  difficulty normalization on the generator (win-times and death spread are
-  wide) and closing the one residual guard-mass stall (seed 2164). Winnability
-  is MEASURED, not assumed — see below.
+- **Highest-value next action:** human play (still the top unknown), then the
+  brood-throttle verb (player control over the grow-vs-bank economy that decides
+  the 4 economy near-miss losses), difficulty normalization, and the two hard
+  tail seeds (4395 close/grind, 4007 stall). Winnability is MEASURED over the
+  full 40-seed set, not assumed — see below.
 - **Winnability (UPDATED 2026-07-11, session fok54l):** `gcommander` gained a
   staged guard assault (route to the reachable rich pile, hold a WAR well on the
   guard, don't FEAR-wall a pile you're storming). Measured over the FULL 40-seed
