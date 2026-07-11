@@ -6,6 +6,7 @@ import { makeAutoPlayer } from './auto.js';
 import { SCENARIO, makeScenarioState, updateScenario } from './scenario.js';
 import { makeOnboarding, updateOnboarding, drawOnboarding } from './onboarding.js';
 import { CURATED_SEEDS } from './seeds.js';
+import { makeFx, fxDetect, fxUpdate, fxDraw, fxAudioStart } from './fx.js';
 
 const q = new URLSearchParams(location.search);
 const seed = parseInt(q.get('seed') || '7', 10);
@@ -21,6 +22,7 @@ const R = makeRenderer(canvas);
 const auto = autoName ? makeAutoPlayer(autoName) : null;
 const sc = makeScenarioState();
 const ob = makeOnboarding();
+const fx = makeFx();
 
 const ui = { tool: 0, brush: 42, mx: 0, my: 0, painting: 0, showBrush: !auto, paused: false, started: !!(auto || fast) };
 const PLAYER_FIELDS = [F.LURE, F.FEAR, F.WAR];
@@ -32,6 +34,7 @@ function canvasPos(e) {
 }
 canvas.addEventListener('mousemove', (e) => { [ui.mx, ui.my] = canvasPos(e); });
 canvas.addEventListener('mousedown', (e) => {
+  fxAudioStart(fx); // first user gesture unlocks WebAudio
   if (!ui.started) { ui.started = true; return; }
   ui.painting = e.button === 2 ? 2 : 1;
 });
@@ -46,6 +49,7 @@ window.addEventListener('keydown', (e) => {
   if (e.key === '2') ui.tool = 1;
   if (e.key === '3') ui.tool = 2;
   if (e.key === 'p' || e.key === 'P') ui.paused = !ui.paused;
+  if (e.key === 'm' || e.key === 'M') fx.muted = !fx.muted;
   if (sc.over) {
     if (e.key === 'r' || e.key === 'R') location.search = `?seed=${seed}`;
     // [N] draws a fresh map from the curated, difficulty-vetted whitelist — not
@@ -84,6 +88,7 @@ function tickOnce() {
   const t0 = performance.now();
   step(sim, DT);
   updateScenario(sc, sim, world);
+  fxDetect(fx, sim, world);
   if (!auto) updateOnboarding(ob, sim, ui);
   simMsTotal += performance.now() - t0; simTicksTotal++;
   if (sc.over && !window.__DONE) finish();
@@ -103,6 +108,7 @@ function frame() {
     for (let i = 0; i < n; i++) { tickOnce(); if (sc.over || window.__DONE) break; }
   }
   draw(R, sim, ui);
+  if (ui.started) { fxUpdate(fx, 1 / 60); fxDraw(R.ctx, fx, world); }
   if (!ui.started) drawTitle(R.ctx);
   if (!auto && !sc.over && ui.started) drawOnboarding(R.ctx, ob, sim, W, H);
   if (sc.over && sc.endStats) drawEndCard(R.ctx, sc.endStats, SCENARIO);
