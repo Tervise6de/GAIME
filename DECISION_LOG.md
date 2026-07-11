@@ -113,3 +113,26 @@ Entry template:
 - Reversibility / exit condition: SW fallback stays runnable; pivot if HM
   onboarding/readability work fails to make scripted-novice completion
   possible, or morning verdict rejects it.
+
+## 2026-07-11 — D: winnability is now a MEASURED property, not an assumption
+- Decision: keep the handcrafted seed-7 `commander` frozen as the balance
+  control, and add a separate map-derived `general` bot as the cross-seed
+  winnability probe (rather than replacing commander). Adopt bot win-rate
+  over a seed range as the standing metric for "are generated maps
+  balanced," alongside the Loop-3 structural guarantees.
+- Evidence: general wins 22/24 generated seeds (2-25), 91.7% (VERIFIED
+  FACT). The decisive mechanism was routing the RETURN trip around hunters
+  via FEAR walls (33% → 92%); this is now baked into the bot and documented
+  as the reason the painting verb must compose LURE (out) with FEAR
+  (home), not LURE alone.
+- Tuning note: hunter-avoidance clearance = tr+72 was chosen because on the
+  tight handcrafted map win/deaths were non-monotonic in clearance (tr+72
+  won with 464 deaths; tr+92 regressed to a loss). Generated maps are more
+  open and tolerate it; if difficulty normalization is taken up, retune per
+  a seed sweep, not on seed 7 alone.
+- Consequence / open item: two seeds (12, 18) remain unwon — difficulty is
+  winnable-on-average but not normalized. Logged to backlog as the next
+  balance task (clamp/retry generation on a bot-winnability check, or
+  soften the two failure modes).
+- Reversibility: pure tooling + one added strategy; commander and all prior
+  evidence unchanged.

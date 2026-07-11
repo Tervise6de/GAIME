@@ -5,9 +5,11 @@ duplicating them. Rejected items keep a one-line reason.
 
 ## Now
 
-1. Generalize commander bot to derived paths (BFS route extraction) and
-   verify generated maps are bot-WINNABLE (not just fair) across ≥20 seeds;
-   normalize difficulty.
+1. Difficulty normalization: the general bot wins 22/24 generated seeds
+   (Loop 4) but loses seed 12 (1169/1200, near-miss) and seed 18 (819/1200).
+   Gate generation on a bot-winnability check (retry/clamp) OR soften the two
+   failure modes so every shipped seed is winnable; keep commander win-time
+   250-350s.
 2. Brood throttle verb (paint the nest: grow vs bank) — player control over
    the growth economy discovered to dominate outcomes in Loop 1.
 3. Juice pass: nest delivery pulse, spider death burst, procedural WebAudio;

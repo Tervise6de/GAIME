@@ -9,8 +9,8 @@ a rejected push means another session holds the lock. Refresh
 commit. Never force-push.
 
 ```
-status: active
+status: released
 session: morning-20260711-ecstatic-ride
-last_update_utc: 2026-07-11T04:45:00Z
-note: final morning run; verifying build, running winnability sweep, finalizing MORNING_REPORT (branch claude/ecstatic-ride-9oqbd4)
+last_update_utc: 2026-07-11T05:00:00Z
+note: Loop 4 done (general bot, 22/24 winnability sweep); morning report refreshed; work on branch claude/ecstatic-ride-9oqbd4; no session active
 ```

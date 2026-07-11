@@ -137,3 +137,39 @@ Entry template:
   cannot play generated maps (hardcoded waypoints) so winnability is
   structurally plausible but unproven off seed 7.
 - Action taken: committed; balance sweep across seeds moved to backlog Now.
+
+## 2026-07-11 ~04:45 UTC — Stage 6 Loop 4: cross-seed winnability (generalized bot)
+- Hypothesis / what was tested: the generated territories (Loop 3) are not
+  just structurally FAIR (reachable) but actually WINNABLE by a general,
+  map-derived strategy — the balance question Loop 3 left open.
+- Method: added a map-derived `general` strategy (game/js/auto.js) that
+  derives every route from the live map instead of seed-7 waypoints:
+  planField() runs a per-cycle Dijkstra from the nest with a large per-cell
+  penalty inside every live hunter territory (LURE roads bend around
+  hunters); FEAR walls are painted over non-threat hunters so the ants'
+  RETURN trip (which descends homeDist + FEAR*30, per sim.js) also avoids
+  territory. Swept seeds 2-25 headless (tools/sweep_winnable.mjs, fast=16).
+- Observed result (facts):
+  * general win rate = 22/24 = 91.7%. Losses: seed 12 (1169/1200, 97% of
+    quota) and seed 18 (819/1200) — both ran the clock out, not a colony
+    collapse.
+  * The FEAR return-path fix was decisive: baseline `general` WITHOUT FEAR
+    walls scored 4/12 = 33% (seeds 2-13); with them, seeds 3/8/11 flipped
+    loss→win and per-run deaths fell 10-40x (seed 3: 4190 → 95 deaths).
+  * Diagnosis confirmed by instrumentation: pre-fix losses harvested ALL
+    piles (2200 food gathered) but banked only ~400 — ants died CARRYING
+    food on the spider-blind return path, not while foraging.
+- Regression: seed-7 `commander` still WINS (t≈175; verified from the
+  file:// single-file dist, food 1200 / died 679); `idle` still loses
+  (food 0). Goal still discriminates competence.
+- Evidence class: VERIFIED FACT that generated maps are bot-winnable at
+  ~92% by a general strategy (STRONG structural evidence the balance, not
+  just the fairness, generalizes). Still an ASSUMPTION that HUMANS can find
+  these routes and enjoy doing so — a competent scripted planner winning is
+  a proxy for "a win exists and is discoverable by principled play," not
+  for human fun or difficulty.
+- Weaknesses: two seeds still unwon (near-miss + one real miss) — difficulty
+  is winnable-on-average but NOT normalized across seeds; the general bot is
+  a planner, not a human-skill model, so its 92% is an upper-ish bound on
+  "is there a win," not a human success-rate estimate.
+- Action taken: committed (f3f2b76) and pushed; dist rebuilt.
