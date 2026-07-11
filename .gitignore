@@ -5,3 +5,6 @@ Thumbs.db
 
 # dependencies & local artifacts
 node_modules/
+
+# GIF working frames (tools/make_gif.mjs) — assembled output is committed, frames are not
+media/gif_frames/
