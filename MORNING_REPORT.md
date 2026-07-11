@@ -48,7 +48,7 @@ summons hunters onto your roads.
    single-file distributable build, scripted-play verification suite.
 5. **Procedurally generated territories, and proof they are WINNABLE**
    (overnight-2): a layout-agnostic "commander" competence oracle plays any
-   map; a cross-seed sweep (`tools/win_sweep.mjs`) showed it beats 56/60
+   map; a cross-seed sweep (`tools/win_sweep.mjs`) showed it beats 95/100
    seeds. The "New Territory" button now draws only from a SIM-CERTIFIED seed
    pool (`game/js/seeds.js`), so replay variation is real AND every offered
    map is beatable. Plus a juice pass — nest delivery glow, hunter-death
@@ -79,10 +79,10 @@ assumption (a learnable-but-not-trivial sky) is already de-risked.
   creates a managed militarization tradeoff.
 - **Fairness ≠ winnability, and winnability is emergent.** Maps that pass
   the generator's reachability guarantees can still be unbeatable by perfect
-  play (~7% of seeds 1-60). No cheap structural proxy tested (guard/pile
+  play (~5% of seeds 1-100). No cheap structural proxy tested (guard/pile
   distance, corridor sealing) predicted which — only running the sim does.
   This is why the shipped map pool is sim-certified, not generated blind. The
-  competence oracle wins 56/60 seeds (avg ~250s of the 480s budget).
+  competence oracle wins 95/100 seeds (avg ~256s of the 480s budget).
 - 3,200 agents simulate at ~0.6-1.0 ms/tick headless (60fps headroom).
 - STORMWARDEN's sky is learnable: an instrument bot beats persistence by
   +12.4pp on held-out seeds (91.7% vs ~78%) with a skill ceiling — but

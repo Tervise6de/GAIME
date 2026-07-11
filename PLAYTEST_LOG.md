@@ -187,3 +187,12 @@ Entry template:
   keeping the full 56 as the certified-winnable set and reserving gentle/stiff
   tiers for a future easy->hard campaign order. No mechanic changed, so the
   winnability certification stays valid. dist verified WIN.
+
+## 2026-07-11 ~02:10 UTC — Winnability sweep widened to 100 seeds
+- What was run: tools/win_sweep.mjs over seeds 1-100 (auto=commander).
+- Observed result (VERIFIED FACT): 95/100 WON (95%). Losses 3,36,55,60,88.
+  Win-times 139-375s (median 256). Tighter, stronger estimate than the earlier
+  56/60. Certified pool grown to 95 seeds; CORE (210-360s) band to 66.
+- Action: expanded game/js/seeds.js (both pools); dist rebuilt + verified WIN;
+  seed 77 spot-checked WIN. No mechanic changed — certification method
+  unchanged (simulation), just a larger sample and pool.
