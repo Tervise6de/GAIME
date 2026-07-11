@@ -156,3 +156,34 @@ Entry template:
   seed 7's handcrafted map; generated-map balance remains unproven (backlog).
 - Action taken: stamped MORNING_REPORT.md with re-verification block +
   observed matrix; refreshed PROJECT_STATE/HANDOFF; released heartbeat.
+
+## 2026-07-11 ~08:40 UTC — Generalized commander + cross-seed winnability sweep
+- Hypothesis / what was tested: are the generated territories actually
+  WINNABLE, not merely structurally fair? The hand-tuned commander only plays
+  seed 7 (hardcoded lanes), so this had never been tested. Built gcommander (a
+  generic, map-driven bot: hunter-avoiding Dijkstra routes, FEAR walls over
+  deep dens, nearest-threat war conversion) and swept 16 generated seeds.
+- How it was run: game/js/auto.js gcommander; tools/win_sweep.mjs + per-seed
+  tools/run_proto.mjs at fast=40 to __DONE. Full table: data/winnability_sweep_20260711.md.
+- Observed result (facts): gcommander WINS 9/16 (56%). Baseline commander
+  still WINS seed 7 at t=175 (preserved untouched). gcommander on seed 7 gets
+  1062/1200. Of the 7 losses, 5 show rich:0% + slain:0 — the guarded rich pile
+  (largest source) is never opened because the generic war approach doesn't
+  kill a distant guard; those maps cap at far+high ≈1300 gathered → under the
+  1200 net quota after costs. Winners: t=272-390s, deaths 231-1294 (wide
+  difficulty spread). Confirmed per-pile: on generated maps the two lesser
+  piles are almost always harvested 100% (far/high), unlike seed 7 where the
+  two upper-right piles starve the third — the seed-7 starvation was geometry-
+  specific.
+- Evidence class: VERIFIED FACT (all runs observed here). The 56% is a
+  STRONG-PROXY LOWER BOUND on winnability by a weak generic heuristic — NOT
+  proof any map is unwinnable, NOT a claim about humans. Losses trace to a
+  fixable strategy gap (guard-clearing), not structural unfairness.
+- Weaknesses: gcommander is not an optimizer; a guard-priority variant was
+  tried and made it WORSE (over-commits, nest undefended, death explosions,
+  8/16) so it was reverted. True winnability needs either a stronger bot or
+  human play. Difficulty is not normalized across seeds.
+- Action taken: shipped gcommander as a new strategy (baseline commander
+  preserved as the seed-7 balance reference); committed win_sweep tool + data
+  table; guard-priority change reverted. Difficulty normalization + a
+  guard-clearing bot stay on the backlog.

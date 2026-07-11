@@ -64,7 +64,13 @@ Tech: vanilla JS + Canvas 2D, zero runtime deps. Dev tooling: Playwright
 - Headless run/measure/screenshot: `node tools/run_proto.mjs "<url>" --max 120 --out shot.png`
   - Bot matrix (game balance): url `game/index.html?seed=7&auto=<commander|warband|smart|naive|idle>&fast=12`
     Expected: commander WINS (~t=175 on seed 7), all others lose.
+  - `gcommander` = generic map-driven bot (plays ANY seed; `commander` is
+    seed-7-only hand-tuned baseline — do not generalize it in place).
   - Stormwarden falsification: `?auto=<climo|persist|instrument>&days=400&seed=N`
+- Cross-seed winnability sweep: `node tools/win_sweep.mjs 16 40 1000 97`
+  (gcommander over generated seeds; data/winnability_sweep_20260711.md). NOTE:
+  its waitForFunction harness false-times-out on long/losing games — for
+  reliable single-seed results use `run_proto.mjs` per seed instead.
 - UI click-through tests: `node tools/click_test_hivemind.mjs`, `tools/click_test_stormwarden.mjs`
 
 ## File map

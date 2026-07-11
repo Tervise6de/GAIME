@@ -113,3 +113,29 @@ Entry template:
 - Reversibility / exit condition: SW fallback stays runnable; pivot if HM
   onboarding/readability work fails to make scripted-novice completion
   possible, or morning verdict rejects it.
+
+## 2026-07-11 — Generalized bot (gcommander) added; winnability is a proven lower bound, not settled
+- Stage: WINNER_DEVELOPMENT (Stage 6)
+- Decision: Ship a generalized, map-driven commander (`gcommander`) as a
+  SEPARATE strategy and keep the hand-tuned `commander` untouched as the seed-7
+  balance baseline. Treat the cross-seed sweep as a difficulty/winnability
+  PROXY, not proof. Keep difficulty normalization and a stronger guard-clearing
+  bot on the backlog.
+- Alternatives considered: (a) generalize `commander` in place — REJECTED, it
+  would destroy the verified seed-7 baseline and all scripted-doctrine evidence;
+  (b) add a guard-priority heuristic to raise win-rate — TRIED and REJECTED, it
+  caused death explosions (seed 1000 win→loss, 433→2825 deaths) and lowered
+  win-rate to 8/16; (c) keep tuning gcommander to win seed 7 — REJECTED as
+  overfitting to one map with diminishing returns.
+- Evidence class: VERIFIED FACT (9/16 generated-map wins; baseline commander
+  still wins seed 7 at t=175; 5/7 losses are rich:0% guard-not-cleared). The
+  winnability conclusion is a STRONG-PROXY LOWER BOUND — generated maps are
+  broadly winnable by a generic player and their losses trace to a fixable
+  strategy gap, not structural unfairness. Human winnability remains UNKNOWN.
+- Why: converts "generated maps are winnable" from ASSUMPTION to a measured
+  lower bound, and surfaces two concrete, honest gaps (guard-clearing AI;
+  difficulty variance) instead of papering over them.
+- Reversibility / exit condition: gcommander is additive and isolated; if a
+  formal difficulty-normalization pass or a stronger bot supersedes this
+  measurement, append a new entry. Baseline commander and both prototypes
+  remain the last known good runnable references.

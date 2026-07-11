@@ -3,35 +3,39 @@
 Overwrite this ENTIRE file at the end of every session. It is a replaceable
 snapshot, not an accumulating history — history lives in git.
 
-- **Current stage:** WINNER_DEVELOPMENT (post Loop 3). The final
-  MORNING_ASSESSMENT (Stage 7) was executed and re-verified on 2026-07-11.
+- **Current stage:** WINNER_DEVELOPMENT (Stage 6). Final MORNING_ASSESSMENT
+  was already executed and re-verified earlier on 2026-07-11.
 - **Active hypothesis:** humans can learn and enjoy the painting verb
   (scripted play proves depth exists; human feel is THE open question).
-- **What this morning run did (2026-07-11):** re-restored deps, rebuilt the
-  build from checkout, re-ran the headless verification live. Confirmed
-  GREEN: seed-7 bot matrix reproduced with five distinct outcomes
-  (commander WON 1200/1200 @175s; smart 949; warband 0; naive collapse;
-  idle 0). Confirmed the single-file `game/dist/HIVEMIND.html` reaches the
-  identical win card. Stamped MORNING_REPORT.md with a live re-verification
-  block + observed matrix; refreshed PROJECT_STATE. No code changed — the
-  overnight-1 build needed no repair.
-- **Current build status:** GREEN (re-verified this morning, not just
-  asserted). Both prototypes still present under `prototypes/`.
+- **What this session did (2026-07-11, dev-winnability):** built `gcommander`
+  — a generic, map-driven bot (hunter-avoiding Dijkstra routes, FEAR walls
+  over deep dens) that can attempt ANY generated territory, unlike the
+  seed-7-only hand-tuned `commander` (preserved untouched). Added
+  `tools/win_sweep.mjs`. Measured winnability across 16 generated seeds:
+  **gcommander wins 9/16 (56%)**; 5 of 7 losses are the guarded rich pile
+  never cleared (fixable strategy gap, not unfair maps). This converts
+  "generated maps are winnable" from ASSUMPTION to a measured STRONG-PROXY
+  LOWER BOUND. Full data: `data/winnability_sweep_20260711.md`. A
+  guard-priority tweak was tried and REVERTED (caused death explosions).
+- **Current build status:** GREEN. Baseline `commander` still WINS seed 7 at
+  t=175 (verified this session). Single-file `game/dist/HIVEMIND.html`
+  rebuilt (45.8KB) and re-verified to the win state. Both prototypes intact.
 - **Last known good commit:** tip of branch
-  `claude/gaime-steam-autonomous-studio-6op37p` (this run's final commit).
-  Every commit was verified before push.
-- **Known blockers:** none technical. Human playtesting is impossible from
-  this environment — founder action or a future integration is required.
-  This is the single most important open validation.
+  `claude/gaime-steam-autonomous-studio-6op37p` (this session's final commit;
+  every commit was verified before push). Also mirrored to `main` earlier.
+- **Known blockers:** human playtesting impossible from this environment
+  (founder action needed) — still the single most important open validation.
 - **Next three actions (highest value first):**
-  1. Human playtests of `game/dist/HIVEMIND.html` (zero-install) — retire
-     the only unretired core risk: does the painting verb feel good?
-  2. Generalize commander bot to BFS-derived paths; verify generated maps
-     are bot-WINNABLE across ≥20 seeds and normalize difficulty (fairness
-     guarantees shipped; balance guarantees are the gap).
-  3. Brood throttle verb (paint the nest: feed vs bank) — remove the
-     automatic-growth limitation found in Loop 1 economics.
-- **Exact build and run commands:** see CLAUDE.md "Build & test commands".
-  Quick verify after any sim change:
+  1. Difficulty normalization on the generator (win-times 272-390s, deaths
+     231-1294 are too spread) — add a post-gen difficulty estimate and
+     reject/retune outliers into a target band.
+  2. A smarter guard-clearing routine for gcommander (kill a distant guard
+     WITHOUT abandoning the nest — naive guard-priority failed) to raise the
+     56% winnability lower bound.
+  3. Brood throttle verb (paint the nest: grow vs bank) — player control over
+     the growth economy that dominated Loop 1 outcomes.
+- **Exact build/run commands:** CLAUDE.md "Build & test commands". Quick
+  verify after any sim change:
   `for s in commander idle; do node tools/run_proto.mjs "http://localhost:8123/game/index.html?seed=7&auto=$s&fast=20" --max 260; done`
-  → commander must WIN, idle must lose.
+  → commander must WIN, idle must lose. Winnability sweep: `node tools/win_sweep.mjs 16 40 1000 97`
+  (but use run_proto per-seed for reliable long-game results — see CLAUDE.md note).

@@ -22,20 +22,26 @@ const WALL = parseInt((process.env.WALL_MS || '90000'), 10);
 const seeds = explicit || Array.from({ length: N }, (_, i) => first + i * stride);
 
 const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
-const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
-page.on('pageerror', (e) => console.error('[pageerror]', e.message));
 
 const rows = [];
 for (const seed of seeds) {
+  // FRESH page per seed: reusing one page across many long runs accumulates
+  // slowdown and false-times-out the longer games. A clean slate each time
+  // matches run_proto's behaviour and keeps wall-time honest.
+  const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+  page.on('pageerror', (e) => console.error('[pageerror]', e.message));
   await page.goto(`http://localhost:8123/game/index.html?seed=${seed}&auto=gcommander&fast=${fast}`, { waitUntil: 'load' });
+  let r = null;
   try {
-    await page.waitForFunction('window.__DONE === true', { timeout: WALL });
+    await page.waitForFunction('window.__DONE === true', { timeout: WALL, polling: 200 });
+    r = await page.evaluate(() => window.__RESULTS);
   } catch {
     console.error(`seed ${seed}: TIMEOUT (no __DONE)`);
     rows.push({ seed, won: null, stores: null, timeout: true });
+    await page.close();
     continue;
   }
-  const r = await page.evaluate(() => window.__RESULTS);
+  await page.close();
   const piles = r.piles.map((p) => `${p.label}:${Math.round(100 * p.taken / (p.taken + p.left || 1))}%`).join(' ');
   rows.push({
     seed, won: r.won, stores: r.foodStock, gathered: r.gathered,

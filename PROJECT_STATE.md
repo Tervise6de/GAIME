@@ -14,7 +14,9 @@ snapshot — detail belongs in the logs and in git history.
   scenario + onboarding + economy + escalation; `game/dist/HIVEMIND.html`
   single-file distributable; two frozen prototypes; `tools/` verification
   harness (headless runner, bot matrix, UI click tests, single-file
-  builder, gameplay recorder).
+  builder, gameplay recorder, `win_sweep.mjs` cross-seed winnability).
+  Bots: hand-tuned `commander` (seed-7 baseline) + generic map-driven
+  `gcommander` (plays any generated territory).
 - **Active hypothesis:** humans can learn and enjoy the painting verb —
   scripted play proves the depth exists; human feel is the top unknown.
 - **Last known good commit:** HEAD of main at end of overnight-1 (Loop 3;
@@ -26,9 +28,15 @@ snapshot — detail belongs in the logs and in git history.
   collapse, idle 0 — five distinct outcomes); single-file HIVEMIND.html
   re-run reaches the identical win card. See CLAUDE.md for the one-line
   re-verification command.
-- **Highest-value next action:** generalized commander bot + cross-seed
-  winnability/difficulty sweep; if in the final morning run: execute the
-  Stage 7 checklist in AUTONOMOUS_STUDIO_PROTOCOL.md instead.
+- **Highest-value next action:** a guard-clearing bot (or human play) to
+  raise the winnability lower bound above 56%, and a difficulty-normalization
+  pass on the generator (win-times 272-390s and deaths 231-1294 are too
+  spread). Winnability is now MEASURED, not assumed — see below.
+- **Winnability (NEW, 2026-07-11):** generalized `gcommander` bot wins 9/16
+  generated seeds (56%); 5 of 7 losses are the guarded rich pile never
+  cleared (a fixable strategy gap, not structural unfairness). This is a
+  STRONG-PROXY LOWER BOUND, not proof, and says nothing about human players.
+  Full data: `data/winnability_sweep_20260711.md`.
 - **Blockers:** human playtesting cannot be done from this environment
   (founder action needed — see BACKLOG "Now" #5).
 - **Morning report ready:** true — re-verified and stamped on the final
