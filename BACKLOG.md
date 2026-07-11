@@ -9,9 +9,9 @@ duplicating them. Rejected items keep a one-line reason.
    (measure: season completed ≤3 attempts; all verbs used; voluntary
    restarts; kill-signal: "ants won't obey" quits). THE critical open
    validation — everything else is polish until humans play.
-2. Art direction spike (palette, ant silhouettes, terrain texture) — current
-   look is programmer-glow; strong in motion, thin in stills. Steam page
-   lives on stills.
+2. Art direction continuation: terrain/rocks/grain/nest DONE (2026-07-11
+   spike — stills now read as earth, not void). Remaining: palette identity,
+   ant/spider silhouettes at closer inspection, pile art.
 3. Second scenario ("The Long Drought") reusing systems, no new tech —
    proves the systems generalize beyond one goal structure.
 4. Refresh hivemind.gif from the juiced build (needs ffmpeg; current GIF is

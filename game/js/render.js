@@ -3,18 +3,105 @@ import { W, H, CELL, GW, GH, F } from './world.js';
 import { ST, antsAlive } from './sim.js';
 import { sfxDelivery, sfxSpiderDeath } from './audio.js';
 
-export function makeRenderer(canvas) {
+export function makeRenderer(canvas, world) {
   const ctx = canvas.getContext('2d');
-  // pre-render soil background
+  // pre-render the whole static world into one background: soil, rocks,
+  // grain scatter, nest mound. Nothing here moves, so bake it once — richer
+  // texture for stills at zero per-frame cost. Seeded LCG keeps it stable.
   const bg = document.createElement('canvas'); bg.width = W; bg.height = H;
   const b = bg.getContext('2d');
-  b.fillStyle = '#0e0a07'; b.fillRect(0, 0, W, H);
   let s = 12345;
   const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  b.fillStyle = '#0e0a07'; b.fillRect(0, 0, W, H);
+  // large soft mottling — the ground reads as earth, not void
+  for (let i = 0; i < 90; i++) {
+    const x = r() * W, y = r() * H, rad = 60 + r() * 150;
+    const g = b.createRadialGradient(x, y, 0, x, y, rad);
+    const warm = r() < 0.5;
+    g.addColorStop(0, warm ? `rgba(46,32,18,${0.10 + r() * 0.12})` : `rgba(28,30,18,${0.08 + r() * 0.10})`);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    b.fillStyle = g; b.beginPath(); b.arc(x, y, rad, 0, 7); b.fill();
+  }
+  // fine grit
   for (let i = 0; i < 2600; i++) {
     b.fillStyle = `rgba(${30 + r() * 26},${22 + r() * 18},${14 + r() * 12},${0.25 + r() * 0.3})`;
     b.beginPath(); b.arc(r() * W, r() * H, 0.6 + r() * 2.2, 0, 7); b.fill();
   }
+  // pebbles and twigs
+  for (let i = 0; i < 210; i++) {
+    const x = r() * W, y = r() * H;
+    if (r() < 0.72) {
+      b.fillStyle = `rgba(${52 + r() * 30},${42 + r() * 22},${30 + r() * 14},${0.35 + r() * 0.3})`;
+      b.beginPath(); b.ellipse(x, y, 1.5 + r() * 3.4, 1 + r() * 2.2, r() * 3.14, 0, 7); b.fill();
+    } else {
+      const a = r() * 3.14, len = 5 + r() * 12;
+      b.strokeStyle = `rgba(${58 + r() * 26},${44 + r() * 18},${26 + r() * 12},${0.30 + r() * 0.25})`;
+      b.lineWidth = 0.8 + r();
+      b.beginPath(); b.moveTo(x, y); b.lineTo(x + Math.cos(a) * len, y + Math.sin(a) * len); b.stroke();
+    }
+  }
+  if (world) {
+    // rocks: irregular craggy silhouettes with lit faces, not gray bubbles
+    for (const rk of world.rocks) {
+      const pts = [];
+      const n = 11;
+      for (let k = 0; k < n; k++) {
+        const a = (k / n) * Math.PI * 2;
+        const rr = rk.r * (0.82 + r() * 0.30);
+        pts.push([rk.x + Math.cos(a) * rr, rk.y + Math.sin(a) * rr]);
+      }
+      b.save();
+      b.beginPath(); b.moveTo(pts[0][0], pts[0][1]);
+      for (const [px, py] of pts.slice(1)) b.lineTo(px, py);
+      b.closePath();
+      const g = b.createRadialGradient(rk.x - rk.r * 0.35, rk.y - rk.r * 0.45, rk.r * 0.1, rk.x, rk.y, rk.r * 1.15);
+      g.addColorStop(0, '#38332c'); g.addColorStop(0.5, '#211d19'); g.addColorStop(1, '#0f0d0b');
+      b.fillStyle = g; b.fill();
+      b.clip();
+      // short shadow chords + faint lichen — texture without wireframe seams
+      for (let k = 0; k < 5; k++) {
+        const a0 = r() * 6.28;
+        const x0 = rk.x + Math.cos(a0) * rk.r * (0.2 + r() * 0.6);
+        const y0 = rk.y + Math.sin(a0) * rk.r * (0.2 + r() * 0.6);
+        const a1 = r() * 6.28, len = rk.r * (0.25 + r() * 0.35);
+        b.strokeStyle = `rgba(8,7,6,${0.25 + r() * 0.2})`; b.lineWidth = 0.8 + r();
+        b.beginPath(); b.moveTo(x0, y0);
+        b.lineTo(x0 + Math.cos(a1) * len, y0 + Math.sin(a1) * len); b.stroke();
+      }
+      for (let k = 0; k < 5; k++) {
+        b.fillStyle = `rgba(${58 + r() * 24},${64 + r() * 24},${36 + r() * 14},${0.06 + r() * 0.08})`;
+        b.beginPath();
+        b.arc(rk.x + (r() - 0.5) * rk.r * 1.4, rk.y + (r() - 0.5) * rk.r * 1.4, 2 + r() * 5, 0, 7);
+        b.fill();
+      }
+      b.restore();
+      // grounding shadow
+      b.fillStyle = 'rgba(0,0,0,0.30)';
+      b.beginPath(); b.ellipse(rk.x + rk.r * 0.12, rk.y + rk.r * 0.30, rk.r * 1.02, rk.r * 0.55, 0, 0, 7); b.fill();
+    }
+    // grain scatter around each pile: the food reads as spilled seed
+    for (const p of world.piles) {
+      for (let k = 0; k < 46; k++) {
+        const a = r() * 6.28, d = p.r * (0.4 + r() * 1.7);
+        b.fillStyle = `rgba(${190 + r() * 60},${140 + r() * 60},${50 + r() * 40},${0.14 + r() * 0.20})`;
+        b.beginPath();
+        b.ellipse(p.x + Math.cos(a) * d, p.y + Math.sin(a) * d, 1 + r() * 1.6, 0.7 + r(), r() * 3.14, 0, 7);
+        b.fill();
+      }
+    }
+    // nest mound: excavated earth rings
+    const n = world.nest;
+    for (let k = 4; k >= 1; k--) {
+      const rr = n.r * (0.7 + k * 0.38);
+      b.strokeStyle = `rgba(${70 + k * 8},${48 + k * 5},${26 + k * 3},${0.30 - k * 0.045})`;
+      b.lineWidth = 5 - k * 0.7;
+      b.beginPath(); b.arc(n.x, n.y, rr, 0, 7); b.stroke();
+    }
+  }
+  // vignette: pulls the eye to the field of play
+  const vg = b.createRadialGradient(W / 2, H / 2, H * 0.42, W / 2, H / 2, H * 0.95);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.42)');
+  b.fillStyle = vg; b.fillRect(0, 0, W, H);
   // field overlay canvas (grid resolution, scaled up with smoothing)
   const fc = document.createElement('canvas'); fc.width = GW; fc.height = GH;
   const fctx = fc.getContext('2d');
@@ -55,12 +142,7 @@ export function draw(R, sim, ui) {
   ctx.globalCompositeOperation = 'source-over';
   ctx.drawImage(R.bg, 0, 0);
 
-  // rocks
-  for (const rk of world.rocks) {
-    const g = ctx.createRadialGradient(rk.x - rk.r * 0.3, rk.y - rk.r * 0.4, rk.r * 0.1, rk.x, rk.y, rk.r);
-    g.addColorStop(0, '#3a3733'); g.addColorStop(1, '#191715');
-    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(rk.x, rk.y, rk.r, 0, 7); ctx.fill();
-  }
+  // rocks are baked into the background (they never move)
 
   // spider territory rings — the danger must be readable
   for (const sp of world.spiders) {
@@ -131,6 +213,9 @@ export function draw(R, sim, ui) {
     ctx.moveTo(x - Math.cos(h) * 2.6, y - Math.sin(h) * 2.6);
     ctx.lineTo(x + Math.cos(h) * 2.6, y + Math.sin(h) * 2.6);
     ctx.stroke();
+    // head dot: makes them read as directional creatures in stills
+    ctx.fillStyle = st === ST.SOLDIER ? 'rgba(255,150,120,0.9)' : 'rgba(235,255,250,0.75)';
+    ctx.fillRect(x + Math.cos(h) * 2.6 - 0.7, y + Math.sin(h) * 2.6 - 0.7, 1.4, 1.4);
   }
   ctx.globalCompositeOperation = 'source-over';
 

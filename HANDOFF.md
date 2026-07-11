@@ -25,23 +25,25 @@ snapshot, not an accumulating history — history lives in git.
   5. **Harness repairs**: click_test_hivemind was silently vacuous (title
      screen ate its first click) — now plays and asserts; win_sweep.mjs
      false-timeout bug fixed (polls __DONE like run_proto).
-  6. Media: fresh gameplay video + battle stills (pulses visible), 4-shot
-     assault sequence in media/proto/assault_*.png. GIF still pre-juice
-     (no ffmpeg in this environment).
+  6. Art direction spike: soil/rocks/grain/nest baked into the static bg
+     (stills read as earth now), ant head dots, vignette; fps unchanged.
+  7. Media: gameplay video + stills re-recorded post-art; 4-shot assault
+     sequence in media/proto/assault_*.png. GIF still pre-juice (no ffmpeg).
 - **Current build status:** GREEN. Seed-7 matrix five distinct outcomes
   (commander WON t=175/679 died — byte-identical all session); 16/16 sweep;
-  gen_check 40/40; click test PASS; dist 57.2KB reaches win card.
+  gen_check 40/40; click test PASS; dist 61.3KB reaches win card.
 - **Last known good commit:** tip of `main` == tip of
   `claude/gaime-steam-autonomous-studio-k17h9e` (every commit verified).
 - **Known blockers:** human playtesting impossible from this environment
   (founder action needed) — the single most important open validation.
 - **Next three actions (highest value first):**
-  1. Art direction spike (BACKLOG Now #2): palette, ant silhouettes, terrain
-     texture. Stills are the weakest commercial asset; look is programmer-glow.
-  2. Second scenario "The Long Drought" (BACKLOG Now #3) reusing systems —
+  1. Second scenario "The Long Drought" (BACKLOG Now) reusing systems —
      proves the verb set generalizes beyond one goal structure. Balance it
      with the bot matrix (commander win-time target 250-350s).
-  3. Refresh hivemind.gif from the juiced build if ffmpeg is available.
+  2. Art continuation: palette identity + ant/spider silhouettes (terrain/
+     rocks/grain landed in the 2026-07-11 spike; before-still kept at
+     media/proto/art_before_20260711.png for comparison).
+  3. Refresh hivemind.gif from the current build if ffmpeg is available.
 - **Exact build/run commands:** CLAUDE.md "Build & test commands". Quick
   verify after any sim change:
   `for s in commander idle; do node tools/run_proto.mjs "http://localhost:8123/game/index.html?seed=7&auto=$s&fast=20" --max 260; done`

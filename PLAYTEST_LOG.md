@@ -262,3 +262,28 @@ Entry template:
 - Weaknesses: audio is heard by no one yet (headless env) — synthesis
   parameters are creative judgment pending human ears; GIF stale.
 - Action taken: committed juice + ledger + repaired tool; media refreshed.
+
+## 2026-07-11 ~14:45 UTC — Art direction spike (stills quality)
+- Hypothesis / what was tested: the "programmer-glow over void" look can be
+  upgraded meaningfully with render-only work (no sim impact, no assets).
+- How it was run: before/after stills at an identical deterministic moment
+  (seed 7, commander, t≈90); iterate on the weakest element; verify with the
+  standard battery.
+- Observed results (facts):
+  - Static world now BAKED into the pre-rendered background: soil mottling,
+    grit, pebbles/twigs, craggy irregular rocks (first iteration REJECTED on
+    the still — light "potato with seams" look — and re-done darker with
+    short shadow chords), grain scatter around piles, nest mound rings,
+    vignette. Ant head dots for directionality in stills.
+  - Before/after comparison honestly better: ground reads as earth, rocks as
+    dark masses, glow layers pop. Generated maps coherent too. 59-60 fps
+    unchanged (rocks moved OUT of the per-frame loop).
+  - Determinism byte-identical: commander seed 7 WON t=175 died 679. Click
+    test PASS; dist 61.3KB reaches win card; media re-recorded (video +
+    stills); before-still kept at media/proto/art_before_20260711.png.
+- Evidence class: VERIFIED FACT for determinism/fps/tests; the visual
+  improvement is CREATIVE JUDGMENT (self-assessed from stills; no human eyes).
+- Weaknesses: still zero-asset programmatic art; ant/spider silhouettes and
+  palette identity remain; hivemind.gif still pre-juice (no ffmpeg).
+- Action taken: committed; art continuation stays on the backlog with the
+  remaining scope noted.

@@ -29,13 +29,13 @@ snapshot — detail belongs in the logs and in git history.
   distinct outcomes (commander WON 1200 @175s / smart 949 / warband 511 /
   naive collapse / idle 0); repaired `win_sweep.mjs` reproduces 16/16 in one
   command with no false timeouts; UI click test passes with real assertions;
-  gen_check 40/40; dist (57.2KB) rebuilt and reaches the win card with the
+  gen_check 40/40; dist (61.3KB) rebuilt and reaches the win card with the
   brood ledger. See CLAUDE.md for the re-verification commands.
 - **Highest-value next action:** human playtests (founder-blocked); from the
-  studio side, the art-direction spike (stills are the weakest asset). Juice
-  pass is DONE (delivery pulses, death bursts, gesture-gated WebAudio;
-  media re-captured except the GIF — no ffmpeg here). End card now shows the
-  grow-vs-bank ledger ("spent on brood").
+  studio side, the second scenario ("The Long Drought"). DONE today: juice
+  pass (pulses, bursts, gesture-gated WebAudio), grow-vs-bank end-card
+  ledger, and an art spike (terrain/rocks/grain/nest baked into the bg —
+  stills read as earth, not void; remaining art scope in BACKLOG).
 - **Winnability (UPDATED 2026-07-11 pm):** `gcommander` now wins **16/16**
   generated seeds (was 9/16 in the morning) after the shepherd-blob guard
   assault + brood throttle; win times 161-307s, deaths 172-686 (spread
