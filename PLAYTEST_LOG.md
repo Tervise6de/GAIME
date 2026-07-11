@@ -221,3 +221,30 @@ Entry template:
   <=430 s) from both sweeps; 6 held out (thin margin); 9 losses recorded and
   never served. Claims corrected across PROJECT_STATE / DECISION_LOG / HANDOFF.
   Next: strengthen the guard assault to raise the true win rate.
+
+## 2026-07-11 ~02:40 UTC — FAILED experiment: concentrate + extend guard assault
+- Hypothesis / what was tested: the ~17% commander losses are guard-fizzle
+  (far guard starved by competing harvest roads). Tried: (a) extend the WAR
+  conversion band to the last ~40% of the assault path (soldiers ascend to a
+  far den), and (b) "concentrate" — road only the single nearest safe pile
+  while the guard is alive, to stop splitting foragers three ways.
+- How it was run: patched game/js/auto.js, re-ran commander on seed 7, the
+  former meatgrinder seed 1291, and the 9 recorded losses.
+- Observed result (facts): NET NEGATIVE. Seed 7 still won but deaths jumped
+  307 -> 741. Seed 1291, a comfortable winner (t=295, died 614), FLIPPED TO A
+  LOSS (stock 1161/1200, died 810): the concentration funnels foragers into
+  the assault, and the extended WAR band converts/kills more of them, so net
+  foodStock (quota is NET wealth) fell below 1200. Trading fizzle-fixes for
+  meatgrinder-losses on former winners would SHRINK the pool, not grow it.
+- Evidence class: verified fact (deterministic). Negative result.
+- Weaknesses/learning: on this scenario, deaths are the binding constraint
+  (quota = net wealth, respawn costs eat gross income), so ANY change that
+  raises the forager kill rate at the front tends to lose more than the guard
+  kill gains. A future guard fix must get soldiers to a far den WITHOUT
+  increasing forager exposure — e.g. promote foragers to soldiers BEFORE the
+  long march (a WAR staging blob near the nest that soldiers then path from),
+  or a soldier-only long WAR road that foragers do not follow. Not attempted
+  here (needs care + a full re-sweep; out of time before the morning run).
+- Action taken: REVERTED to the validated 45/54 state (last good commit). Build
+  remains GREEN. Guard-assault strengthening stays BACKLOG #1 with this
+  learning attached.
