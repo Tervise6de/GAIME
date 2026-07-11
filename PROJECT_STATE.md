@@ -20,12 +20,13 @@ snapshot — detail belongs in the logs and in git history.
 - **Active hypothesis:** humans can learn and enjoy the painting verb —
   scripted play proves the depth exists; human feel is the top unknown.
 - **Last known good commit:** HEAD of branch claude/ecstatic-ride-h0dy5s
-  (Loop 4b: commander WINS 24/24 generated seeds + seed 7; every commit
-  verified before push). NOTE: Loop-4 work lives on this feature branch, not
+  (Loop 4f, commit e2a23be+: commander wins ~84% of generated seeds + seed 7;
+  dist plays to a win from file://; final verification green). Every commit
+  verified before push. NOTE: Loop-4 work lives on this feature branch, not
   yet merged to main.
-- **Current build status:** GREEN. Commander oracle wins ~83% of generated
-  seeds (45/54 swept, 1000..6141 step 97) and seed 7; naive/idle lose on all
-  tested seeds. "New territory" [N] serves only the 39 oracle-comfortable
+- **Current build status:** GREEN. Commander oracle wins ~84.5% of generated
+  seeds (71/84 swept, 1000..9051 step 97) and seed 7; naive/idle lose on all
+  tested seeds. "New territory" [N] serves only the 62 oracle-comfortable
   seeds (win-time ≤430s), so players never get a map the oracle itself can't
   beat. NOTE: the first-24 "100%" was a fortunate sample — see PLAYTEST_LOG
   correction 2026-07-11. Cross-seed sweep via `node tools/bot_sweep.mjs`.

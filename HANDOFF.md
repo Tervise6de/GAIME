@@ -12,15 +12,16 @@ snapshot, not an accumulating history — history lives in git.
 - **What changed this session (Loop 4):** the commander bot was generalized
   from hardcoded seed-7 waypoints to a map-agnostic hunter-avoiding Dijkstra
   pathfinder (LURE harvest roads + a hybrid LURE-approach / WAR-conversion
-  assault on the guard's den). RESULT: across 54 swept generated seeds
-  (1000..6141, step 97) the commander wins ~83% (45/54) + seed 7; naive/idle
-  LOSE on all tested seeds. "New territory" [N] now serves only the 39
+  assault on the guard's den). RESULT: across 84 swept generated seeds
+  (1000..9051, step 97) the commander wins ~84.5% (71/84) + seed 7; naive/idle
+  LOSE on all tested seeds. "New territory" [N] now serves only the 62
   oracle-comfortable seeds (win-time ≤430s), so players never get a map the
-  oracle can't beat. Also: juice pass (delivery pulse + hunter death burst,
-  sim-pure, effects.js); fixed the stale click test. New tools:
-  `bot_sweep.mjs`, `gen_stats.mjs`. Finding: difficulty is EMERGENT — no cheap
-  geometry feature predicts win-time. IMPORTANT: the first 24-seed sample read
-  100%; the true rate is ~83% (see PLAYTEST_LOG correction 2026-07-11).
+  oracle can't beat. Also: full juice pass (delivery pulse + hunter death
+  burst + procedural WebAudio, all sim-pure: effects.js, audio.js); fixed the
+  stale click test. New tools: `bot_sweep.mjs`, `gen_stats.mjs`. Finding:
+  difficulty is EMERGENT — no cheap geometry feature predicts win-time.
+  IMPORTANT: the first 24-seed sample read 100%; the true rate is ~84.5% (see
+  PLAYTEST_LOG correction 2026-07-11).
 - **Current build status:** GREEN. Re-verify:
   `for s in commander idle; do node tools/run_proto.mjs "http://localhost:8123/game/index.html?seed=7&auto=$s&fast=12" --max 150; done`
   → commander WINS, idle loses. Full sweep: `node tools/bot_sweep.mjs 24 commander 30`.
