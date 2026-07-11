@@ -7,6 +7,7 @@ import { SCENARIO, makeScenarioState, updateScenario } from './scenario.js';
 import { makeOnboarding, updateOnboarding, drawOnboarding } from './onboarding.js';
 import { pickSeed } from './seedpool.js';
 import { makeEffects, deathBurst, deliveryPing, updateEffects, drawEffects } from './effects.js';
+import { initAudio, sfxDelivery, sfxDeath, sfxWave } from './audio.js';
 
 const q = new URLSearchParams(location.search);
 const seed = parseInt(q.get('seed') || '7', 10);
@@ -25,6 +26,7 @@ const ob = makeOnboarding();
 const fx = makeEffects();
 // cosmetic event tracking (compared per frame, never affects the sim)
 let prevBanked = 0;
+let prevSpiderCount = world.spiders.length;
 const prevAlive = world.spiders.map((s) => s.alive);
 
 const ui = { tool: 0, brush: 42, mx: 0, my: 0, painting: 0, showBrush: !auto, paused: false, started: !!(auto || fast) };
@@ -37,6 +39,7 @@ function canvasPos(e) {
 }
 canvas.addEventListener('mousemove', (e) => { [ui.mx, ui.my] = canvasPos(e); });
 canvas.addEventListener('mousedown', (e) => {
+  initAudio();                                  // first gesture unlocks WebAudio
   if (!ui.started) { ui.started = true; return; }
   ui.painting = e.button === 2 ? 2 : 1;
 });
@@ -108,11 +111,14 @@ function frame() {
   // cosmetic events: compare post-step world to last frame (never feeds the sim)
   for (let i = 0; i < world.spiders.length; i++) {
     const a = world.spiders[i].alive;
-    if (i < prevAlive.length && prevAlive[i] && !a) deathBurst(fx, world.spiders[i].x, world.spiders[i].y);
+    if (i < prevAlive.length && prevAlive[i] && !a) { deathBurst(fx, world.spiders[i].x, world.spiders[i].y); sfxDeath(); }
     prevAlive[i] = a;
   }
+  if (world.spiders.length > prevSpiderCount) { sfxWave(); prevSpiderCount = world.spiders.length; }
   if (sim.foodBanked > prevBanked) {
-    deliveryPing(fx, world.nest.x, world.nest.y, Math.min(6, sim.foodBanked - prevBanked));
+    const strength = Math.min(6, sim.foodBanked - prevBanked);
+    deliveryPing(fx, world.nest.x, world.nest.y, strength);
+    sfxDelivery(strength, performance.now());
     prevBanked = sim.foodBanked;
   }
   // effects run on sim-time while stepping, else real-time so a final death

@@ -1197,8 +1197,73 @@ function drawEffects(ctx, fx, nest) {
 }
 
 
+// ===== audio.js =====
+// Procedural, asset-free audio — a thin WebAudio synth for the same events the
+// visual juice reacts to (deliveries, hunter deaths, wave arrivals). No files,
+// no libraries: every sound is an oscillator envelope, so it is licence-clean.
+//
+// Fully guarded and OPTIONAL: the AudioContext is created lazily on the first
+// real user gesture (browser autoplay policy) and every call no-ops if it does
+// not exist. Headless/auto runs never gesture, so no context is ever made and
+// the sim/tests are wholly unaffected — audio is a pure human-play enhancement.
+let ctx = null;
+let master = null;
+let lastTick = -1;        // throttle for the (frequent) delivery tick
+
+function initAudio() {
+  if (ctx) return;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    ctx = new AC();
+    master = ctx.createGain();
+    master.gain.value = 0.5;
+    master.connect(ctx.destination);
+  } catch (e) { ctx = null; }        // no audio device / blocked → stay silent
+}
+
+function blip(type, f0, f1, dur, peak, delay = 0) {
+  if (!ctx) return;
+  try {
+    const t = ctx.currentTime + delay;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(f0, t);
+    if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(Math.max(1, f1), t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(peak, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(master);
+    o.start(t); o.stop(t + dur + 0.02);
+  } catch (e) { /* ignore transient audio errors */ }
+}
+
+// food reaches the nest — a soft, bright tick. Throttled (deliveries are
+// frequent) and pitched up slightly with the burst size so a strong harvest
+// reads as busier. `now` is performance.now() ms from the caller.
+function sfxDelivery(strength, now) {
+  if (!ctx) return;
+  if (now - lastTick < 170) return;
+  lastTick = now;
+  const f = 900 + Math.min(6, strength) * 70;
+  blip('triangle', f, f * 1.5, 0.09, 0.10);
+}
+
+// a hunter falls — a low thud with a quick downward chirp on top.
+function sfxDeath() {
+  blip('sawtooth', 180, 60, 0.28, 0.22);
+  blip('square', 420, 120, 0.16, 0.09, 0.01);
+}
+
+// a reinforcement wave arrives — an ominous rising swell.
+function sfxWave() {
+  blip('sawtooth', 90, 190, 0.5, 0.16);
+}
+
+
 // ===== main.js =====
 // HIVEMIND — winner development build. Boot, loop, input, scenario, instrumentation.
+
 
 
 
@@ -1225,6 +1290,7 @@ const ob = makeOnboarding();
 const fx = makeEffects();
 // cosmetic event tracking (compared per frame, never affects the sim)
 let prevBanked = 0;
+let prevSpiderCount = world.spiders.length;
 const prevAlive = world.spiders.map((s) => s.alive);
 
 const ui = { tool: 0, brush: 42, mx: 0, my: 0, painting: 0, showBrush: !auto, paused: false, started: !!(auto || fast) };
@@ -1237,6 +1303,7 @@ function canvasPos(e) {
 }
 canvas.addEventListener('mousemove', (e) => { [ui.mx, ui.my] = canvasPos(e); });
 canvas.addEventListener('mousedown', (e) => {
+  initAudio();                                  // first gesture unlocks WebAudio
   if (!ui.started) { ui.started = true; return; }
   ui.painting = e.button === 2 ? 2 : 1;
 });
@@ -1308,11 +1375,14 @@ function frame() {
   // cosmetic events: compare post-step world to last frame (never feeds the sim)
   for (let i = 0; i < world.spiders.length; i++) {
     const a = world.spiders[i].alive;
-    if (i < prevAlive.length && prevAlive[i] && !a) deathBurst(fx, world.spiders[i].x, world.spiders[i].y);
+    if (i < prevAlive.length && prevAlive[i] && !a) { deathBurst(fx, world.spiders[i].x, world.spiders[i].y); sfxDeath(); }
     prevAlive[i] = a;
   }
+  if (world.spiders.length > prevSpiderCount) { sfxWave(); prevSpiderCount = world.spiders.length; }
   if (sim.foodBanked > prevBanked) {
-    deliveryPing(fx, world.nest.x, world.nest.y, Math.min(6, sim.foodBanked - prevBanked));
+    const strength = Math.min(6, sim.foodBanked - prevBanked);
+    deliveryPing(fx, world.nest.x, world.nest.y, strength);
+    sfxDelivery(strength, performance.now());
     prevBanked = sim.foodBanked;
   }
   // effects run on sim-time while stepping, else real-time so a final death

@@ -3,7 +3,7 @@
 // syntax, and inlines everything into one <script>. No server needed.
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 
-const ORDER = ['rng.js', 'world.js', 'sim.js', 'render.js', 'auto.js', 'scenario.js', 'onboarding.js', 'seedpool.js', 'effects.js', 'main.js'];
+const ORDER = ['rng.js', 'world.js', 'sim.js', 'render.js', 'auto.js', 'scenario.js', 'onboarding.js', 'seedpool.js', 'effects.js', 'audio.js', 'main.js'];
 
 let js = '';
 for (const f of ORDER) {
