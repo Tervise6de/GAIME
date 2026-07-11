@@ -6,7 +6,8 @@ snapshot — detail belongs in the logs and in git history.
 - **Current stage:** WINNER_DEVELOPMENT (loops 1-4 done: goal structure,
   onboarding, generated territories with fairness guarantees, generalized
   commander oracle proving winnability). Stages 1-5 complete. MORNING_REPORT.md
-  predates Loop 4 — refresh before the final morning run.
+  refreshed for Loop 4 (2026-07-11); a final morning run should still play the
+  build and re-capture any media it wants before finalizing.
 - **Current concept:** C01 HIVEMIND — paint scent fields (LURE/FEAR/RALLY);
   thousands of autonomous ants respond; persuasion, never orders.
 - **Fallback concept:** C02 STORMWARDEN (runnable at
@@ -31,14 +32,17 @@ snapshot — detail belongs in the logs and in git history.
   beat. NOTE: the first-24 "100%" was a fortunate sample — see PLAYTEST_LOG
   correction 2026-07-11. Cross-seed sweep via `node tools/bot_sweep.mjs`.
 - **Highest-value next action:** brood-throttle verb (player control over the
-  growth economy — the dominant outcome lever, currently automatic) OR juice
-  pass; difficulty normalization is now understood as an offline-oracle task,
-  not a static filter (see DECISION_LOG 2026-07-11). If in the final morning
-  run: execute the Stage 7 checklist in AUTONOMOUS_STUDIO_PROTOCOL.md instead.
+  growth economy — the dominant outcome lever, currently automatic). NOTE the
+  guard-assault win rate (84.5%) resisted two fix attempts this session — both
+  reverted because a stronger assault costs more colony than it gains; a real
+  fix needs a soldier caste that promotes at the nest (see PLAYTEST_LOG). If in
+  the final morning run: execute the Stage 7 checklist in
+  AUTONOMOUS_STUDIO_PROTOCOL.md instead.
 - **Blockers:** human playtesting cannot be done from this environment
-  (founder action needed — see BACKLOG "Now" #5).
-- **Morning report ready:** true (written end of overnight-1; refresh if
-  later sessions change the build).
+  (founder action needed — see BACKLOG "Now" #4).
+- **Morning report ready:** true — refreshed 2026-07-11 for Loop 4 (reflects
+  map-generalization, 84.5% winnability, curated pool, juice/audio). A final
+  morning run should still play the build and re-capture media if desired.
 
 ## Stages
 
