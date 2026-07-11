@@ -1089,10 +1089,23 @@ const CERTIFIED_SEEDS = [
   49, 50, 51, 52, 53, 54, 56, 57, 58, 59,
 ];
 
-// Pick a certified seed other than the one just played, so New Territory always
-// changes the map. Deterministic given `rnd` (0..1) for testability.
+// CORE band: the certified seeds whose oracle win-time falls in 210-360s —
+// a consistent-difficulty rotation for the first-hour experience (the full
+// certified set also holds sub-210s "gentle" maps and one 366s "stiff" map).
+// Post-tuning difficulty is already tight (win-times 153-366s, median 251), so
+// this is a light selection, not a per-map quota rewrite. Difficulty tiers set
+// up a future easy->hard campaign order. Regenerate with the same sweep.
+const CORE_SEEDS = [
+  1, 4, 5, 7, 8, 9, 11, 12, 14, 15, 17, 19, 20, 21, 22, 23, 24, 25, 26, 27,
+  31, 32, 33, 34, 37, 40, 41, 45, 46, 47, 48, 49, 52, 53, 54, 56, 57, 58,
+];
+
+// Pick a core seed other than the one just played, so New Territory always
+// changes the map at a consistent difficulty. Deterministic given `rnd` (0..1)
+// for testability. Falls back to the full certified set if needed.
 function nextCertifiedSeed(current, rnd) {
-  const pool = CERTIFIED_SEEDS.filter((s) => s !== current);
+  const src = CORE_SEEDS.length > 1 ? CORE_SEEDS : CERTIFIED_SEEDS;
+  const pool = src.filter((s) => s !== current);
   if (pool.length === 0) return current;
   return pool[Math.min(pool.length - 1, Math.floor(rnd * pool.length))];
 }

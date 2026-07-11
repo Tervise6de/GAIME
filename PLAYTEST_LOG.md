@@ -173,3 +173,17 @@ Entry template:
 - Weaknesses: certified pool is only valid for THIS bot+generator version
   (must re-run the sweep after changes — noted in seeds.js); difficulty is not
   yet normalized (win-times 148-466s); oracle is not proof of human win.
+
+## 2026-07-11 ~01:40 UTC — Loop 4 follow-up: difficulty is already tight
+- What was checked: oracle win-time spread across the 56 certified seeds
+  (as a difficulty proxy) to decide whether per-map quota normalization is
+  needed.
+- Observed result (VERIFIED FACT): post bot-tuning the spread is 153-366s
+  (median 251) of the 480s budget — far tighter than the pre-tuning 148-466s.
+  Only ONE seed (2) exceeds 360s; 17 are "gentle" (<210s); 38 sit in a clean
+  210-360s core band.
+- Conclusion / action: a per-map quota rewrite would be over-engineering.
+  Instead New Territory now rotates the 38-seed CORE band (game/js/seeds.js),
+  keeping the full 56 as the certified-winnable set and reserving gentle/stiff
+  tiers for a future easy->hard campaign order. No mechanic changed, so the
+  winnability certification stays valid. dist verified WIN.
