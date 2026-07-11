@@ -11,6 +11,6 @@ commit. Never force-push.
 ```
 status: active
 session: dev-20260711-guardclear
-last_update_utc: 2026-07-11T12:12:00Z
-note: Stage 6 continuation — guard-clearing for gcommander (raise 56% winnability lower bound) + generator difficulty normalization
+last_update_utc: 2026-07-11T12:40:00Z
+note: shepherd-blob guard assault implemented (seed 1485 flipped to WIN, 52 deaths); 16-seed sweep re-running
 ```
