@@ -20,15 +20,20 @@ snapshot — detail belongs in the logs and in git history.
 - **Last known good commit:** HEAD of main at end of overnight-1 (Loop 3;
   40/40 generated maps pass fairness checks; seed-7 commander regression
   WON t=175; dist verified from file://).
-- **Current build status:** GREEN — verified headless at 60fps; see
-  CLAUDE.md for the one-line re-verification command.
+- **Current build status:** GREEN — re-verified on the final morning run
+  (2026-07-11): rebuilt-from-checkout, headless bot matrix reproduced on
+  seed 7 (commander WON 1200/1200 @175s; smart 949, warband 0, naive
+  collapse, idle 0 — five distinct outcomes); single-file HIVEMIND.html
+  re-run reaches the identical win card. See CLAUDE.md for the one-line
+  re-verification command.
 - **Highest-value next action:** generalized commander bot + cross-seed
   winnability/difficulty sweep; if in the final morning run: execute the
   Stage 7 checklist in AUTONOMOUS_STUDIO_PROTOCOL.md instead.
 - **Blockers:** human playtesting cannot be done from this environment
   (founder action needed — see BACKLOG "Now" #5).
-- **Morning report ready:** true (written end of overnight-1; refresh if
-  later sessions change the build).
+- **Morning report ready:** true — re-verified and stamped on the final
+  morning run (2026-07-11); MORNING_REPORT.md opens with a live
+  re-verification block and the observed seed-7 bot matrix.
 
 ## Stages
 

@@ -137,3 +137,22 @@ Entry template:
   cannot play generated maps (hardcoded waypoints) so winnability is
   structurally plausible but unproven off seed 7.
 - Action taken: committed; balance sweep across seeds moved to backlog Now.
+
+## 2026-07-11 ~07:35 UTC — Final morning run: live build re-verification
+- Hypothesis / what was tested: the overnight-1 build is still GREEN and its
+  depth claim ("only full competence wins") reproduces on a fresh checkout,
+  not just from the prior session's recorded numbers.
+- How it was run: `npm install` to restore Playwright; `python3 -m http.server
+  8123`; headless bot matrix on seed 7 via tools/run_proto.mjs (fast=20-25);
+  single-file dist re-run + screenshot.
+- Observed result (facts): seed 7 — commander WON 1200/1200, season lasted
+  175s, 679 fallen; smart LOST at 949/1200; warband LOST 0 gathered; naive
+  LOST (colony collapsed below survival); idle LOST 0/1200. Five doctrines →
+  five distinct outcomes. `game/dist/HIVEMIND.html` re-run reaches the
+  identical win card ("THE COLONY ENDURES"), screenshot captured. No code
+  changed; build needed no repair.
+- Evidence class: VERIFIED FACT (all outcomes directly observed this run).
+- Weaknesses: still all scripted — no human has played. Verification is on
+  seed 7's handcrafted map; generated-map balance remains unproven (backlog).
+- Action taken: stamped MORNING_REPORT.md with re-verification block +
+  observed matrix; refreshed PROJECT_STATE/HANDOFF; released heartbeat.

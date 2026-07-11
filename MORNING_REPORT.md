@@ -2,6 +2,24 @@
 
 Play or view the build before reading the analysis.
 
+> **Re-verified on the final morning run — 2026-07-11 (Europe/Tallinn).**
+> The build was rebuilt-from-checkout and re-run headless this morning; it is
+> GREEN. On seed 7 the five scripted doctrines still produce five distinct
+> outcomes — competence wins, everything else fails a different way
+> (VERIFIED FACT, observed this run):
+>
+> | Doctrine | Outcome | Why it ends that way |
+> |---|---|---|
+> | commander | **WON** — 1200/1200 stores, season lasted 175s, 679 fallen | full verb composition |
+> | smart | LOST — 949/1200 gathered | partial competence banks most but misses winter |
+> | warband | LOST — 0 gathered | over-militarized; economy never starts |
+> | naive | LOST — colony collapsed below survival | undefended roads bleed the colony out |
+> | idle | LOST — 0/1200, "winter came" | no input |
+>
+> The single-file `game/dist/HIVEMIND.html` was re-run this morning and
+> reaches the identical win state (win card renders: "THE COLONY ENDURES").
+> Media in `media/` (5 screenshots, GIF, ~2-min webm) matches this build.
+
 ## How to play (2 minutes to first road)
 
 **Fastest (any OS, incl. Windows):** download/open `game/dist/HIVEMIND.html`
