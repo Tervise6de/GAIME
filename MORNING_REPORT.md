@@ -98,8 +98,10 @@ assumption (a learnable-but-not-trivial sky) is already de-risked.
   has felt the painting verb yet. [ASSUMPTION — the single most important
   unknown]
 - Session pacing (8-min scenario) is tuned to bots, not people.
-- Replay variation is now BUILT and winnability-certified, but difficulty is
-  not yet normalized across it (oracle win-times span 148-466s).
+- Replay variation is now BUILT and winnability-certified (95 seeds), with a
+  consistent-difficulty CORE rotation (oracle win-times 210-360s of the 480s
+  budget). Fine per-map difficulty tuning and a curated easy->hard campaign
+  order are still open.
 - "AI-led studio can sustain content production" — untested beyond tonight.
 - Market proxies are from web sources, not our own wishlist/playtest data.
 
