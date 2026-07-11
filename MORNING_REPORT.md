@@ -120,8 +120,9 @@ assumption (a learnable-but-not-trivial sky) is already de-risked.
   EotU, Factorio-adjacent); ambient-sim streamers.
 - **Model & price:** premium, $15-20, no MTX. Demo-first (the single-file
   build shows the demo path is nearly free).
-- **Prototype scope (done):** one scenario, one map, three verbs, one
-  enemy type, zero third-party assets.
+- **Prototype scope (done):** one scenario type, one hand-authored map plus a
+  procedural generator with fairness guarantees and a 62-map bot-vetted pool,
+  three verbs, one enemy type, zero third-party assets.
 - **Complete launch scope (estimate):** campaign of 15-25 authored
   scenarios across biomes + sandbox mode; 4-6 enemy/fauna types; brood
   throttle + caste verbs; map generator with solvability guarantees

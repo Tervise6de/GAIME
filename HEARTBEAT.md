@@ -9,8 +9,8 @@ a rejected push means another session holds the lock. Refresh
 commit. Never force-push.
 
 ```
-status: active
+status: released
 session: dev-ecstatic-ride-20260711
-last_update_utc: 2026-07-11T03:10:00Z
-note: Stage 6 Loop 4 COMPLETE — map-agnostic commander oracle wins 84.5% of 84 generated seeds; 62-seed vetted pool; juice (visual + WebAudio); MORNING_REPORT refreshed; STORMWARDEN fallback verified. Build GREEN, dist plays from file://. Branch claude/ecstatic-ride-h0dy5s.
+last_update_utc: 2026-07-11T09:10:00Z
+note: Loop 4 complete + FINAL MORNING RUN executed (build re-verified fresh post-restart; generated-map media captured; MORNING_REPORT finalized, CONTINUE WITH CONDITIONS). Build GREEN, dist plays from file://. Work on branch claude/ecstatic-ride-h0dy5s; no session active.
 ```
