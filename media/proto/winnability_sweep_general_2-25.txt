@@ -1,0 +1,285 @@
+seed 2: WIN  food=1201/1200 died=740 t=224.7 gen=1
+seed 3: WIN  food=1201/1200 died=95 t=383.3 gen=1
+seed 4: WIN  food=1200/1200 died=339 t=341.4 gen=2
+seed 5: WIN  food=1201/1200 died=461 t=358.6 gen=1
+seed 6: WIN  food=1200/1200 died=427 t=193.1 gen=1
+seed 7: WIN  food=1201/1200 died=289 t=363.5 gen=1
+seed 8: WIN  food=1200/1200 died=624 t=264.4 gen=1
+seed 9: WIN  food=1200/1200 died=433 t=339.3 gen=1
+seed 10: WIN  food=1200/1200 died=304 t=248 gen=2
+seed 11: WIN  food=1201/1200 died=331 t=338.2 gen=2
+seed 12: loss food=1169/1200 died=883 t=480 gen=1
+seed 13: WIN  food=1200/1200 died=528 t=264.1 gen=1
+seed 14: WIN  food=1201/1200 died=312 t=337.1 gen=1
+seed 15: WIN  food=1201/1200 died=367 t=322 gen=1
+seed 16: WIN  food=1201/1200 died=530 t=262.6 gen=3
+seed 17: WIN  food=1201/1200 died=577 t=237.9 gen=1
+seed 18: loss food=819/1200 died=367 t=480 gen=1
+seed 19: WIN  food=1200/1200 died=698 t=440.9 gen=1
+seed 20: WIN  food=1201/1200 died=340 t=363.7 gen=2
+seed 21: WIN  food=1201/1200 died=1002 t=368.6 gen=1
+seed 22: WIN  food=1201/1200 died=735 t=361.5 gen=2
+seed 23: WIN  food=1200/1200 died=504 t=446 gen=2
+seed 24: WIN  food=1201/1200 died=307 t=315.5 gen=1
+seed 25: WIN  food=1201/1200 died=766 t=334.3 gen=2
+{
+  "auto": "general",
+  "fast": 16,
+  "seeds": "2-25",
+  "winnable": 22,
+  "played": 24,
+  "winRate": 0.917,
+  "losses": [
+    {
+      "seed": 12,
+      "food": 1169
+    },
+    {
+      "seed": 18,
+      "food": 819
+    }
+  ],
+  "rows": [
+    {
+      "seed": 2,
+      "won": true,
+      "food": 1201,
+      "quota": 1200,
+      "died": 740,
+      "slain": 4,
+      "time": 224.7,
+      "gen": 1
+    },
+    {
+      "seed": 3,
+      "won": true,
+      "food": 1201,
+      "quota": 1200,
+      "died": 95,
+      "slain": 2,
+      "time": 383.3,
+      "gen": 1
+    },
+    {
+      "seed": 4,
+      "won": true,
+      "food": 1200,
+      "quota": 1200,
+      "died": 339,
+      "slain": 2,
+      "time": 341.4,
+      "gen": 2
+    },
+    {
+      "seed": 5,
+      "won": true,
+      "food": 1201,
+      "quota": 1200,
+      "died": 461,
+      "slain": 4,
+      "time": 358.6,
+      "gen": 1
+    },
+    {
+      "seed": 6,
+      "won": true,
+      "food": 1200,
+      "quota": 1200,
+      "died": 427,
+      "slain": 3,
+      "time": 193.1,
+      "gen": 1
+    },
+    {
+      "seed": 7,
+      "won": true,
+      "food": 1201,
+      "quota": 1200,
+      "died": 289,
+      "slain": 4,
+      "time": 363.5,
+      "gen": 1
+    },
+    {
+      "seed": 8,
+      "won": true,
+      "food": 1200,
+      "quota": 1200,
+      "died": 624,
+      "slain": 1,
+      "time": 264.4,
+      "gen": 1
+    },
+    {
+      "seed": 9,
+      "won": true,
+      "food": 1200,
+      "quota": 1200,
+      "died": 433,
+      "slain": 4,
+      "time": 339.3,
+      "gen": 1
+    },
+    {
+      "seed": 10,
+      "won": true,
+      "food": 1200,
+      "quota": 1200,
+      "died": 304,
+      "slain": 2,
+      "time": 248,
+      "gen": 2
+    },
+    {
+      "seed": 11,
+      "won": true,
+      "food": 1201,
+      "quota": 1200,
+      "died": 331,
+      "slain": 4,
+      "time": 338.2,
+      "gen": 2
+    },
+    {
+      "seed": 12,
+      "won": false,
+      "food": 1169,
+      "quota": 1200,
+      "died": 883,
+      "slain": 4,
+      "time": 480,
+      "gen": 1
+    },
+    {
+      "seed": 13,
+      "won": true,
+      "food": 1200,
+      "quota": 1200,
+      "died": 528,
+      "slain": 1,
+      "time": 264.1,
+      "gen": 1
+    },
+    {
+      "seed": 14,
+      "won": true,
+      "food": 1201,
+      "quota": 1200,
+      "died": 312,
+      "slain": 4,
+      "time": 337.1,
+      "gen": 1
+    },
+    {
+      "seed": 15,
+      "won": true,
+      "food": 1201,
+      "quota": 1200,
+      "died": 367,
+      "slain": 3,
+      "time": 322,
+      "gen": 1
+    },
+    {
+      "seed": 16,
+      "won": true,
+      "food": 1201,
+      "quota": 1200,
+      "died": 530,
+      "slain": 3,
+      "time": 262.6,
+      "gen": 3
+    },
+    {
+      "seed": 17,
+      "won": true,
+      "food": 1201,
+      "quota": 1200,
+      "died": 577,
+      "slain": 4,
+      "time": 237.9,
+      "gen": 1
+    },
+    {
+      "seed": 18,
+      "won": false,
+      "food": 819,
+      "quota": 1200,
+      "died": 367,
+      "slain": 2,
+      "time": 480,
+      "gen": 1
+    },
+    {
+      "seed": 19,
+      "won": true,
+      "food": 1200,
+      "quota": 1200,
+      "died": 698,
+      "slain": 4,
+      "time": 440.9,
+      "gen": 1
+    },
+    {
+      "seed": 20,
+      "won": true,
+      "food": 1201,
+      "quota": 1200,
+      "died": 340,
+      "slain": 2,
+      "time": 363.7,
+      "gen": 2
+    },
+    {
+      "seed": 21,
+      "won": true,
+      "food": 1201,
+      "quota": 1200,
+      "died": 1002,
+      "slain": 2,
+      "time": 368.6,
+      "gen": 1
+    },
+    {
+      "seed": 22,
+      "won": true,
+      "food": 1201,
+      "quota": 1200,
+      "died": 735,
+      "slain": 4,
+      "time": 361.5,
+      "gen": 2
+    },
+    {
+      "seed": 23,
+      "won": true,
+      "food": 1200,
+      "quota": 1200,
+      "died": 504,
+      "slain": 3,
+      "time": 446,
+      "gen": 2
+    },
+    {
+      "seed": 24,
+      "won": true,
+      "food": 1201,
+      "quota": 1200,
+      "died": 307,
+      "slain": 2,
+      "time": 315.5,
+      "gen": 1
+    },
+    {
+      "seed": 25,
+      "won": true,
+      "food": 1201,
+      "quota": 1200,
+      "died": 766,
+      "slain": 3,
+      "time": 334.3,
+      "gen": 2
+    }
+  ]
+}
+EXIT=0
