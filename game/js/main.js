@@ -5,6 +5,7 @@ import { makeRenderer, draw, hudText, drawEndCard, drawTitle } from './render.js
 import { makeAutoPlayer } from './auto.js';
 import { SCENARIO, makeScenarioState, updateScenario } from './scenario.js';
 import { makeOnboarding, updateOnboarding, drawOnboarding } from './onboarding.js';
+import { pickSeed } from './seedpool.js';
 
 const q = new URLSearchParams(location.search);
 const seed = parseInt(q.get('seed') || '7', 10);
@@ -47,7 +48,10 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'p' || e.key === 'P') ui.paused = !ui.paused;
   if (sc.over) {
     if (e.key === 'r' || e.key === 'R') location.search = `?seed=${seed}`;
-    if (e.key === 'n' || e.key === 'N') location.search = `?seed=${(Math.random() * 100000) | 0}`;
+    // "new territory" draws from the oracle-vetted pool (see seedpool.js) so
+    // every replay map is one competent play can beat — not a random,
+    // possibly-too-hard seed.
+    if (e.key === 'n' || e.key === 'N') location.search = `?seed=${pickSeed(seed)}`;
   }
 });
 

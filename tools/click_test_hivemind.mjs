@@ -12,6 +12,10 @@ const box = await (await page.$('#cv')).boundingBox();
 const P = (x, y) => [box.x + (x * box.width) / 1280, box.y + (y * box.height) / 720];
 const hint = () => page.evaluate(() => (window.__OB && window.__OB.active ? window.__OB.active.id : null));
 
+// dismiss the title card first — the first click only starts the season (it
+// does not paint), so painting must come after this.
+{ const [cx, cy] = P(640, 360); await page.mouse.click(cx, cy); }
+await page.waitForTimeout(600);
 console.log('hint at t=4:', await hint());
 await page.screenshot({ path: 'media/proto/game_hint1.png' });
 
