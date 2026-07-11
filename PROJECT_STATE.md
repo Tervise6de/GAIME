@@ -23,9 +23,12 @@ snapshot — detail belongs in the logs and in git history.
   (Loop 4b: commander WINS 24/24 generated seeds + seed 7; every commit
   verified before push). NOTE: Loop-4 work lives on this feature branch, not
   yet merged to main.
-- **Current build status:** GREEN — commander WINS 24/24 generated seeds
-  (1000..3231) and seed 7; naive/idle lose on all tested seeds. See CLAUDE.md
-  for re-verification; cross-seed sweep via `node tools/bot_sweep.mjs`.
+- **Current build status:** GREEN. Commander oracle wins ~83% of generated
+  seeds (45/54 swept, 1000..6141 step 97) and seed 7; naive/idle lose on all
+  tested seeds. "New territory" [N] serves only the 39 oracle-comfortable
+  seeds (win-time ≤430s), so players never get a map the oracle itself can't
+  beat. NOTE: the first-24 "100%" was a fortunate sample — see PLAYTEST_LOG
+  correction 2026-07-11. Cross-seed sweep via `node tools/bot_sweep.mjs`.
 - **Highest-value next action:** brood-throttle verb (player control over the
   growth economy — the dominant outcome lever, currently automatic) OR juice
   pass; difficulty normalization is now understood as an offline-oracle task,

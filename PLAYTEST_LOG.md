@@ -191,3 +191,33 @@ Entry template:
   + gen_stats.mjs; winnability assumption RESOLVED to VERIFIED-for-bot;
   difficulty-normalization approach reframed (offline oracle, not static
   heuristic) in BACKLOG/DECISION_LOG.
+
+## 2026-07-11 ~02:20 UTC — Loop 4 CORRECTION: true win rate is ~83%, not 100%
+- Hypothesis / what was tested: whether the "24/24" commander win rate from
+  the first sweep (seeds 1000..3231) generalises. Ran a second sweep on a
+  fresh, contiguous range (seeds 3328..6141, step 97, 30 seeds).
+- How it was run: tools/bot_sweep.mjs 30 commander 30 3328 97.
+- Observed result (facts): 21/30 WON (winRate 0.70). Combined with the first
+  24 (24/24), the honest rate is 45/54 = 83.3%. Win-time (winners) min 215 /
+  median ~305 / max 479 s. The 9 losses cluster into two modes: (a) GUARD
+  FIZZLE — rich pile barely/never harvested (seeds 4880 r0 slain0, 3522 r0,
+  5559 r0, 5074 r204, 4104 r220, 4201 r272): the commander still fails to
+  reliably engage a guard on some geometries even after the WAR-road fix;
+  (b) THIN MISS — all piles worked but net stock fell 100-160 short
+  (4104/4201/5074/6141 at 1041/1095/1098/1114) from cumulative deaths.
+- Evidence class: VERIFIED FACT (deterministic). CORRECTS the earlier entry's
+  implication that generated maps are uniformly winnable — the FIRST 24 were a
+  fortunate sample. Because the losses are largely bot-weakness (guard fizzle),
+  those maps may still be winnable by better play; the oracle simply does not
+  PROVE it. So: "the commander wins ~83% of generated seeds" is the claim, NOT
+  "all generated maps are winnable."
+- Weaknesses found: (1) commander guard-assault is unreliable on some layouts
+  (far guard vs. competing harvest roads); (2) win rate is sample-sensitive —
+  need a larger screen for a tight estimate; (3) the 480 s limit leaves little
+  margin on hard seeds.
+- Action taken: reframed the seed pool as the CURATED oracle-winnable subset
+  (this is now clearly the right design — a random seed can be un-winnable by
+  the oracle). Pool expanded to 39 comfortable-margin winners (win-time
+  <=430 s) from both sweeps; 6 held out (thin margin); 9 losses recorded and
+  never served. Claims corrected across PROJECT_STATE / DECISION_LOG / HANDOFF.
+  Next: strengthen the guard assault to raise the true win rate.

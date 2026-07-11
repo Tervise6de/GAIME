@@ -141,3 +141,23 @@ Entry template:
   gameplay/data change). Revisit if human playtests show the oracle is a poor
   proxy for human difficulty, or if a cheaper predictive difficulty signal is
   found. The frozen fallback is the seed-7 hand-tuned map, unaffected.
+
+## 2026-07-11 (correction) — Generated-map winnability is ~83%, not 100%
+- Stage: WINNER_DEVELOPMENT (Stage 6, Loop 4)
+- Decision: Correct the prior same-day entry. A second sweep (seeds
+  3328..6141) won only 21/30; the true commander win rate across 54 swept
+  generated seeds is 45/54 = 83%. The claim is "the oracle wins ~83% of
+  generated seeds"; NOT "all generated maps are winnable." Ship generated
+  replay maps ONLY from the curated oracle-winnable pool (now 39 seeds), never
+  a raw random seed. Keep the 9 known-unwinnable-by-oracle seeds recorded for
+  re-testing a stronger bot.
+- Alternatives considered: (a) keep serving random seeds (rejected — ~17% risk
+  of a map the oracle cannot beat, poor player experience and dishonest
+  framing); (b) claim maps are all winnable and treat losses as bot noise
+  (rejected — evidence discipline; the losses are real for THIS oracle).
+- Evidence class: verified fact (deterministic sweep).
+- Why: the first 24-seed sample was fortunate; presenting it as the
+  population rate would mislead the founder's investment read. The curated
+  pool makes the shipped experience match the honest evidence.
+- Reversibility / exit condition: strengthen the guard assault and re-sweep;
+  if the true rate rises materially, widen the pool and revise this entry.

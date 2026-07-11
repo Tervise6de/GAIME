@@ -12,26 +12,32 @@ snapshot, not an accumulating history — history lives in git.
 - **What changed this session (Loop 4):** the commander bot was generalized
   from hardcoded seed-7 waypoints to a map-agnostic hunter-avoiding Dijkstra
   pathfinder (LURE harvest roads + a hybrid LURE-approach / WAR-conversion
-  assault that drives soldiers into the guard's den). RESULT: commander WINS
-  24/24 generated seeds (1000..3231, step 97) + seed 7; naive/idle LOSE on
-  all tested seeds (discrimination intact). New tools: `tools/bot_sweep.mjs`
-  (cross-seed winnability/difficulty sweep), `tools/gen_stats.mjs` (static
-  geometry features). Finding: difficulty is EMERGENT — no cheap geometry
-  feature predicts win-time (see PLAYTEST_LOG / DECISION_LOG 2026-07-11).
+  assault on the guard's den). RESULT: across 54 swept generated seeds
+  (1000..6141, step 97) the commander wins ~83% (45/54) + seed 7; naive/idle
+  LOSE on all tested seeds. "New territory" [N] now serves only the 39
+  oracle-comfortable seeds (win-time ≤430s), so players never get a map the
+  oracle can't beat. Also: juice pass (delivery pulse + hunter death burst,
+  sim-pure, effects.js); fixed the stale click test. New tools:
+  `bot_sweep.mjs`, `gen_stats.mjs`. Finding: difficulty is EMERGENT — no cheap
+  geometry feature predicts win-time. IMPORTANT: the first 24-seed sample read
+  100%; the true rate is ~83% (see PLAYTEST_LOG correction 2026-07-11).
 - **Current build status:** GREEN. Re-verify:
   `for s in commander idle; do node tools/run_proto.mjs "http://localhost:8123/game/index.html?seed=7&auto=$s&fast=12" --max 150; done`
   → commander WINS, idle loses. Full sweep: `node tools/bot_sweep.mjs 24 commander 30`.
   (Run `npm install` first — Playwright is a dev dep; the harness needs it.)
 - **Known blockers:** none technical. Human playtesting impossible here.
 - **Next three actions (highest value first):**
-  1. Difficulty band via offline oracle: bake a commander-vetted seed pool
-     into the [N] "new territory" flow (static geometry does NOT predict
-     difficulty), and give the hard tail more margin (seed 2067 wins with
-     only ~7s to spare). Low risk — no sim change.
+  1. Strengthen the commander guard-assault to raise the true win rate above
+     83% — the 9 known losses (recorded in seedpool.js) are largely
+     guard-fizzle (rich pile never harvested when the guard is far and
+     competing harvest roads out-pull the assault). Re-sweep those 9 first
+     (fast), then broadly. This both raises winnability and grows the pool.
   2. Brood-throttle verb (paint the nest: feed vs bank) — the last big
-     gameplay lever; growth is currently automatic. Higher game value but
-     touches the sim: checkpoint first and re-run the full bot matrix after,
-     since the commander does not know about the new verb.
-  3. Juice pass (nest delivery pulse, spider death burst, procedural
-     WebAudio) + re-capture media (current media predates Loop 4).
+     gameplay lever; growth is currently automatic. Needs a dedicated BROOD
+     field/tool (NOT LURE/FEAR at the nest — the commander paints those, would
+     collide). Checkpoint + re-run the bot matrix after (commander must stay
+     unaffected by construction).
+  3. Add procedural WebAudio to the juice layer (delivery tick, death thud,
+     wave-arrival) — guarded so headless never breaks; re-capture media with
+     `node tools/record_gameplay.mjs <seed> commander <prefix>`.
 - **Exact build/run commands:** see CLAUDE.md "Build & test commands".

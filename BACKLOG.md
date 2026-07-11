@@ -5,16 +5,16 @@ duplicating them. Rejected items keep a one-line reason.
 
 ## Now
 
-1. Brood throttle verb (paint the nest: grow vs bank) — player control over
-   the growth economy discovered to dominate outcomes in Loop 1. Highest
-   remaining gameplay lever (meaningful decision).
-2. Juice pass: nest delivery pulse, spider death burst, procedural WebAudio;
-   re-capture media afterwards.
-3. Difficulty band via OFFLINE ORACLE: ship a curated seed pool (or an
-   at-gen quick oracle) so "new territory" stays in a win-time band — static
-   geometry does NOT predict difficulty (Loop 4 data), so a seed pool
-   pre-screened by the commander is the viable normalizer. Also give the
-   hardest tail a little margin (seed 2067 wins with only ~7s to spare).
+1. Strengthen commander guard-assault → raise true win rate above 83%. The 9
+   recorded losses (seedpool.js) are mostly guard-fizzle: rich pile unharvested
+   when the guard is far and harvest roads out-pull the assault. Re-sweep the 9
+   first, then broadly; grow the pool with new comfortable winners.
+2. Brood throttle verb (dedicated BROOD field/tool, NOT LURE/FEAR at the nest)
+   — player control over the growth economy that dominates outcomes. Highest
+   remaining gameplay lever (meaningful decision); checkpoint + re-run matrix.
+3. WebAudio for the juice layer (delivery tick, death thud, wave arrival),
+   guarded for headless; re-capture media (record_gameplay.mjs now takes a
+   seed arg — use a vetted generated seed to show the generalized maps).
 4. Second scenario ("The Long Drought") reusing systems, no new tech.
 5. Founder-facing: arrange 5-10 human playtests of game/dist/HIVEMIND.html
    (measure: season completed ≤3 attempts; all verbs used; voluntary
@@ -22,10 +22,12 @@ duplicating them. Rejected items keep a one-line reason.
 
 ## Done (recent)
 
-- [Loop 4] Generalize commander to BFS-derived roads; verify generated maps
-  bot-WINNABLE across 24 seeds (24/24 win) + weak-play discrimination
-  (naive/idle lose). Difficulty found to be emergent, not statically
-  predictable. Tools: bot_sweep.mjs, gen_stats.mjs.
+- [Loop 4] Generalize commander to BFS-derived roads (map-agnostic oracle);
+  verify generated maps: ~83% win rate across 54 seeds (NOT 100% — first-24
+  sample was fortunate) + naive/idle discrimination. Difficulty is emergent
+  (no static predictor). Curated 39-seed oracle-winnable pool wired into [N].
+  Juice pass (delivery pulse + death burst, sim-pure). Fixed stale click test.
+  Tools: bot_sweep.mjs, gen_stats.mjs; record_gameplay.mjs takes a seed arg.
 
 ## Next
 
