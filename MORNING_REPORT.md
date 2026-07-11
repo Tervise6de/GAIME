@@ -19,12 +19,13 @@ Sound: procedural WebAudio (soft delivery ticks, a thud on each hunter kill,
 a swell as reinforcement waves arrive) unlocks on your first click. It is
 guarded and asset-free; levels still want a human tuning pass.
 
-**Watch instead:** `media/gen_map_battle.png` and `media/gen_map_roads.png`
-are the current hero stills — a procedurally-GENERATED territory played by
-the competent bot, showing the branch of scent-roads, a warband assault, and
-a hunter death-burst. Older seed-7 assets: `media/hivemind.gif` (13s battle
-clip), `media/gameplay_commander_seed7.webm` (~2 min scripted play),
-`media/shot_*.png`.
+**Watch instead:** `media/gameplay_gen_seed5462.webm` (~2 min of competent
+play on a procedurally-GENERATED territory). Hero stills, all from generated
+maps: `media/morning_gen_mid.png` (branching scent-roads + WAR assault at 63%
+stores) and `media/gen_clip_battle.png` (a guard assault mid-strike). Older
+seed-7 assets: `media/hivemind.gif` (13s battle clip),
+`media/gameplay_commander_seed7.webm`, `media/shot_*.png`. All captured this
+morning from the current build; every referenced run is a bot WIN.
 
 ## What the game is
 
