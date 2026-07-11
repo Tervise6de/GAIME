@@ -211,3 +211,30 @@ Entry template:
 - **Follow-up (~00:55 UTC):** expanded the whitelist 16 -> 24 vetted seeds
   (scan 1000..1073; band held tight at 211.4-349.5s, median 282.8s; rejected
   7 losses / 5 too-easy / 8 too-hard / 0 degenerate). dist rebuilt.
+
+## 2026-07-11 ~00:45 UTC — Loop 4 follow-up: does the verb's depth hold OFF the handcrafted map?
+- Hypothesis / what was tested: the seed-7 falsification (competent routing
+  >> naive pointing) might be an artifact of the hand-tuned map. Test the same
+  skill gradient on 10 procedurally generated whitelist maps.
+- How it was run: `tools/sweep.mjs` with the map-agnostic bots naive (LURE
+  straight to the rich pile), warband (clear the guarding hunter, then point
+  at rich) and commander (full competence), same 10 seeds
+  (1000,1003,1007,1011,1019,1025,1030,1037,1041,1043).
+- Observed result (facts, deterministic):
+  * naive     0/10 won — mostly food 0, deaths frequently 4000-4800 (the
+    swarm marches straight through hunter ground and is slaughtered).
+  * warband   0/10 won — clearing the guard cuts deaths sharply and banks
+    partial food (up to 511) but a single pile can't reach the 1200 quota.
+  * commander 10/10 won — 211-347s (separated corridors + FEAR containment +
+    guard clearing harvest three piles concurrently and survive).
+  A clean monotonic skill gradient: incompetence is fatal, partial competence
+  survives but stalls, full competence wins — on maps the bot has never seen.
+- Evidence class: VERIFIED FACT (deterministic) that competence discriminates
+  outcomes on generated maps, not just the authored one. STRONG PROXY that the
+  painting verb has genuine depth (bots are proxies for player skill tiers;
+  human enjoyment of that depth remains ASSUMPTION).
+- Weaknesses: three scripted skill tiers, not a continuum of real humans; the
+  "smart" corridor bot is still seed-7-only so the finest gradient rung is
+  handcrafted-map-only. Off-map depth is nonetheless now demonstrated.
+- Action taken: recorded; extends the Stage-4 falsification result from one
+  authored map to the procedural map space.
