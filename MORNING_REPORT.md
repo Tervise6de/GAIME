@@ -152,3 +152,34 @@ this build before major content spend; (2) map-variation + brood-throttle
 next so depth claims survive beyond one map; (3) an art-direction spike
 before any marketing beat. STORMWARDEN remains a credible pivot with its
 hardest assumption already proven.
+
+---
+
+## Post-report addendum — same day (2026-07-11, afternoon sessions)
+
+Written after the report above was stamped; the recommendation stands, but
+three of its "remains assumed" items moved to measured evidence today:
+
+- **"One handcrafted map; replay variation designed but not built" → BUILT
+  and MEASURED.** Territories generate with structural fairness guarantees
+  (40/40 gen_check), and a generalized bot now wins **16 of 16** reference
+  generated maps (morning: 9/16; the gap was a bot strategy flaw — guard
+  assaults and brood spending — not map unfairness). Reproduce with one
+  command: `node tools/win_sweep.mjs 16 40 1000 97`. This is a strong-proxy
+  lower bound on winnability; it is still NOT evidence of human fun.
+- **Brood throttle verb shipped** (was "complete launch scope" item): FEAR
+  painted on the nest holds brood — grow-vs-bank is now a player decision,
+  taught by onboarding, shown in HUD, and settled on the end card ("spent on
+  brood"). It flips economy-shortfall losses to wins in bot play.
+- **Audio + game-feel started** (was "complete launch scope" item): delivery
+  pulses, hunter death bursts, zero-asset procedural WebAudio (gesture-gated).
+  No human has heard it — synthesis is creative judgment.
+- **Difficulty normalization** was investigated and REJECTED on evidence:
+  static map features do not predict observed difficulty (best |r|=0.47,
+  n=14). If human playtests show difficulty variance hurts, the lever is
+  dynamic (wave placement), not generator rejection. DECISION_LOG 2026-07-11.
+
+Net effect on the recommendation: condition (2) — "map-variation +
+brood-throttle next" — is now DONE with measured results. Conditions (1)
+human playtests and (3) art-direction spike are unchanged and are the next
+two actions in BACKLOG "Now".
