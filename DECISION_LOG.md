@@ -113,3 +113,36 @@ Entry template:
 - Reversibility / exit condition: SW fallback stays runnable; pivot if HM
   onboarding/readability work fails to make scripted-novice completion
   possible, or morning verdict rejects it.
+
+## 2026-07-11 — Commander bot dispatch (hand-tuned seed 7 / general elsewhere) + far-guard difficulty gate
+- Stage: WINNER_DEVELOPMENT (Loop 4).
+- Decision: (a) Split the competence bot: `commanderTuned` keeps the
+  hand-authored seed-7 lanes (the regression anchor, WINS t=175), while
+  `commanderGeneral` derives roads via Dijkstra for any generated seed.
+  (b) Normalize generated-map difficulty with ONE cheap generator constraint:
+  reject layouts whose guard sits >1010px from the nest. Do NOT add pincer/
+  distance gates, and do NOT keep the fragile bot experiments (progressive
+  path-clearing, pincer third-front).
+- Alternatives considered: (1) one fully-general bot that also wins seed 7 —
+  rejected: the generic router is ~2.5x less road-efficient than the tuned
+  lanes on seed 7's far-corner piles, so it lost the anchor on attrition;
+  seed 7 is explicitly the handcrafted map, so its hand-tuned solution is
+  legitimate. (2) Bot heuristics to win the hard tail (path-clearing, extra
+  fronts) — rejected: soldier allocation is shared and capped, so each fix
+  destabilised other seeds and even collapsed colonies (seed 1007). (3) A
+  structural pincer/distance gate — rejected: validated against the sweep,
+  it culls as many winnable maps as unwinnable ones (the bot's concentration
+  already handles most pincers). (4) Easing the economy/quota on generated
+  maps — rejected as risky late-session balance surgery that could break the
+  seed-7 calibration and the lazy-loses signal.
+- Evidence class: verified fact (30-seed deterministic sweep: 73%→77% with
+  the gate, seed-7 anchor unchanged, idle/naive lose on generated maps,
+  40/40 fairness guarantees intact, gate false-positive-free on the sample);
+  strong proxy (competent human can win generated maps); the residual ~23%
+  is a real balance/AI tail, classified assumption for human winnability.
+- Why: preserve the proven anchor exactly; make winnability on arbitrary
+  maps DEMONSTRATED (was 0% off seed 7) rather than perfect; take only the
+  normalization that evidence shows is free of collateral damage; keep the
+  build stable rather than over-fit a fragile bot.
+- Reversibility: the seed dispatch and the 1010px cap are one-line reverts;
+  the general bot stands alone. Residual-tail work is queued in BACKLOG.

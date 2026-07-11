@@ -5,9 +5,14 @@ duplicating them. Rejected items keep a one-line reason.
 
 ## Now
 
-1. Generalize commander bot to derived paths (BFS route extraction) and
-   verify generated maps are bot-WINNABLE (not just fair) across ≥20 seeds;
-   normalize difficulty.
+1. Close the generated-map winnability tail (currently 77% bot-winnable).
+   Residual losers are death-bleed near-misses (fully harvest, fall <60 food
+   short) + mid-hunter pincers. Highest-value probes, in order: (a) is the
+   generated-map economy ~50 food too tight vs seed 7? test a small quota/
+   pile-rate nudge, re-check idle/naive still lose; (b) a pincer-aware bot
+   that clears the blocker WITHOUT diluting nest defense (the naive versions
+   collapsed seed 1007) — needs a soldier-budget model, not just more fronts.
+   Tools ready: tools/sweep_parallel.mjs (all-core headless sweep).
 2. Brood throttle verb (paint the nest: grow vs bank) — player control over
    the growth economy discovered to dominate outcomes in Loop 1.
 3. Juice pass: nest delivery pulse, spider death burst, procedural WebAudio;

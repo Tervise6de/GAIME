@@ -137,3 +137,55 @@ Entry template:
   cannot play generated maps (hardcoded waypoints) so winnability is
   structurally plausible but unproven off seed 7.
 - Action taken: committed; balance sweep across seeds moved to backlog Now.
+
+## 2026-07-11 03:10 UTC — Stage 6 Loop 4: cross-seed bot-winnability @ (pending commit)
+- Hypothesis / what was tested: (1) a map-general commander bot can play
+  arbitrary generated territories (the old bot's waypoints were hardcoded to
+  seed 7); (2) generated maps are actually bot-winnable across many seeds;
+  (3) a difficulty-normalization gate can remove the unwinnable tail without
+  culling winnable maps or breaking the competence signal.
+- How it was run: new headless oracles run the FULL game loop (sim +
+  scenario + auto player) in Node — no browser: tools/sweep_seeds.mjs
+  (serial) and tools/sweep_parallel.mjs + sweep_worker.mjs (one process per
+  seed, all cores). Swept commander over seed 7 + 30 generated seeds
+  (1000..1029); ran idle/naive/smart on a subset for the negative control.
+  Seed-7 regression re-verified; single-file build + UI click test re-run.
+- Observed result (facts only):
+  * OLD bot on generated maps was catastrophic (seed 23: 0 food gathered) —
+    hardcoded seed-7 lanes point into walls elsewhere.
+  * NEW commanderGeneral (Dijkstra-derived roads, min-heap; two WAR fronts —
+    defend nest + clear rich guard; kill by concentration): before the gate
+    22/30 generated seeds WON (73%); after the far-guard gate 23/30 (77%),
+    win-time avg 308s (limit 480s). Seed 7 anchor UNCHANGED: commander WINS
+    t=175, died 679 (byte-identical world; dispatched to the hand-tuned
+    commanderTuned).
+  * Negative control HOLDS on generated maps (not just seed 7): idle loses
+    (stock 0–928), naive loses (marches into the guard, colony collapses,
+    stock 0) on seeds 1000–1002 while commander wins them. Competence
+    discrimination is not a seed-7 artifact.
+  * Difficulty gate: reject generated layouts whose guard sits >1010px from
+    the nest (objective out of projectable range). Validated false-positive-
+    free on the 30-seed sample (max winner guard-distance was 1001px; only
+    losers 1026/1027 were flagged). Fairness guarantees still 40/40; gen
+    attempts 1–4, no handcrafted fallbacks.
+  * Also fixed a crash: an off-grid wandering-hunter coordinate made pathTo
+    return an empty (truthy) array, so the war-march fallback never fired
+    (TypeError at first commander tick). Clamped the target cell; guarded the
+    empty case.
+- Evidence class: VERIFIED FACT (deterministic seeded full-game runs, this
+  build) that generated maps are COMMONLY bot-winnable and that lazy play
+  loses. STRONG PROXY that a competent human can win generated maps (bot is
+  a skill proxy, not a human). The residual ~23% bot losses are a real
+  BALANCE/AI tail, not a fairness defect.
+- Weaknesses found: (1) the residual losers are heterogeneous — death-bleed
+  near-misses that fully harvest but fall <60 food short (1014: 1161, 1027),
+  plus specific hard geometry (mid-hunter pincers, 1015/1020/1022) — and do
+  NOT separate from winnable maps on any cheap structural proxy tried
+  (pincer/distance gates cull as many winners as losers), so no further gate
+  is justified; (2) the bot sits at a fragile local optimum — every attempt
+  to fix specific losers (progressive path-clearing, pincer third-front)
+  destabilised other seeds because soldier allocation is shared and capped;
+  (3) winnability is still bot-measured, not human-measured.
+- Action taken: shipped commanderGeneral + the far-guard gate + the headless
+  sweep harness; logged the residual tail to RISKS/BACKLOG rather than
+  over-tuning a working game late in the session.

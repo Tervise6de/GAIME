@@ -149,6 +149,13 @@ function generatedLayout(rng) {
   const rich = piles[0];
   const ga = rng() * Math.PI * 2;
   const guard = { hx: rich.x + Math.cos(ga) * 70, hy: rich.y + Math.sin(ga) * 70, tr: 115 + rng() * 15 };
+  // DIFFICULTY NORMALIZATION: the guard (and thus the rich pile, the bulk of
+  // the quota) must stay within projectable range of the nest. A guard in the
+  // far corner cannot be cleared before the colony bleeds out — a competence
+  // sweep showed those maps are the unwinnable tail. Keep the objective
+  // reachable; regenerate otherwise. (Reference: the handcrafted seed-7 guard
+  // sits ~460px from the nest; the cap allows well beyond that.)
+  if (Math.hypot(guard.hx - nest.x, guard.hy - nest.y) > 1010) return null;
   let mid = null;
   for (let tries = 0; tries < 80; tries++) {
     const x = 420 + rng() * 560, y = 120 + rng() * 480;

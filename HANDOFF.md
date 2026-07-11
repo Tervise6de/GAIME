@@ -3,35 +3,48 @@
 Overwrite this ENTIRE file at the end of every session. It is a replaceable
 snapshot, not an accumulating history — history lives in git.
 
-- **Current stage:** WINNER_DEVELOPMENT (post Loop 3) → next loops below;
-  MORNING_ASSESSMENT report already current as of overnight-1 end
+- **Current stage:** WINNER_DEVELOPMENT (post Loop 4). MORNING_ASSESSMENT
+  report exists from overnight-1; refresh it on the final morning run.
+- **Branch note:** overnight-2 developed on `claude/ecstatic-ride-2ijakk`
+  (task-scoped requirement), NOT `main`. The heartbeat/lock lives on main;
+  this branch's work must be merged to main to become the studio's memory.
 - **Active hypothesis:** humans can learn and enjoy the painting verb
-  (scripted play proves depth exists; human feel is THE open question)
-- **What changed (overnight-1):** stages 1-5 end-to-end; Stage 6 loops 1-3 (goal structure, onboarding, generated territories); two
-  instrumented prototypes with falsification evidence; HIVEMIND selected
-  and developed into a winnable/losable game with onboarding, economy,
-  escalation, title/end cards; single-file distributable build; media
-  (GIF/webm/screenshots); MORNING_REPORT.md written (CONTINUE WITH
-  CONDITIONS).
-- **Current build status:** GREEN. `game/` verified: commander bot WINS
-  seed 7 at t≈175 (deterministic), four lazy doctrines lose differently;
-  single-file build `game/dist/HIVEMIND.html` verified identical from
-  file://. Both prototypes still run.
-- **Last known good commit:** see latest main (every commit tonight was
-  verified before push; if anything regresses, `git log` — each commit
-  message states what was verified).
-- **Known blockers:** none technical. Human playtesting impossible from
-  this environment — founder action or future integration needed.
+  (scripted play proves depth; human feel is THE open question).
+- **What changed (overnight-2, Loop 4):**
+  - The commander bot was hardcoded to seed-7 lanes → could not play
+    generated maps (seed 23 gathered 0 food). Split it: `commanderTuned`
+    (hand-authored seed-7 solution, WINS t=175 unchanged — the anchor) and
+    `commanderGeneral` (Dijkstra-derived roads via a min-heap; two WAR
+    fronts — defend nest + clear rich guard; kill by concentration).
+  - Fixed a first-tick crash (off-grid hunter coord → empty truthy path →
+    war-march fallback never fired). Clamp target cell + guard empty case.
+  - Added a difficulty-normalization gate to the generator: reject layouts
+    whose guard sits >1010px from the nest (objective must be projectable).
+    Validated false-positive-free on 30 seeds; fairness still 40/40.
+  - New headless oracles: `tools/sweep_seeds.mjs` (serial) and
+    `tools/sweep_parallel.mjs` + `tools/sweep_worker.mjs` (all-core). They
+    run the FULL game loop in Node — no browser — for fast winnability sweeps.
+- **Current build status:** GREEN. Full-game sweep: commander WINS seed 7
+  (t=175, died 679) + 23/30 generated seeds (77%, avg win-time 308s). Negative
+  control HOLDS on generated maps: idle & naive LOSE (naive marches into the
+  guard, colony collapses). gen_check 40/40. Single-file build + UI click
+  test re-run clean (no pageerror).
+- **Known blockers:** none technical. Human playtesting still impossible from
+  this environment. ~23% of generated maps remain NOT bot-winnable (a real
+  balance/AI tail — see RISKS + BACKLOG Now #1).
 - **Next three actions (highest value first):**
-  1. Generalize commander bot to BFS-derived paths; verify generated maps
-     are bot-WINNABLE across ≥20 seeds and normalize difficulty (fairness
-     guarantees shipped tonight; balance guarantees are the gap).
-  2. Brood throttle verb (paint the nest: feed vs bank ratio) — removes
-     the automatic-growth limitation found in Loop 1 economics.
-  3. Juice pass: delivery pulse at nest, spider death burst, WebAudio
-     blips (all procedural, licence-clean) + re-capture GIF.
-- **Exact build and run commands:** see CLAUDE.md "Build & test commands"
-  (serve, play URL, single-file build, bot-matrix verification, UI tests).
-  Quick verify after any sim change:
-  `for s in commander idle; do node tools/run_proto.mjs "http://localhost:8123/game/index.html?seed=7&auto=$s&fast=12" --max 150; done`
-  → commander must WIN, idle must lose.
+  1. Close the winnability tail. Residual losers are death-bleed near-misses
+     (fully harvest, <60 food short) + mid-hunter pincers. Try FIRST: is the
+     generated economy ~50 food tighter than seed 7? Nudge quota/pile-rate a
+     touch and RE-CHECK idle/naive still lose. Only then try a soldier-budget-
+     aware pincer bot (naive extra-fronts collapsed seed 1007 — don't repeat).
+     Measure with `node tools/sweep_parallel.mjs auto=commander count=30`.
+  2. Brood throttle verb (paint the nest: grow vs bank) — removes the
+     automatic-growth limitation from Loop 1.
+  3. Juice pass: delivery pulse, spider death burst, procedural WebAudio
+     (licence-clean) + re-capture GIF.
+- **Exact build/run/verify commands:** see CLAUDE.md "Build & test commands".
+  Quick anchor check after any sim/bot change:
+  `node tools/sweep_parallel.mjs auto=commander count=8 start=1000` →
+  seed 7 must WIN t≈175; most generated seeds WIN; then confirm
+  `auto=idle`/`auto=naive` LOSE.
