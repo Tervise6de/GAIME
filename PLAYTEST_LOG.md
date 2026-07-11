@@ -207,3 +207,7 @@ Entry template:
   convenient. Do not add a structural gate (it would give false confidence).
 - Action taken: recorded; abandoned the gen-time-gate idea; kept the
   simulation-verified whitelist as the shipping mechanism.
+
+- **Follow-up (~00:55 UTC):** expanded the whitelist 16 -> 24 vetted seeds
+  (scan 1000..1073; band held tight at 211.4-349.5s, median 282.8s; rejected
+  7 losses / 5 too-easy / 8 too-hard / 0 degenerate). dist rebuilt.

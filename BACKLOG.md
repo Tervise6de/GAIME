@@ -5,14 +5,18 @@ duplicating them. Rejected items keep a one-line reason.
 
 ## Now
 
-1. Generalize commander bot to derived paths (BFS route extraction) and
-   verify generated maps are bot-WINNABLE (not just fair) across ≥20 seeds;
-   normalize difficulty.
-2. Brood throttle verb (paint the nest: grow vs bank) — player control over
-   the growth economy discovered to dominate outcomes in Loop 1.
-3. Juice pass: nest delivery pulse, spider death burst, procedural WebAudio;
-   re-capture media afterwards.
-4. Second scenario ("The Long Drought") reusing systems, no new tech.
+1. Brood throttle verb (paint the nest: grow vs bank) — player control over
+   the growth economy that dominates outcomes. NOTE: changes the economy, so
+   it will shift balance — must re-validate the seed whitelist (tools/
+   build_whitelist.mjs) and seed-7 quota afterwards. Deferred this session to
+   keep the shipped build's balance stable and verified.
+2. Second scenario ("The Long Drought") reusing systems, no new tech —
+   deepens content/replay beyond one win condition.
+3. Grow the curated whitelist as more fair replay maps are needed (the
+   generator emits ~22% unfair maps and structural gating proved infeasible,
+   so simulation-verified curation is the ONLY fair-map source).
+4. Art direction spike (palette, ant silhouettes, terrain) — programmer-glow
+   is strong in motion, thin in stills.
 5. Founder-facing: arrange 5-10 human playtests of game/dist/HIVEMIND.html
    (measure: season completed ≤3 attempts; all verbs used; voluntary
    restarts; kill-signal: "ants won't obey" quits).
@@ -45,3 +49,8 @@ duplicating them. Rejected items keep a one-line reason.
   concept only.
 - Time-triggered escalation waves — competent play outruns them; replaced
   by progress-triggered waves (evidence in PLAYTEST_LOG 22:00 entry).
+- Cheap gen-time structural balance gate — tested and rejected: simple map
+  geometry does NOT predict winnability (PLAYTEST_LOG 2026-07-11 00:25), so
+  fair maps must be simulation-verified (the whitelist), not gated at gen time.
+- Shipping raw-random "new territory" seeds — 22% are unwinnable even by the
+  ceiling bot; [N] now draws from the vetted whitelist instead.
