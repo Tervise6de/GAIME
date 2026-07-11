@@ -37,7 +37,11 @@ pause. Click to begin. The game teaches the rest contextually.
 `media/gameplay_commander_seed7.webm` (~2 min of scripted competent play),
 screenshots `media/shot_*.png`. The core-hook image is
 `media/shot_battle.png` — twin scent-roads, golden ant-rivers, a red
-warband striking a hunter.
+warband striking a hunter. **Winnability evidence (new):**
+`media/gen_seed1679_assault.png` shows the guard assault on a *generated*
+territory (cyan roads, a purple FEAR wall over the roamer, a red WAR strike on
+the guarded pile) and `media/gen_seed1679_win.png` its win card — this seed was
+a LOSS before this session's guard-clearing work.
 
 ## What the game is
 
