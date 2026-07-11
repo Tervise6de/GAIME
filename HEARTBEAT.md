@@ -9,8 +9,8 @@ a rejected push means another session holds the lock. Refresh
 commit. Never force-push.
 
 ```
-status: released
+status: active
 session: dev-20260711-guardclear
-last_update_utc: 2026-07-11T14:15:00Z
-note: session complete — 16/16 winnability (reproduce: win_sweep), brood-throttle verb + ledger, juice pass, harness repairs; build GREEN, all pushed
+last_update_utc: 2026-07-11T14:25:00Z
+note: continuing same session — art direction spike (render-only; stills quality). Prior work all pushed & GREEN
 ```
