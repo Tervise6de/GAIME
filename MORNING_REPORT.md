@@ -15,11 +15,16 @@ open http://localhost:8123/game/index.html
 `2` FEAR (walls), `3` RALLY (warbands). Mouse wheel = brush size, `P` =
 pause. Click to begin. The game teaches the rest contextually.
 
-**Watch instead:** `media/hivemind.gif` (13s battle clip),
-`media/gameplay_commander_seed7.webm` (~2 min of scripted competent play),
-screenshots `media/shot_*.png`. The core-hook image is
-`media/shot_battle.png` — twin scent-roads, golden ant-rivers, a red
-warband striking a hunter.
+Sound: procedural WebAudio (soft delivery ticks, a thud on each hunter kill,
+a swell as reinforcement waves arrive) unlocks on your first click. It is
+guarded and asset-free; levels still want a human tuning pass.
+
+**Watch instead:** `media/gen_map_battle.png` and `media/gen_map_roads.png`
+are the current hero stills — a procedurally-GENERATED territory played by
+the competent bot, showing the branch of scent-roads, a warband assault, and
+a hunter death-burst. Older seed-7 assets: `media/hivemind.gif` (13s battle
+clip), `media/gameplay_commander_seed7.webm` (~2 min scripted play),
+`media/shot_*.png`.
 
 ## What the game is
 
@@ -31,7 +36,7 @@ fantasy: *the colony is not yours to command, only to persuade.* First
 scenario: bank 1200 stores before winter (8 min) while your own success
 summons hunters onto your roads.
 
-## What was actually built tonight (one overnight run)
+## What was actually built (across the overnight runs)
 
 1. Market scan with evidence classes (CONCEPTS.md).
 2. Twelve concepts evaluated on fifteen criteria; two finalists chosen.
@@ -43,6 +48,16 @@ summons hunters onto your roads.
    economy, rate-limited piles, soldier-caste cap, progress-triggered
    escalation, contextual onboarding, title/end cards, danger readability,
    single-file distributable build, scripted-play verification suite.
+5. **Map generalization + winnability proof (latest run):** a hand-authored
+   map is no longer the only one. A map-agnostic "commander" bot (BFS
+   pathfinding for scent-roads + a scripted guard assault) plays ANY
+   generated territory; swept over 84 generated seeds it wins ~84.5% while
+   naive/idle play loses on all of them — the maps are provably beatable by
+   competent play AND punish weak play. Difficulty proved EMERGENT (no cheap
+   geometry metric predicts it), so "new territory" ships a 62-seed pool
+   pre-screened by that bot — players never get a map the bot itself can't
+   beat. Plus a juice pass (delivery pulse, hunter death-burst, procedural
+   WebAudio), all cosmetic and provably not touching the deterministic sim.
 
 ## Why HIVEMIND beat STORMWARDEN
 
@@ -74,6 +89,14 @@ assumption (a learnable-but-not-trivial sky) is already de-risked.
 - [STRONG PROXY] Colony-swarm fantasy has a proven paying audience
   (Empires of the Undergrowth ~16.8k reviews, 94-95% positive) that
   rewards systems over spectacle (photorealistic rival: 854 reviews, 73%).
+- The depth generalizes beyond the hand-tuned map: a single map-agnostic
+  bot wins ~84.5% of 84 procedurally-generated territories (deterministic),
+  and the same weak-play doctrines lose on generated maps too — so the
+  strategic headroom is a property of the SYSTEM, not one authored level.
+  (Honest caveat: the ~15.5% the bot loses are largely its own weakness on
+  far-guard maps, not proof those maps are unwinnable; two attempts to fix
+  the bot were reverted because they cost more colony than they gained. The
+  shipped pool simply excludes them.)
 
 ## What remains assumed (honest)
 
@@ -81,8 +104,13 @@ assumption (a learnable-but-not-trivial sky) is already de-risked.
   has felt the painting verb yet. [ASSUMPTION — the single most important
   unknown]
 - Session pacing (8-min scenario) is tuned to bots, not people.
-- One handcrafted map; replay variation is designed but not built.
-- "AI-led studio can sustain content production" — untested beyond tonight.
+- Replay variation now EXISTS and is bot-verified (62-seed vetted pool of
+  generated maps), but felt-difficulty variance across those maps is wide
+  (bot win-time 139-479s) and un-normalized beyond "the bot can beat it" —
+  humans may find some pooled maps much harder than others.
+- Growth economy is still automatic — no player brood-throttle decision yet
+  (identified as the top remaining depth lever).
+- "AI-led studio can sustain content production" — untested beyond these runs.
 - Market proxies are from web sources, not our own wishlist/playtest data.
 
 ## Commercial hypothesis
@@ -95,9 +123,12 @@ assumption (a learnable-but-not-trivial sky) is already de-risked.
   enemy type, zero third-party assets.
 - **Complete launch scope (estimate):** campaign of 15-25 authored
   scenarios across biomes + sandbox mode; 4-6 enemy/fauna types; brood
-  throttle + caste verbs; map generator with solvability guarantees;
-  audio; Steam wrapper (Electron/Tauri or engine port decision);
-  localization; ~12-18 months with the studio model below.
+  throttle + caste verbs; map generator with solvability guarantees
+  (fairness guarantees + bot-winnability screening now PROTOTYPED — the
+  generator and oracle exist; difficulty normalization is the open piece);
+  audio (procedural layer prototyped; needs a designed pass); Steam wrapper
+  (Electron/Tauri or engine port decision); localization; ~12-18 months with
+  the studio model below.
 - **Likely production needs:** AI-led design/code continues; needs a
   human artist for a distinctive art direction pass (current look is
   programmer-glow — striking in motion, thin in stills), an audio
@@ -128,9 +159,16 @@ quit citing "ants won't obey" after onboarding.
 
 ## Recommendation
 
-**CONTINUE WITH CONDITIONS.** Tonight's evidence justifies continued
-investment in HIVEMIND development, conditioned on: (1) human playtests of
-this build before major content spend; (2) map-variation + brood-throttle
-next so depth claims survive beyond one map; (3) an art-direction spike
-before any marketing beat. STORMWARDEN remains a credible pivot with its
-hardest assumption already proven.
+**CONTINUE WITH CONDITIONS.** The evidence justifies continued investment in
+HIVEMIND development, conditioned on: (1) human playtests of this build
+before major content spend — still the decisive unretired risk; (2)
+brood-throttle (the last big depth lever) + difficulty normalization of the
+generated-map pool, since map-variation itself is now built and its depth
+bot-verified beyond one map; (3) an art-direction spike before any marketing
+beat. STORMWARDEN remains a credible pivot with its hardest assumption
+already proven.
+
+*(Report refreshed after the map-generalization run: winnability is now a
+system property, not a one-map claim; the top unknown — human fun — is
+unchanged. The single most useful next action remains a human playtest of
+`game/dist/HIVEMIND.html`.)*
