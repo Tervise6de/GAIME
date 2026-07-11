@@ -213,7 +213,61 @@ function gcommander(sim) {
   }
 }
 
-export const STRATEGIES = { naive, smart, warband, idle, commander, gcommander };
+// gcmdr2: gcommander + disciplined guard-clearing. gcommander's dominant loss
+// mode is the guarded rich pile (900 food) never opening: reinforcement waves
+// keep a NEARER hunter on the nest, so the distant guard is never the painted
+// threat and the richest source stays sealed (5 of 7 losses in the 2026-07-11
+// sweep were exactly this: rich 0%, guard un-slain). gcmdr2 keeps nest defence
+// FIRST, but whenever nothing presses the nest it commits a war line to the
+// guard to crack that pile. The "nothing presses the nest" gate is precisely
+// what the earlier, REJECTED guard-priority variant lacked — that one always
+// prioritised the guard, stripped the nest of soldiers and died in death
+// explosions (DECISION_LOG 2026-07-11). Here the guard war is only ever painted
+// when soldiers are free, and it stops being repainted (and decays, freeing its
+// soldiers back to the nest) the instant a wave re-enters the 340px ring.
+function gcmdr2(sim) {
+  const { fields, nest, piles, spiders } = sim.world;
+  const rich = piles[0];
+  const guard = spiders[0];
+  const strike = (sp) => {
+    const ang = Math.atan2(sp.y - nest.y, sp.x - nest.x);
+    const ax = sp.x - Math.cos(ang) * 150, ay = sp.y - Math.sin(ang) * 150;
+    stampLine(fields[F.LURE], nest.x, nest.y, ax, ay, 26, 0.8);   // march route
+    stampLine(fields[F.WAR], ax, ay, sp.x, sp.y, 44, 1.0);        // conversion zone
+    stamp(fields[F.WAR], sp.x, sp.y, 90, 1.0);
+  };
+  // 1) nest defence first: nearest hunter whose DEN presses the nest approaches
+  const pressing = spiders.filter((sp) => sp.alive && Math.hypot(sp.hx - nest.x, sp.hy - nest.y) < 340);
+  pressing.sort((p, q) => Math.hypot(p.x - nest.x, p.y - nest.y) - Math.hypot(q.x - nest.x, q.y - nest.y));
+  const nestThreat = pressing[0];
+  if (nestThreat) strike(nestThreat);
+  // 2) crack the rich pile on a CONCURRENT second front — paint the guard war
+  // every cycle while it lives, IN ADDITION to nest defence (not instead of
+  // it). gcommander only ever fought the single nearest target, so the far
+  // guard — never the nearest while waves press the nest — stayed alive and the
+  // 900-food pile stayed sealed. Because the nest war above is painted first
+  // and the soldier caste is a fixed slice, defence is retained; the extra
+  // front just commits the surplus soldiers the old bot left idle. (The earlier
+  // REJECTED variant made the guard the SOLE priority and dropped nest defence
+  // entirely — that is the death-explosion trap this avoids.)
+  const attackingGuard = guard && guard.alive && rich.amount > 0 && guard !== nestThreat;
+  if (attackingGuard) strike(guard);
+  // 3) FEAR-wall the deep roamers we are NOT currently fighting
+  for (const sp of spiders) {
+    if (!sp.alive || sp === nestThreat || (attackingGuard && sp === guard)) continue;
+    if (Math.hypot(sp.hx - nest.x, sp.hy - nest.y) < 340) continue;
+    stamp(fields[F.FEAR], sp.hx, sp.hy, sp.tr + 20, 1.0);
+  }
+  // 4) roads to every pile still holding food (rich only once its guard is dead)
+  const prev = costField(sim.world);
+  for (const p of piles) {
+    if (p.amount <= 0) continue;
+    if (p === rich && guard && guard.alive) continue;
+    roadRoute(fields, prev, p, nest);
+  }
+}
+
+export const STRATEGIES = { naive, smart, warband, idle, commander, gcommander, gcmdr2 };
 
 export function makeAutoPlayer(name, periodTicks = 240) {
   const fn = STRATEGIES[name];
