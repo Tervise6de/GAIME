@@ -2,6 +2,13 @@
 
 Play or view the build before reading the analysis.
 
+> **Re-verified 2026-07-11 (morning run).** Fresh headless checks passed:
+> served game and the single-file `game/dist/HIVEMIND.html` both WIN seed 7
+> with the commander doctrine (stockpile full); `idle` and `naive` lose in
+> distinct ways; 60fps, ~0.5 ms/tick. Both prototypes serve (HTTP 200). All
+> five screenshots (PNG), the GIF (GIF89a) and the clip (WebM) are intact.
+> Build status: **GREEN**. Nothing changed vs. the committed dist.
+
 ## How to play (2 minutes to first road)
 
 **Fastest (any OS, incl. Windows):** download/open `game/dist/HIVEMIND.html`

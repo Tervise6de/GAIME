@@ -20,15 +20,17 @@ snapshot — detail belongs in the logs and in git history.
 - **Last known good commit:** HEAD of main at end of overnight-1 (Loop 3;
   40/40 generated maps pass fairness checks; seed-7 commander regression
   WON t=175; dist verified from file://).
-- **Current build status:** GREEN — verified headless at 60fps; see
-  CLAUDE.md for the one-line re-verification command.
-- **Highest-value next action:** generalized commander bot + cross-seed
-  winnability/difficulty sweep; if in the final morning run: execute the
-  Stage 7 checklist in AUTONOMOUS_STUDIO_PROTOCOL.md instead.
+- **Current build status:** GREEN — RE-VERIFIED 2026-07-11 morning run:
+  served game AND single-file dist both WIN seed 7 (commander), idle/naive
+  lose distinctly, 60fps ~0.5 ms/tick, both prototypes serve, all media
+  intact. See CLAUDE.md for the one-line re-verification command.
+- **Highest-value next action:** (post-morning) generalized commander bot +
+  cross-seed winnability/difficulty sweep; brood-throttle verb; art-direction
+  spike. Human playtest of the single-file build is the gating experiment.
 - **Blockers:** human playtesting cannot be done from this environment
   (founder action needed — see BACKLOG "Now" #5).
-- **Morning report ready:** true (written end of overnight-1; refresh if
-  later sessions change the build).
+- **Morning report ready:** true — Stage 7 report re-verified and stamped on
+  the 2026-07-11 morning run; build confirmed GREEN.
 
 ## Stages
 

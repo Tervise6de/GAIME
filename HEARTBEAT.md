@@ -9,8 +9,8 @@ a rejected push means another session holds the lock. Refresh
 commit. Never force-push.
 
 ```
-status: active
+status: released
 session: morning-run-20260711
-last_update_utc: 2026-07-11T07:18:00Z
-note: FINAL MORNING RUN — verifying build, refreshing media, finalizing MORNING_REPORT
+last_update_utc: 2026-07-11T07:25:00Z
+note: FINAL MORNING RUN complete — build re-verified GREEN (served + dist WIN seed 7); MORNING_REPORT stamped; no session active
 ```
