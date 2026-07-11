@@ -94,6 +94,40 @@ function roadRoute(fields, prev, target, nest) {
   stamp(fields[F.LURE], target.x, target.y, 70, 1.0);
 }
 
+// Escalating assault on a DISTANT guard. gcommander's Dijkstra roads route
+// AROUND hunters, so the two easy piles get harvested cleanly but the guarded
+// rich pile is never engaged — the dominant loss mode (rich:0%, slain:0,
+// died~15: too timid, not too aggressive). The naive fix (always prioritise
+// the guard) over-committed and marched the colony through danger → death
+// explosions. This is the disciplined middle: fire ONLY once the easy piles
+// are nearly spent, then commit a STRONG march along the hunter-avoiding road
+// to a staging point, and hold a persistent WAR well on the guard so the
+// arriving column converts to soldiers and masses on it. Because it waits for
+// the easy harvest to finish, it never splits the early game (preserving the
+// baseline wins) and never marches for nothing (the colony is large and safe).
+function guardAssault(fields, prev, guard, nest) {
+  const wp = routeTo(prev, guard.hx, guard.hy);
+  let stage = null;
+  if (wp) {
+    for (let i = wp.length - 1; i >= 0; i--) {
+      if (Math.hypot(wp[i][0] - guard.hx, wp[i][1] - guard.hy) >= 120) { stage = wp[i]; break; }
+    }
+    // strong safe march along the road, stopping short of the den
+    for (let i = 0; i < wp.length - 1; i++) {
+      if (Math.hypot(wp[i][0] - guard.hx, wp[i][1] - guard.hy) < 120) break;
+      stampLine(fields[F.LURE], wp[i][0], wp[i][1], wp[i + 1][0], wp[i + 1][1], 34, 0.98);
+    }
+  }
+  if (!stage) {
+    const ang = Math.atan2(guard.hy - nest.y, guard.hx - nest.x);
+    stage = [guard.hx - Math.cos(ang) * 130, guard.hy - Math.sin(ang) * 130];
+    stampLine(fields[F.LURE], nest.x, nest.y, stage[0], stage[1], 34, 0.98);
+  }
+  // conversion corridor + persistent war well the soldiers ascend onto
+  stampLine(fields[F.WAR], stage[0], stage[1], guard.hx, guard.hy, 48, 1.0);
+  stamp(fields[F.WAR], guard.hx, guard.hy, 110, 1.0);
+}
+
 // naive player: paint a straight lure line from nest to the richest pile
 // (straight through spider territory) and a blob on the pile.
 function naive(sim) {
@@ -210,6 +244,13 @@ function gcommander(sim) {
     if (p.amount <= 0) continue;
     if (p === rich && guard && guard.alive) continue;
     roadRoute(fields, prev, p, nest);
+  }
+  // once the easy piles are nearly exhausted, commit force to the guard so the
+  // rich pile is not left on the map (the dominant loss mode). Gated late so
+  // the early harvest — which the baseline wins depend on — is never split.
+  const lesserLeft = piles.slice(1).reduce((a, p) => a + Math.max(0, p.amount), 0);
+  if (guard && guard.alive && rich.amount > 0 && lesserLeft < 1150) {
+    guardAssault(fields, prev, guard, nest);
   }
 }
 

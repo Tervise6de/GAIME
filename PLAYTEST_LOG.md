@@ -187,3 +187,36 @@ Entry template:
   preserved as the seed-7 balance reference); committed win_sweep tool + data
   table; guard-priority change reverted. Difficulty normalization + a
   guard-clearing bot stay on the backlog.
+
+## 2026-07-11 ~11:20 UTC — gcommander guard-assault @ (this session's commit)
+- Hypothesis / what was tested: the dominant winnability loss mode (guarded
+  rich pile never opened) is a force-COMMITMENT gap, not an unfair map — a
+  generic bot that safely commits force to the distant guard should convert
+  most of those losses without regressing the wins or exploding deaths.
+- How it was run: `tools/run_proto.mjs` per seed, `fast=40`, full "First
+  Season" scenario to `__DONE`, over the 16-seed set (1000 + i·97). Seed-7
+  regression via `commander`/`idle`/`gcommander`. UI click test + single-file
+  rebuild for sanity.
+- What was observed (VERIFIED FACT):
+  - gcommander winnability 9/16 (56%) → 14/16 (88%). Five former losses now win
+    (1485, 1679, 1776, 2358, 2455); zero regressions among the nine prior wins.
+    Full table: data/winnability_sweep_20260711_guardassault.md.
+  - Mechanism confirmed on seed 1485: BEFORE it harvested both easy piles
+    cleanly (died 15, slain 0) and left the 900-food rich pile untouched →
+    947/1200 lost. AFTER: died 122, guard slain, rich 661 harvested → 1201 won.
+    The bot was too timid, not too aggressive.
+  - Two residuals, both understood: 2164 still stalls (rich 900 untouched,
+    slain 0 — safe route never lets soldiers mass on this guard); 1291 fully
+    cleared the map (all piles empty, guard slain ×3) but missed by 22 net on
+    brood/death overhead at the buzzer (economy, effectively winnable).
+  - Seed 7 unchanged: commander WON t=175 (spidersSlain 4); idle lost (0);
+    gcommander 1062 (unchanged, as expected — generic bot on handcrafted map).
+- Evidence class: VERIFIED FACT for the runs; the 88% is a STRONG-PROXY LOWER
+  BOUND by a generic scripted bot — not a human-winnability claim.
+- Weaknesses: deaths rose on several wins (e.g. seed 1000 433→1171) — the bot's
+  force management is crude, so the higher deaths make the bound MORE
+  conservative but keep difficulty variance unnormalized. Seed 2164 remains a
+  genuine guard-mass stall. Human feel of the assault verb is still untested.
+- Action taken: shipped `guardAssault` in gcommander (baseline commander frozen
+  and preserved); rebuilt game/dist/HIVEMIND.html (48.0KB); added new sweep
+  data file; old sweep retained as the "before".

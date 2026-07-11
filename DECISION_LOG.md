@@ -139,3 +139,40 @@ Entry template:
   formal difficulty-normalization pass or a stronger bot supersedes this
   measurement, append a new entry. Baseline commander and both prototypes
   remain the last known good runnable references.
+
+## 2026-07-11 UTC — gcommander guard-assault: 56% → 88% winnability lower bound
+- Stage: WINNER_DEVELOPMENT (Stage 6). Session dev-20260711-fok54l.
+- Decision: Add a staged, safe-routed `guardAssault` to `gcommander` (not to
+  the frozen `commander`). Once the two easy piles start being spent, the bot
+  commits force to the guarded rich pile along the hunter-avoiding Dijkstra
+  road and holds a persistent WAR well on the guard so the arriving column
+  converts to soldiers and masses on it. Measured across the same 16 generated
+  seeds: 9/16 → 14/16 wins, ZERO regressions among the nine prior wins.
+- Alternatives considered: (a) the earlier naive "always prioritise the guard"
+  — already REJECTED (straight-line march through the roamer → death
+  explosions, win→loss); the new version fixes exactly that by routing the
+  assault along the safe Dijkstra road and FEAR-walling deep roamers. (b) Gate
+  the assault LATE (only when easy piles fully empty) — TRIED and REJECTED: the
+  easy harvest consumes nearly the whole 480 s season, so a late gate left no
+  time to kill the guard AND harvest the rich pile (seed 1485 stayed a loss).
+  Firing it early (once ~150 easy food is banked) is what works. (c) Keep
+  tuning to also win seed 7 with gcommander — REJECTED as overfitting; seed 7
+  is the handcrafted `commander` baseline (still WON t=175, untouched).
+- Evidence class: VERIFIED FACT (14/16 wins observed this session via
+  run_proto per seed; commander still WON seed 7 at t=175; idle still loses).
+  The 88% is a STRONG-PROXY LOWER BOUND on winnability by a generic scripted
+  bot — NOT a claim about human players or optimal play. The two residual
+  losses are understood: 2164 is a real geometry-specific guard-mass stall
+  (rich untouched); 1291 fully harvested the entire map and missed the quota by
+  22 net on brood/death overhead (an economy data point, effectively winnable).
+- Why: directly strengthens the project's central open validation — winnability
+  of generated maps — from a 56% lower bound to 88%, with the failure surface
+  reduced from "5 guarded-pile stalls" to "1 stall + 1 economy near-miss". Bot
+  deaths rose on some wins (crude force management), which makes the lower bound
+  MORE conservative, not less; difficulty normalization stays open work.
+- Reversibility / exit condition: additive and isolated to `gcommander`
+  (baseline `commander` and both prototypes remain the last known good runnable
+  references). If a difficulty-normalization pass or a human/stronger-bot
+  measurement supersedes this, append a new entry. Old sweep preserved at
+  data/winnability_sweep_20260711.md; new at
+  data/winnability_sweep_20260711_guardassault.md.

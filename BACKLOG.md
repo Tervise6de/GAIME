@@ -5,14 +5,17 @@ duplicating them. Rejected items keep a one-line reason.
 
 ## Now
 
-1. Difficulty normalization on the generator: win-times 272-390s and deaths
-   231-1294 are too spread (data/winnability_sweep_20260711.md). Add a
-   post-gen difficulty estimate (guard distance, pile spread, wave pressure)
-   and reject/retune outliers so seeds play in a target band.
-2. Stronger guard-clearing for gcommander (sustained rally that actually
-   kills a distant guard without abandoning the nest) to raise the 56%
-   winnability lower bound — the guard-priority naive attempt failed (death
-   explosions), so this needs a smarter multi-front approach.
+1. Difficulty normalization on the generator: win-times and deaths are too
+   spread (see both sweep data files). Add a post-gen difficulty estimate
+   (guard distance, pile spread, wave pressure) and reject/retune outliers so
+   seeds play in a target band. NOTE: the guard-assault made several wins
+   bloodier (e.g. seed 1000 died 1171), so death-variance is now the sharper
+   axis to normalize.
+2. Close the last two winnability gaps: seed 2164 (guard never engaged — the
+   safe route never lets soldiers mass on this specific guard geometry) and
+   seed 1291 (map fully harvested but 22 net short on overhead — an economy
+   nudge, not a guard problem). Guard-clearing itself is now largely solved
+   (gcommander 56%→88%, done this session).
 3. Brood throttle verb (paint the nest: grow vs bank) — player control over
    the growth economy discovered to dominate outcomes in Loop 1.
 4. Juice pass: nest delivery pulse, spider death burst, procedural WebAudio;
