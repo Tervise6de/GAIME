@@ -11,6 +11,6 @@ commit. Never force-push.
 ```
 status: active
 session: dev-20260711-winnability
-last_update_utc: 2026-07-11T08:00:00Z
-note: generalizing commander bot to derived routes; cross-seed winnability sweep
+last_update_utc: 2026-07-11T08:20:00Z
+note: added gcommander (map-driven bot) + win_sweep; baseline commander preserved; measuring cross-seed winnability
 ```
