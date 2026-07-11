@@ -66,12 +66,18 @@ Tech: vanilla JS + Canvas 2D, zero runtime deps. Dev tooling: Playwright
     Expected: commander WINS (~t=175 on seed 7), all others lose.
   - `gcommander` = generic map-driven bot (plays ANY seed; `commander` is
     seed-7-only hand-tuned baseline — do not generalize it in place).
+  - Second scenario "The Long Drought": append `&scn=drought` ([S] on the
+    title switches). Expected on seed 7: gcommander WINS (205 stores vs
+    reserve 200 at t=420); commander/smart/naive/idle all STARVE — the
+    drought punishes unthrottled growth by design.
   - Stormwarden falsification: `?auto=<climo|persist|instrument>&days=400&seed=N`
 - Cross-seed winnability sweep: `node tools/win_sweep.mjs 16 40 1000 97`
   (gcommander over generated seeds; data/winnability_sweep_20260711.md).
   Repaired 2026-07-11: now polls __DONE like run_proto (the old
   waitForFunction harness false-timed-out on long games). Expected: 16/16
-  WINS on the reference seed set.
+  WINS on the reference seed set. Drought variant: add `--scn=drought`
+  (data/drought_sweep_20260711.md) — also 16/16.
+- GIF refresh (no ffmpeg here): `node tools/make_gif.mjs && python3 tools/make_gif.py`
 - Map-feature probe: `node tools/difficulty_probe.mjs 16 1000 97` (static
   layout features per seed; measured NOT to predict difficulty — see
   DECISION_LOG 2026-07-11 before building on it).

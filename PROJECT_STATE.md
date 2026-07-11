@@ -10,39 +10,46 @@ snapshot — detail belongs in the logs and in git history.
 - **Fallback concept:** C02 STORMWARDEN (runnable at
   prototypes/stormwarden/; skill-gradient assumption VERIFIED on held-out
   seeds — see PLAYTEST_LOG).
-- **Current implementation:** `game/` — winnable/losable "First Season"
-  scenario + onboarding + economy + escalation + brood-throttle verb (FEAR
-  on nest = hold brood/bank); `game/dist/HIVEMIND.html` single-file
-  distributable; two frozen prototypes; `tools/` verification harness
-  (headless runner, bot matrix, UI click tests — now with real assertions,
-  single-file builder, gameplay recorder, `win_sweep.mjs`,
-  `difficulty_probe.mjs`). Bots: hand-tuned `commander` (seed-7 baseline) +
-  generic map-driven `gcommander` (muster→march→strike shepherd assault,
-  brood banking; wins ANY of the 16 reference generated territories).
+- **Current implementation:** `game/` — TWO scenarios over the same systems:
+  "The First Season" (gather race, default) and "The Long Drought"
+  (endurance inversion: evaporating piles, per-ant upkeep, reserve at the
+  rains; `?scn=drought` or [S] on the title) + onboarding (scenario-aware
+  hint tracks) + economy + escalation + brood-throttle verb (FEAR on nest =
+  hold brood/bank; holding PAUSES the growth clock — no catch-up burst on
+  release); `game/dist/HIVEMIND.html` single-file distributable; two frozen
+  prototypes; `tools/` verification harness (headless runner, bot matrix,
+  UI click tests with real assertions, single-file builder, gameplay
+  recorder, `win_sweep.mjs --scn=`, `difficulty_probe.mjs`, GIF pipeline
+  `make_gif.mjs`/`make_gif.py`, `art_closeup.mjs`). Bots: hand-tuned
+  `commander` (seed-7 First Season baseline) + generic map-driven
+  `gcommander` (shepherd assault, brood banking, drought doctrine with
+  pop-cap hysteresis; wins all 16 reference territories in BOTH scenarios).
 - **Active hypothesis:** humans can learn and enjoy the painting verb —
   scripted play proves the depth exists; human feel is the top unknown.
 - **Last known good commit:** HEAD of main at end of overnight-1 (Loop 3;
   40/40 generated maps pass fairness checks; seed-7 commander regression
   WON t=175; dist verified from file://).
-- **Current build status:** GREEN — re-verified 2026-07-11 pm after the
-  guard-clearing/brood-throttle/juice session: seed-7 matrix has five
-  distinct outcomes (commander WON 1200 @175s / smart 949 / warband 511 /
-  naive collapse / idle 0); repaired `win_sweep.mjs` reproduces 16/16 in one
-  command with no false timeouts; UI click test passes with real assertions;
-  gen_check 40/40; dist (61.3KB) rebuilt and reaches the win card with the
-  brood ledger. See CLAUDE.md for the re-verification commands.
-- **Highest-value next action:** human playtests (founder-blocked); from the
-  studio side, the second scenario ("The Long Drought"). DONE today: juice
-  pass (pulses, bursts, gesture-gated WebAudio), grow-vs-bank end-card
-  ledger, and an art spike (terrain/rocks/grain/nest baked into the bg —
-  stills read as earth, not void; remaining art scope in BACKLOG).
-- **Winnability (UPDATED 2026-07-11 pm):** `gcommander` now wins **16/16**
-  generated seeds (was 9/16 in the morning) after the shepherd-blob guard
-  assault + brood throttle; win times 161-307s, deaths 172-686 (spread
-  tightened without touching the generator). STRONG-PROXY LOWER BOUND —
-  says nothing about human players. Static difficulty normalization was
-  REJECTED on measurement (features don't predict outcomes; see
-  DECISION_LOG). Full data: `data/winnability_sweep_20260711.md`.
+- **Current build status:** GREEN — re-verified 2026-07-11 late pm after
+  the drought/art session: commander seed-7 First Season byte-identical
+  (WON 1200 @175s, 679 died) across the growth-clock sim change; First
+  Season sweep 16/16 re-verified; drought sweep 16/16; click test PASS
+  (incl. new drought leg); dist (73.0KB) rebuilt and reproduces the drought
+  win deterministically. See CLAUDE.md for commands.
+- **Highest-value next action:** human playtests (founder-blocked) — the
+  build now offers TWO scenarios for them. From the studio side next:
+  fauna variety (start-of-session task — it invalidates balance baselines),
+  difficulty-band review, palette identity. DONE today: The Long Drought
+  (built+validated), growth-clock sim fix, GIF refresh, pile/spider art,
+  drought heat-haze identity.
+- **Winnability (UPDATED 2026-07-11 late pm):** `gcommander` wins **16/16**
+  generated seeds in BOTH scenarios (First Season: stores full quota, win
+  times 161-307s; Drought: stores 340-944 vs reserve 200 at t=420) and
+  seed 7 in both. In the drought, ALL non-throttle strategies starve —
+  including `commander`, the First Season champion (t=221, 2462 ants):
+  the goal structures demand opposite play. STRONG-PROXY LOWER BOUND —
+  says nothing about human players. Static difficulty normalization
+  remains REJECTED on measurement (DECISION_LOG). Data:
+  `data/winnability_sweep_20260711.md`, `data/drought_sweep_20260711.md`.
 - **Blockers:** human playtesting cannot be done from this environment
   (founder action needed — see BACKLOG "Now" #5).
 - **Morning report ready:** true — re-verified and stamped on the final

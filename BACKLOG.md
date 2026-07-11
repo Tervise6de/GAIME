@@ -8,24 +8,26 @@ duplicating them. Rejected items keep a one-line reason.
 1. Founder-facing: arrange 5-10 human playtests of game/dist/HIVEMIND.html
    (measure: season completed ≤3 attempts; all verbs used; voluntary
    restarts; kill-signal: "ants won't obey" quits). THE critical open
-   validation — everything else is polish until humans play.
-2. Art direction continuation: terrain/rocks/grain/nest DONE (2026-07-11
-   spike — stills now read as earth, not void). Remaining: palette identity,
-   ant/spider silhouettes at closer inspection, pile art.
-3. Second scenario ("The Long Drought") reusing systems, no new tech —
-   proves the systems generalize beyond one goal structure.
-4. Refresh hivemind.gif from the juiced build (needs ffmpeg; current GIF is
-   pre-juice).
-5. Difficulty variance across seeds: static-feature normalization was
-   REJECTED on evidence (weak correlations — see DECISION_LOG 2026-07-11).
-   Re-examine only if human playtests show the variance hurts; the lever
-   would be dynamic (wave placement/count), not generator rejection.
+   validation — everything else is polish until humans play. The build now
+   has TWO scenarios ([S] on title): include at least 2 drought attempts.
+2. Fauna variety: ONE new creature done well. Candidate: aphid herds that
+   FLEE FEAR → players herd food toward roads ("persuasion" applied to
+   prey). START-OF-SESSION task: it adds food supply, so every balance
+   baseline (seed-7 t=175, both 16/16 sweeps) must be re-derived.
+3. Difficulty-band review across scenarios via bot matrix — drought margins
+   on generated maps (340-944 vs reserve 200) may be too loose for tension;
+   decide the target band BEFORE touching knobs, and only with reasoning
+   about human (not bot) efficiency.
+4. Palette identity pass (last remaining art-direction scope; terrain,
+   pile mounds, spider bodies, drought haze all DONE 2026-07-11).
+5. Difficulty variance across seeds: static-feature normalization REJECTED
+   on evidence (DECISION_LOG 2026-07-11). Re-examine only if human
+   playtests show variance hurts; lever is dynamic (wave placement/count).
 
 ## Next
 
-- Fauna variety: 2-3 non-spider threats/prey with distinct field responses.
-- Difficulty curve: scenario parameter sweep via bot matrix (keep commander
-  win-time 250-350s per scenario).
+- Third goal structure only AFTER fauna variety (two scenarios already
+  prove generalization; a third has diminishing evidence value).
 - Steam wrapper decision (Electron/Tauri vs engine port) — only after human
   playtests pass.
 

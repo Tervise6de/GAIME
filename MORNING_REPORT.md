@@ -183,3 +183,30 @@ Net effect on the recommendation: condition (2) — "map-variation +
 brood-throttle next" — is now DONE with measured results. Conditions (1)
 human playtests and (3) art-direction spike are unchanged and are the next
 two actions in BACKLOG "Now".
+
+## Post-report addendum 2 — same day (2026-07-11, late afternoon session)
+
+- **Second scenario shipped and validated: "The Long Drought"** (play:
+  press [S] on the title screen, or `?scn=drought`). It INVERTS the goal:
+  piles wither in the sun, every ant eats upkeep, and the returning rains
+  (7 min) must find a 200-store reserve. The strategy that wins the First
+  Season — grow big, harvest hard — **starves in the drought** (the
+  hand-tuned season champion dies at t=221 with 2,462 ants), while lean,
+  brood-throttled play wins 16/16 generated maps + seed 7. This is the
+  strongest cheap evidence yet that the verb set generalizes beyond one
+  goal structure. Bot-proxy evidence only; human fun still unproven.
+- **A real sim landmine found and fixed by building it**: releasing a long
+  brood-hold used to spawn a catch-up burst (~1,600 ants in one tick) that
+  instantly starved the colony. Holding brood now pauses the growth clock.
+  This bug would have hit human players in BOTH scenarios.
+- **hivemind.gif refreshed** (finally post-juice/post-art, 3.9MB, no ffmpeg
+  needed — Pillow pipeline in tools/), **pile art** (grain mounds that
+  visibly empty outside-in as they drain), **spider bodies** (two-lobe,
+  animated gait, eye glints), and a **dusty heat-haze identity** for the
+  drought so the two scenarios look different, not just score different.
+
+Net effect: condition (3) art-direction spike is now substantially DONE
+(terrain, creatures, piles, scenario identity). Condition (1) — human
+playtests of game/dist/HIVEMIND.html — remains the single blocking
+validation and is founder-only. The build now offers TWO scenarios for
+those playtests.

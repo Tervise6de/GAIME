@@ -9,8 +9,8 @@ a rejected push means another session holds the lock. Refresh
 commit. Never force-push.
 
 ```
-status: active
+status: released
 session: dev-20260711-afternoon-9pfynq
-last_update_utc: 2026-07-11T17:00:00Z
-note: drought validated 16/16 + seed 7; GIF refreshed; art pass (grain piles, spider bodies, drought heat-haze); wrapping docs next
+last_update_utc: 2026-07-11T17:15:00Z
+note: session complete — The Long Drought shipped+validated (16/16 both scenarios), growth-clock sim fix, GIF refreshed, pile/spider art, drought haze; build GREEN, all pushed
 ```
