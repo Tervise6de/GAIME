@@ -46,7 +46,8 @@ summons hunters onto your roads.
 5. Seeded map generation with structural fairness guarantees (Loop 3) AND,
    this morning (Loop 4), a proof that those maps are actually *winnable*:
    a map-derived strategy that plans routes from the live map (not
-   hardcoded waypoints) wins 22 of 24 generated seeds. See "Evidence".
+   hardcoded waypoints) wins 42 of 48 generated seeds (87.5%). See
+   "Evidence".
 
 ## Why HIVEMIND beat STORMWARDEN
 
@@ -65,14 +66,15 @@ assumption (a learnable-but-not-trivial sky) is already de-risked.
   competent verb composition banks 1200/1200 stores with ~680 deaths while
   four lazy doctrines lose in four different instructive ways.
 - **The generated maps are winnable, not just fair** (Loop 4, this
-  morning): a general, map-derived bot wins 22/24 seeds (2-25), 91.7%. Two
-  losses are a near-miss (1169/1200) and one real miss (819/1200) — so the
-  balance generalizes on average but is not yet normalized per seed. The
-  decisive mechanic: the ants' *return* trip is spider-blind, so wins
-  require composing LURE (safe route out) with FEAR (safe route home) — bot
-  win-rate jumped 33%→92% once the return path was routed around hunters,
-  and per-run deaths fell up to 40x. This is direct evidence the painting
-  verb has compositional depth, not just one dominant line.
+  morning): a general, map-derived bot wins 42/48 seeds (seeds 2-49),
+  87.5%. Of the 6 losses, 5 are winter-clock time-outs with a healthy
+  colony (a far, spider-blocked pile banks too slowly) and 1 is a hard
+  opening failure (seed 31, 274/1200) — so the balance generalizes but is
+  not normalized per seed. The decisive mechanic: the ants' *return* trip
+  is spider-blind, so wins require composing LURE (safe route out) with
+  FEAR (safe route home) — bot win-rate jumped 33%→~88% once the return
+  path was routed around hunters, and per-run deaths fell up to 40x. Direct
+  evidence the painting verb has compositional depth, not one dominant line.
 - The economy needs lives to cost food, else meatgrinder play dominates —
   discovered by a failed pre-registered test, fixed, retested.
 - Rate-limited food sources force parallel roads — the skill the game
@@ -95,7 +97,8 @@ assumption (a learnable-but-not-trivial sky) is already de-risked.
   unknown]
 - Session pacing (8-min scenario) is tuned to bots, not people.
 - Replay variation now EXISTS (seeded generation) and is bot-winnable at
-  92%, but difficulty is not normalized across seeds and no human has
+  ~88% (42/48 seeds), but difficulty is not normalized across seeds and no
+  human has
   played a generated map. A scripted planner finding a win is a proxy for
   "a win exists and is discoverable by principled play" — NOT for human
   success rate or fun.
@@ -151,6 +154,7 @@ before major content spend — still the one unretired premise; (2) difficulty
 normalization (gate generation on the bot-winnability check now in the
 harness, so no unwinnable seed ships) + the brood-throttle verb; (3) an
 art-direction spike before any marketing beat. Depth-beyond-one-map is no
-longer a condition — it is now measured (92% cross-seed winnability).
+longer a condition — it is now measured (87.5% cross-seed winnability over
+48 seeds).
 STORMWARDEN remains a credible pivot with its hardest assumption already
 proven.

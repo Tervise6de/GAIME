@@ -5,7 +5,7 @@ Live register. Update status as evidence arrives. Severity: high/med/low.
 | Risk | Class | Severity | Status | Mitigation / test |
 |---|---|---|---|---|
 | Humans bounce off indirect control ("ants won't obey") | design | high | OPEN — top risk | Onboarding built; NEXT: 5-10 human playtests of single-file build; kill-signal defined in MORNING_REPORT |
-| Depth claims rest on ONE handcrafted map | design | high→med | mitigated | Loop 4: general map-derived bot wins 22/24 generated seeds (91.7%); depth generalizes beyond seed 7. Residual: difficulty not normalized (2 seeds unwon) — BACKLOG Now #1 |
+| Depth claims rest on ONE handcrafted map | design | high→med | mitigated | Loop 4: general map-derived bot wins 42/48 generated seeds (87.5%, seeds 2-49); depth generalizes beyond seed 7. Residual: difficulty not normalized (6 seeds unwon) — BACKLOG Now #1 |
 | AI judgment treated as market validation | process | high | mitigated | Evidence classes enforced; report separates proven vs assumed; no wishlist data claimed |
 | Programmer-art ceiling caps marketability | production | med | open | Art-direction spike before any marketing beat (report condition #3) |
 | Automatic colony growth removes a core economic choice | design | med | open | Brood throttle verb planned (BACKLOG Now #2); economics quantified in PLAYTEST_LOG |

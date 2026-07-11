@@ -173,3 +173,20 @@ Entry template:
   a planner, not a human-skill model, so its 92% is an upper-ish bound on
   "is there a win," not a human success-rate estimate.
 - Action taken: committed (f3f2b76) and pushed; dist rebuilt.
+
+## 2026-07-11 ~05:20 UTC — Loop 4 follow-up: larger winnability sample
+- Extended the sweep to seeds 26-49 (24 more) to test whether the ~92%
+  from seeds 2-25 was representative. Result: 20/24 = 83.3% on the new
+  block. COMBINED 2-49 (48 seeds) = 42/48 = 87.5% winnable by the general
+  bot. The first block was mildly favorable; ~87-88% is the more honest
+  estimate.
+- Losses (6/48): seeds 12 (1169/1200), 18 (819), 27 (800), 31 (274),
+  46 (1175), 48 (820). Five are winter-clock time-outs with a healthy
+  colony (bank-too-slow on a far/blocked lesser pile — the Loop 4 failure
+  geometry). Seed 31 is a distinct hard failure (only 274 banked, 159
+  deaths) — the bot never established productive roads; worth a dedicated
+  look (likely a layout where the rich guard or a chokepoint stalls the
+  opening). Record: media/proto/winnability_sweep_general_{2-25,26-49}.txt.
+- Evidence class unchanged: VERIFIED FACT that generated maps are
+  bot-winnable at ~87.5% over 48 seeds; still a proxy for "a discoverable
+  win exists," not human success/fun.

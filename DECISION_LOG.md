@@ -120,11 +120,12 @@ Entry template:
   winnability probe (rather than replacing commander). Adopt bot win-rate
   over a seed range as the standing metric for "are generated maps
   balanced," alongside the Loop-3 structural guarantees.
-- Evidence: general wins 22/24 generated seeds (2-25), 91.7% (VERIFIED
-  FACT). The decisive mechanism was routing the RETURN trip around hunters
-  via FEAR walls (33% → 92%); this is now baked into the bot and documented
-  as the reason the painting verb must compose LURE (out) with FEAR
-  (home), not LURE alone.
+- Evidence: general wins 42/48 generated seeds (2-49), 87.5% (VERIFIED
+  FACT; first block 2-25 was 22/24 but the larger sample settles at ~88%).
+  The decisive mechanism was routing the RETURN trip around hunters via
+  FEAR walls (33% → ~88%); this is now baked into the bot and documented as
+  the reason the painting verb must compose LURE (out) with FEAR (home),
+  not LURE alone.
 - Tuning note: hunter-avoidance clearance = tr+72 was chosen because on the
   tight handcrafted map win/deaths were non-monotonic in clearance (tr+72
   won with 464 deaths; tr+92 regressed to a loss). Generated maps are more

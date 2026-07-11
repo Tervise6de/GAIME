@@ -20,16 +20,16 @@ snapshot — detail belongs in the logs and in git history.
 - **Active hypothesis:** humans can learn and enjoy the painting verb —
   scripted play proves the depth exists; human feel is the top unknown.
 - **Last known good commit:** `f3f2b76` on branch
-  `claude/ecstatic-ride-9oqbd4` (Stage 6 Loop 4: general bot wins 22/24
+  `claude/ecstatic-ride-9oqbd4` (Stage 6 Loop 4: general bot wins 42/48
   generated seeds; seed-7 commander regression WON t=175 verified from
   file:// dist; idle loses). Prior good commit: end of overnight-1 on main.
 - **Current build status:** GREEN — verified headless: commander WINS seed 7
-  (t=175, file:// single-file dist), general wins 22/24 generated seeds
-  (2-25), idle loses. See CLAUDE.md for re-verification commands.
+  (t=175, file:// single-file dist), general wins 42/48 generated seeds
+  (2-49, 87.5%), idle loses. See CLAUDE.md for re-verification commands.
 - **Highest-value next action:** difficulty NORMALIZATION — gate map
-  generation on a bot-winnability check so the 2 unwon seeds (12, 18) can't
-  ship; then brood-throttle verb. (Cross-seed winnability itself is now
-  MEASURED, not assumed.)
+  generation on a bot-winnability check so the 6/48 unwon seeds can't ship;
+  then brood-throttle verb. (Cross-seed winnability itself is now MEASURED
+  at 87.5%, not assumed.)
 - **Blockers:** human playtesting cannot be done from this environment
   (founder action needed — see BACKLOG "Now" #5).
 - **Morning report ready:** true (refreshed 2026-07-11 with Loop 4

@@ -23,17 +23,21 @@ snapshot, not an accumulating history — history lives in git.
 - **Current build status:** GREEN. Verified headless this session:
   * seed-7 `commander` WINS (t≈175) — checked from the file:// single-file
     dist (food 1200, died 679).
-  * `general` wins 22/24 generated seeds (2-25) = 91.7%; losses seed 12
-    (1169/1200 near-miss) and seed 18 (819/1200).
+  * `general` wins 42/48 generated seeds (2-49) = 87.5%; 6 losses (12, 18,
+    27, 31, 46, 48) — 5 are winter-clock time-outs on a far/blocked pile,
+    seed 31 is a hard opening failure (274/1200).
   * `idle` loses seed 7 (food 0) — goal still discriminates competence.
 - **Last known good commit:** `f3f2b76` on `claude/ecstatic-ride-9oqbd4`.
 - **Known blockers:** none technical. Human playtesting impossible from this
   environment — founder action or future integration needed.
 - **Next three actions (highest value first):**
-  1. Difficulty NORMALIZATION: gate `makeWorld` generation on a
-     bot-winnability check (retry seeds the general bot can't win, or soften
-     the two failure modes) so no unwinnable seed ships. Reuse
-     `tools/sweep_winnable.mjs` as the acceptance gate.
+  1. Difficulty NORMALIZATION: gate `makeWorld` generation so no unwinnable
+     seed ships (6/48 currently unwon). Root cause (BACKLOG Now #1): a
+     lesser pile placed very far (>~900px) whose route is also spider-
+     blocked → winter clock runs out. Cheapest lever: cap max pile→nest
+     path length + require a lesser-pile route with clearance, then RE-SWEEP
+     (changing accept criteria remaps seeds). Investigate seed 31 (274/1200)
+     separately — a distinct opening-stall failure.
   2. Brood throttle verb (paint the nest: feed vs bank) — removes the
      automatic-growth limitation found in Loop 1 economics.
   3. Juice pass: delivery pulse at nest, spider death burst, procedural

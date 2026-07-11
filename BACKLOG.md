@@ -5,11 +5,19 @@ duplicating them. Rejected items keep a one-line reason.
 
 ## Now
 
-1. Difficulty normalization: the general bot wins 22/24 generated seeds
-   (Loop 4) but loses seed 12 (1169/1200, near-miss) and seed 18 (819/1200).
-   Gate generation on a bot-winnability check (retry/clamp) OR soften the two
-   failure modes so every shipped seed is winnable; keep commander win-time
-   250-350s.
+1. Difficulty normalization: the general bot wins 42/48 generated seeds
+   (Loop 4, 87.5%) but loses 6 (12, 18, 27, 31, 46, 48). ROOT CAUSE
+   (geometry analysis of the near-misses): a lesser pile placed very far
+   from the nest (high=944px on s12, far=919px on s18, vs typical ≤820)
+   whose route is ALSO spider-blocked — the colony stays healthy but banks
+   the last pile too slowly and the winter clock (480s) runs out. 5 of 6 are
+   time-outs, not collapses; seed 31 (274/1200) is a distinct opening-stall
+   worth its own look. Cheapest fix: cap max pile→nest path length in
+   generatedLayout
+   (world.js) to ~880px (winners reach 910 clear, so gate on distance AND
+   route-clearance, not distance alone), then RE-SWEEP 2-25 — changing the
+   accept criteria remaps every seed's layout, so re-verify winnability and
+   the seed-7 exemption still holds. Keep commander win-time 250-350s.
 2. Brood throttle verb (paint the nest: grow vs bank) — player control over
    the growth economy discovered to dominate outcomes in Loop 1.
 3. Juice pass: nest delivery pulse, spider death burst, procedural WebAudio;

@@ -11,6 +11,6 @@ commit. Never force-push.
 ```
 status: released
 session: morning-20260711-ecstatic-ride
-last_update_utc: 2026-07-11T05:00:00Z
-note: Loop 4 done (general bot, 22/24 winnability sweep); morning report refreshed; work on branch claude/ecstatic-ride-9oqbd4; no session active
+last_update_utc: 2026-07-11T05:25:00Z
+note: Loop 4 + 48-seed winnability sample (42/48=87.5%) done; morning report refreshed with honest figure; failure geometry characterized for next session. Work on branch claude/ecstatic-ride-9oqbd4; no session active
 ```
