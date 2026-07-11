@@ -5,13 +5,15 @@ duplicating them. Rejected items keep a one-line reason.
 
 ## Now
 
-1. Generalize commander bot to derived paths (BFS route extraction) and
-   verify generated maps are bot-WINNABLE (not just fair) across ≥20 seeds;
-   normalize difficulty.
+1. Difficulty normalization across the certified pool: oracle win-times span
+   148-466s (3x). Tune per-map so a competent run lands ~250-330s (e.g. scale
+   quota to safely-routable food, or gate on oracle win-time band), then
+   re-certify. Consistent difficulty > raw variety.
 2. Brood throttle verb (paint the nest: grow vs bank) — player control over
-   the growth economy discovered to dominate outcomes in Loop 1.
-3. Juice pass: nest delivery pulse, spider death burst, procedural WebAudio;
-   re-capture media afterwards.
+   the growth economy discovered to dominate outcomes in Loop 1. NOTE:
+   re-run win_sweep.mjs + re-certify seeds.js after (changes the economy).
+3. Procedural WebAudio (licence-clean): delivery blip, fight rumble, win/lose
+   sting. Visual juice shipped (Loop 5); audio is the remaining half.
 4. Second scenario ("The Long Drought") reusing systems, no new tech.
 5. Founder-facing: arrange 5-10 human playtests of game/dist/HIVEMIND.html
    (measure: season completed ≤3 attempts; all verbs used; voluntary
