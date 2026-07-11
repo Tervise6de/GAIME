@@ -3,8 +3,10 @@
 Canonical current state. Update before ending every session. Keep it a
 snapshot — detail belongs in the logs and in git history.
 
-- **Current stage:** WINNER_DEVELOPMENT (loops 1-3 done: goal structure,
-  onboarding, generated territories with fairness guarantees). Stages 1-5 complete. MORNING_REPORT.md is current.
+- **Current stage:** WINNER_DEVELOPMENT (loops 1-4 done: goal structure,
+  onboarding, generated territories with fairness guarantees, generalized
+  commander oracle proving winnability). Stages 1-5 complete. MORNING_REPORT.md
+  predates Loop 4 — refresh before the final morning run.
 - **Current concept:** C01 HIVEMIND — paint scent fields (LURE/FEAR/RALLY);
   thousands of autonomous ants respond; persuasion, never orders.
 - **Fallback concept:** C02 STORMWARDEN (runnable at
@@ -17,14 +19,18 @@ snapshot — detail belongs in the logs and in git history.
   builder, gameplay recorder).
 - **Active hypothesis:** humans can learn and enjoy the painting verb —
   scripted play proves the depth exists; human feel is the top unknown.
-- **Last known good commit:** HEAD of main at end of overnight-1 (Loop 3;
-  40/40 generated maps pass fairness checks; seed-7 commander regression
-  WON t=175; dist verified from file://).
-- **Current build status:** GREEN — verified headless at 60fps; see
-  CLAUDE.md for the one-line re-verification command.
-- **Highest-value next action:** generalized commander bot + cross-seed
-  winnability/difficulty sweep; if in the final morning run: execute the
-  Stage 7 checklist in AUTONOMOUS_STUDIO_PROTOCOL.md instead.
+- **Last known good commit:** HEAD of branch claude/ecstatic-ride-h0dy5s
+  (Loop 4b: commander WINS 24/24 generated seeds + seed 7; every commit
+  verified before push). NOTE: Loop-4 work lives on this feature branch, not
+  yet merged to main.
+- **Current build status:** GREEN — commander WINS 24/24 generated seeds
+  (1000..3231) and seed 7; naive/idle lose on all tested seeds. See CLAUDE.md
+  for re-verification; cross-seed sweep via `node tools/bot_sweep.mjs`.
+- **Highest-value next action:** brood-throttle verb (player control over the
+  growth economy — the dominant outcome lever, currently automatic) OR juice
+  pass; difficulty normalization is now understood as an offline-oracle task,
+  not a static filter (see DECISION_LOG 2026-07-11). If in the final morning
+  run: execute the Stage 7 checklist in AUTONOMOUS_STUDIO_PROTOCOL.md instead.
 - **Blockers:** human playtesting cannot be done from this environment
   (founder action needed — see BACKLOG "Now" #5).
 - **Morning report ready:** true (written end of overnight-1; refresh if
@@ -41,6 +47,6 @@ WINNER_DEVELOPMENT (Protocol Stage 6).
 3. TWO_FINALISTS ✓
 4. DUAL_PROTOTYPES ✓
 5. PROTOTYPE_COMPARISON ✓
-6. WINNER_DEVELOPMENT ← current
+6. WINNER_DEVELOPMENT ← current (loops 1-4 complete)
 7. VERTICAL_SLICE
 8. MORNING_ASSESSMENT (report current; final morning run pending)

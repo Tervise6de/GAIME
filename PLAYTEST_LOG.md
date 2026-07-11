@@ -137,3 +137,57 @@ Entry template:
   cannot play generated maps (hardcoded waypoints) so winnability is
   structurally plausible but unproven off seed 7.
 - Action taken: committed; balance sweep across seeds moved to backlog Now.
+
+## 2026-07-11 ~02:00 UTC — Stage 6 Loop 4: generated maps proven BEATABLE
+- Hypothesis / what was tested: the ASSUMPTION left open by Loop 3 —
+  generated territories are not merely structurally FAIR but actually
+  WINNABLE by competent play (and still punish weak play). Requires a
+  map-agnostic commander bot (the Loop-3 one used seed-7 waypoints).
+- How it was run: rebuilt the commander around a hunter-avoiding Dijkstra
+  pathfinder over the field grid (game/js/auto.js) — LURE harvest roads to
+  unguarded piles + a hybrid LURE-approach / WAR-conversion road that drives
+  soldiers into the guard's den. Swept via tools/bot_sweep.mjs across 24
+  generated seeds (1000..3231, step 97) at fast=30; weak-play controls
+  (naive/idle) on seed 7 + 5 generated seeds; static geometry features
+  dumped by tools/gen_stats.mjs and correlated with win-time.
+- Observed result (facts):
+  (1) WINNABILITY: commander WINS 24/24 generated seeds, winRate 1.0.
+      Win-time min 161.5 / median 319.5 / max 472.8 s (limit 480). Seed-7
+      regression intact (commander WINS t≈417; slower than the old
+      hardcoded t=175 but a clean win).
+  (2) DISCRIMINATION: naive and idle LOSE on every tested seed. naive
+      collapses the colony (luring straight into guards → 4000-7400 deaths,
+      0 stored); idle stores 0-752 of 1200. Maps are neither trivial nor
+      unwinnable.
+  (3) DIFFICULTY is EMERGENT, not statically predictable: Pearson r of
+      win-time vs distSum +0.08, vs distMax -0.07, vs guardTr +0.13 — all
+      ~0. Only "route exposure" (how much a pile's straight nest-line
+      crosses hunter ground) correlates, and NEGATIVELY (r=-0.45): hunters
+      sitting ON the routes make maps EASIER (clearing the mandatory guard
+      opens the direct path). So a cheap generation-time difficulty filter
+      on geometry is not viable — the reliable difficulty gauge is the
+      bot-oracle run offline.
+  (4) Engineering notes surfaced along the way (each fixed and re-verified):
+      a naive per-call tuple heap caused GC that stalled the page (→ reused
+      buffers + parallel-array heap); a huge flat hunter penalty caused
+      map-arcing detours that starved far piles (→ tapered penalty + FEAR
+      walls); an all-WAR assault road caused a 1266-death meatgrinder on
+      seed 1291 (→ WAR confined to the den's conversion zone, ~614 deaths);
+      a WAR stub near the den stranded the assault entirely on maps where
+      harvest roads out-competed it (seed 1485: guard untouched, lost a
+      winnable map → continuous pathfinder-derived assault road).
+- Evidence class: VERIFIED FACT for all bot numbers (deterministic seeded
+  sims, these seeds). The commander is a STRONG PROXY (upper bound) for
+  skilled-human winnability — it proves the maps CAN be won and that doing
+  so requires using every verb; it does NOT prove a median human wins, nor
+  that the pacing feels fair (CREATIVE JUDGMENT / UNKNOWN — needs humans).
+- Weaknesses found: (1) difficulty spread is wide (162-473s) and the hardest
+  seed (2067) wins with only ~7s margin — a slightly-worse-than-oracle human
+  would lose it; the spread is partly bot inefficiency (high-death seeds),
+  not pure map difficulty, so win-time overstates difficulty on those.
+  (2) No static difficulty normalizer found; curation needs the offline
+  oracle. (3) Human feel still the top unknown, untestable here.
+- Action taken: committed the generalized bot (two commits) + bot_sweep.mjs
+  + gen_stats.mjs; winnability assumption RESOLVED to VERIFIED-for-bot;
+  difficulty-normalization approach reframed (offline oracle, not static
+  heuristic) in BACKLOG/DECISION_LOG.

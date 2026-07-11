@@ -113,3 +113,31 @@ Entry template:
 - Reversibility / exit condition: SW fallback stays runnable; pivot if HM
   onboarding/readability work fails to make scripted-novice completion
   possible, or morning verdict rejects it.
+
+## 2026-07-11 — Commander bot generalized to a map-agnostic oracle
+- Stage: WINNER_DEVELOPMENT (Stage 6, Loop 4)
+- Decision: Replace the commander bot's hardcoded seed-7 waypoints with a
+  hunter-avoiding Dijkstra pathfinder over the field grid (LURE harvest roads
+  + a hybrid LURE-approach / WAR-conversion assault on the guard). Treat this
+  bot as the project's difficulty ORACLE: a map is "shippable" iff the
+  commander wins it. Difficulty normalization is done by running the oracle
+  offline over candidate seeds — NOT by a static geometry heuristic.
+- Alternatives considered: (a) keep per-seed hand-authored waypoints
+  (rejected — does not scale to generated maps, the whole point of Loop 3);
+  (b) a static geometry difficulty filter at generation time (rejected — the
+  data shows win-time does not correlate with nest→pile distances, guard
+  size, etc.; only route-exposure weakly and negatively, r=-0.45, so a cheap
+  static filter would be unreliable); (c) run the full sim at "new territory"
+  click time (rejected — a 480-sim-second oracle run is a 15-30s stall, not
+  acceptable in-game).
+- Evidence class: verified fact (24/24 generated seeds won, deterministic;
+  naive/idle lose on all tested seeds) for the bot; strong proxy for
+  skilled-human winnability; unknown for human feel/pacing.
+- Why: closes the Loop-3 gap — generated maps were proven FAIR but their
+  winnability off seed 7 was an untested assumption. A single generic oracle
+  proves winnability across the seed space and gives an honest, reusable
+  difficulty gauge, without pretending AI wins prove human demand.
+- Reversibility / exit condition: fully reversible (bot code only, no
+  gameplay/data change). Revisit if human playtests show the oracle is a poor
+  proxy for human difficulty, or if a cheaper predictive difficulty signal is
+  found. The frozen fallback is the seed-7 hand-tuned map, unaffected.

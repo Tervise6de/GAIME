@@ -5,17 +5,27 @@ duplicating them. Rejected items keep a one-line reason.
 
 ## Now
 
-1. Generalize commander bot to derived paths (BFS route extraction) and
-   verify generated maps are bot-WINNABLE (not just fair) across ≥20 seeds;
-   normalize difficulty.
-2. Brood throttle verb (paint the nest: grow vs bank) — player control over
-   the growth economy discovered to dominate outcomes in Loop 1.
-3. Juice pass: nest delivery pulse, spider death burst, procedural WebAudio;
+1. Brood throttle verb (paint the nest: grow vs bank) — player control over
+   the growth economy discovered to dominate outcomes in Loop 1. Highest
+   remaining gameplay lever (meaningful decision).
+2. Juice pass: nest delivery pulse, spider death burst, procedural WebAudio;
    re-capture media afterwards.
+3. Difficulty band via OFFLINE ORACLE: ship a curated seed pool (or an
+   at-gen quick oracle) so "new territory" stays in a win-time band — static
+   geometry does NOT predict difficulty (Loop 4 data), so a seed pool
+   pre-screened by the commander is the viable normalizer. Also give the
+   hardest tail a little margin (seed 2067 wins with only ~7s to spare).
 4. Second scenario ("The Long Drought") reusing systems, no new tech.
 5. Founder-facing: arrange 5-10 human playtests of game/dist/HIVEMIND.html
    (measure: season completed ≤3 attempts; all verbs used; voluntary
    restarts; kill-signal: "ants won't obey" quits).
+
+## Done (recent)
+
+- [Loop 4] Generalize commander to BFS-derived roads; verify generated maps
+  bot-WINNABLE across 24 seeds (24/24 win) + weak-play discrimination
+  (naive/idle lose). Difficulty found to be emergent, not statically
+  predictable. Tools: bot_sweep.mjs, gen_stats.mjs.
 
 ## Next
 
