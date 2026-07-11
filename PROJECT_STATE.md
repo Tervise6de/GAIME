@@ -22,8 +22,9 @@ snapshot — detail belongs in the logs and in git history.
   scripted play proves the depth AND winnability exist; human feel is the
   top remaining unknown (externally blocked).
 - **Last known good commit:** HEAD of `claude/ecstatic-ride-acanj0`
-  (Loop 5). Verified this session: commander oracle wins 56/60 seeds (1-60);
-  seed-7 regression WON t=305 (generalized bot, not hand-tuned); juice is
+  (overnight-2 final). Verified this session: commander oracle wins 95/100
+  seeds (1-100); seed-7 regression WON t=305 (generalized bot, not
+  hand-tuned); certified generated seed 62 WON from dist; juice/audio are
   balance-neutral (seed-7 win identical pre/post); dist verified from
   file://; click test green.
 - **Current build status:** GREEN — verified headless; see CLAUDE.md for the
