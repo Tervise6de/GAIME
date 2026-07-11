@@ -49,6 +49,7 @@ window.addEventListener('keydown', (e) => {
   if (e.key === '2') ui.tool = 1;
   if (e.key === '3') ui.tool = 2;
   if (e.key === 'p' || e.key === 'P') ui.paused = !ui.paused;
+  if (e.key === 'm' || e.key === 'M') { audio.on = !audio.on; ui.muted = !audio.on; }
   if (sc.over) {
     if (e.key === 'r' || e.key === 'R') location.search = `?seed=${seed}`;
     // New Territory draws from the SIM-CERTIFIED pool (see seeds.js): a random
@@ -112,7 +113,8 @@ function frame() {
   if (now - lastFpsT > 500) {
     fps = Math.round((frames * 1000) / (now - lastFpsT));
     frames = 0; lastFpsT = now;
-    hud.innerHTML = hudText(sim, fps, SCENARIO) + (auto ? `<br>auto: <b>${autoName}</b>` : '');
+    hud.innerHTML = hudText(sim, fps, SCENARIO) + (auto ? `<br>auto: <b>${autoName}</b>` : '')
+      + (ui.muted ? '<br><span style="opacity:0.6">muted — press M for sound</span>' : '');
   }
   requestAnimationFrame(frame);
 }
