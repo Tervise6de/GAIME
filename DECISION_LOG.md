@@ -113,3 +113,27 @@ Entry template:
 - Reversibility / exit condition: SW fallback stays runnable; pivot if HM
   onboarding/readability work fails to make scripted-novice completion
   possible, or morning verdict rejects it.
+
+## 2026-07-11 — Certify New-Territory winnability by simulation, not structure
+- Decision: the human-facing "New Territory" (N key) draws from a pool of
+  SIM-CERTIFIED seeds (`game/js/seeds.js`), not a blind random seed. A seed is
+  certified iff the generalized commander oracle actually WINS it in
+  `tools/win_sweep.mjs` on the current build.
+- Context / evidence (VERIFIED FACT): the Loop-3 fairness guarantees
+  (reachability, lesser piles outside hunter ground, nest not buried) do NOT
+  imply winnability. Across seeds 1-60 the oracle won 56/60 (~93%); the tail
+  (3, 36, 55, 60) is fair yet unwinnable.
+- Why not a cheap structural generation gate: I tried to find one. None of the
+  structural proxies measured — guard distance from nest (loss seed-3 721px is
+  LESS than winning seed-19's 1083px), max pile distance, or non-guard-hunter
+  sealing of the nest->pile corridor (winners seal MORE than the loss) —
+  separated unwinnable maps from winnable ones. Winnability here is emergent
+  and only a simulation reveals it, so a blind gate would either pass bad maps
+  or reject good ones.
+- Cost / reversibility: the certified list is valid only for the current
+  generator + bot; it must be regenerated (one sweep command, documented in
+  seeds.js) after any change to either. Arbitrary ?seed= URLs are still
+  ungated (acceptable: that path is for devs/testing, not the shipped button).
+- Follow-ups: normalize difficulty across the pool (oracle win-times span
+  148-466s); optionally grow the pool; a real in-generation winnability
+  estimator remains open research (would need a fast sim-lite proxy).
