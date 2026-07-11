@@ -12,11 +12,8 @@ duplicating them. Rejected items keep a one-line reason.
 2. Brood throttle verb (dedicated BROOD field/tool, NOT LURE/FEAR at the nest)
    — player control over the growth economy that dominates outcomes. Highest
    remaining gameplay lever (meaningful decision); checkpoint + re-run matrix.
-3. WebAudio for the juice layer (delivery tick, death thud, wave arrival),
-   guarded for headless; re-capture media (record_gameplay.mjs now takes a
-   seed arg — use a vetted generated seed to show the generalized maps).
-4. Second scenario ("The Long Drought") reusing systems, no new tech.
-5. Founder-facing: arrange 5-10 human playtests of game/dist/HIVEMIND.html
+3. Second scenario ("The Long Drought") reusing systems, no new tech.
+4. Founder-facing: arrange 5-10 human playtests of game/dist/HIVEMIND.html
    (measure: season completed ≤3 attempts; all verbs used; voluntary
    restarts; kill-signal: "ants won't obey" quits).
 
@@ -26,8 +23,10 @@ duplicating them. Rejected items keep a one-line reason.
   verify generated maps: ~83% win rate across 54 seeds (NOT 100% — first-24
   sample was fortunate) + naive/idle discrimination. Difficulty is emergent
   (no static predictor). Curated 39-seed oracle-winnable pool wired into [N].
-  Juice pass (delivery pulse + death burst, sim-pure). Fixed stale click test.
-  Tools: bot_sweep.mjs, gen_stats.mjs; record_gameplay.mjs takes a seed arg.
+  Full juice pass: delivery pulse + hunter death burst (sim-pure) AND
+  procedural WebAudio (guarded, headless-safe; sound levels need a human pass).
+  Fixed stale click test. Tools: bot_sweep.mjs, gen_stats.mjs; record_gameplay
+  takes a seed arg. Failed guard-fix experiment recorded (deaths are binding).
 
 ## Next
 

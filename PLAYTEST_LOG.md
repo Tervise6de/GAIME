@@ -248,3 +248,21 @@ Entry template:
 - Action taken: REVERTED to the validated 45/54 state (last good commit). Build
   remains GREEN. Guard-assault strengthening stays BACKLOG #1 with this
   learning attached.
+
+## 2026-07-11 ~03:05 UTC — Winnability estimate tightened: 71/84 = 84.5%
+- Hypothesis / what was tested: firm up the commander win rate with a larger
+  sample and grow the vetted pool.
+- How it was run: two more sweeps (bot_sweep.mjs) over seeds 3328..6141 and
+  6238..9051 (step 97), added to the first 24. Total 84 generated seeds.
+- Observed result (facts): sweep2 24/24, sweep3 21/30 (0.70), sweep4 26/30
+  (0.867). Combined 71/84 = 84.5% win rate. Winner win-times: min 139 /
+  median ~305 / max 479 s (limit 480). The 13 losses are consistently the
+  same modes seen before (guard fizzle → rich pile short; or thin miss by
+  100-160 net). No new failure mode.
+- Evidence class: VERIFIED FACT (deterministic). ~84% is a stable estimate
+  across 84 seeds — the honest headline, not the fortunate first-24 100%.
+- Weaknesses: the loss rate is real (bot weakness on far-guard maps); tuning
+  it out failed once already (see 02:40 entry) and is deferred.
+- Action taken: expanded the vetted "new territory" pool to 62 comfortable
+  winners (win-time <=430s); 9 held out (thin margin); 13 recorded losses
+  never served. Pool integrity re-checked (no dups/overlaps). Dist rebuilt.
