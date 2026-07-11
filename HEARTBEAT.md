@@ -9,8 +9,8 @@ a rejected push means another session holds the lock. Refresh
 commit. Never force-push.
 
 ```
-status: released
-session: dev-20260711-winnability
-last_update_utc: 2026-07-11T08:55:00Z
-note: gcommander + winnability sweep done (9/16 wins); baseline preserved, build GREEN, single-file rebuilt; no session active
+status: active
+session: dev-20260711-guardclear
+last_update_utc: 2026-07-11T12:12:00Z
+note: Stage 6 continuation — guard-clearing for gcommander (raise 56% winnability lower bound) + generator difficulty normalization
 ```
