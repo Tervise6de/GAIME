@@ -5,21 +5,18 @@ duplicating them. Rejected items keep a one-line reason.
 
 ## Now
 
-1. Difficulty normalization on the generator: win-times 272-390s and deaths
-   231-1294 are too spread (data/winnability_sweep_20260711.md). Add a
-   post-gen difficulty estimate (guard distance, pile spread, wave pressure)
-   and reject/retune outliers so seeds play in a target band.
-2. Stronger guard-clearing for gcommander (sustained rally that actually
-   kills a distant guard without abandoning the nest) to raise the 56%
-   winnability lower bound — the guard-priority naive attempt failed (death
-   explosions), so this needs a smarter multi-front approach.
-3. Brood throttle verb (paint the nest: grow vs bank) — player control over
-   the growth economy discovered to dominate outcomes in Loop 1.
-4. Juice pass: nest delivery pulse, spider death burst, procedural WebAudio;
+1. Onboarding beat for the brood throttle (FEAR on the nest = hold brood /
+   bank): the verb exists and the HUD shows "brood held", but nothing teaches
+   it. Fold into the onboarding sequence without lengthening it much.
+2. Juice pass: nest delivery pulse, spider death burst, procedural WebAudio;
    re-capture media afterwards.
-5. Founder-facing: arrange 5-10 human playtests of game/dist/HIVEMIND.html
+3. Founder-facing: arrange 5-10 human playtests of game/dist/HIVEMIND.html
    (measure: season completed ≤3 attempts; all verbs used; voluntary
    restarts; kill-signal: "ants won't obey" quits).
+4. Difficulty variance across seeds: static-feature normalization was
+   REJECTED on evidence (weak correlations — see DECISION_LOG 2026-07-11).
+   Re-examine only if human playtests show the variance hurts; the lever
+   would be dynamic (wave placement/count), not generator rejection.
 
 ## Next
 

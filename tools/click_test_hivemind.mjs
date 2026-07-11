@@ -12,31 +12,41 @@ const box = await (await page.$('#cv')).boundingBox();
 const P = (x, y) => [box.x + (x * box.width) / 1280, box.y + (y * box.height) / 720];
 const hint = () => page.evaluate(() => (window.__OB && window.__OB.active ? window.__OB.active.id : null));
 
-console.log('hint at t=4:', await hint());
+// the first click only dismisses the title screen — it must not count as paint
+await page.mouse.click(...P(640, 600));
+await page.waitForTimeout(3600);
+console.log('hint at t=4 (expect paint-road):', await hint());
 await page.screenshot({ path: 'media/proto/game_hint1.png' });
 
-// drag-paint a lure road along the top route (nest -> high pile)
+// drag-paint a lure road along the top route (nest -> high pile). The
+// paint-road hint dismisses at lurePainted > 260 (ticks-while-painting), so
+// hold the button ~5s total — brief pauses between passes keep painting.
 const route = [[170, 360], [220, 200], [300, 80], [520, 62], [720, 66], [900, 88], [1055, 120]];
 let [sx, sy] = P(route[0][0], route[0][1]);
 await page.mouse.move(sx, sy);
 await page.mouse.down();
-for (let pass = 0; pass < 3; pass++) {
+for (let pass = 0; pass < 5; pass++) {
   const pts = pass % 2 ? [...route].reverse() : route;
   for (const [x, y] of pts) {
     const [px, py] = P(x, y);
     await page.mouse.move(px, py, { steps: 14 });
   }
+  await page.waitForTimeout(450);
 }
 await page.mouse.up();
-console.log('hint after painting:', await hint());
+console.log('hint after painting (expect road-continuity or next):', await hint());
 
 // wait for deliveries to dismiss continuity hint
-await page.waitForTimeout(22000);
+await page.waitForTimeout(26000);
 console.log('hint after deliveries (expect rally or parallel):', await hint());
 const stats = await page.evaluate(() => ({
   banked: window.__SIM.foodBanked, lure: window.__OB ? window.__OB.lurePainted : -1,
   done: window.__OB ? [...window.__OB.done] : [],
 }));
 console.log(JSON.stringify(stats));
+if (!(stats.lure > 260) || !(stats.banked >= 12) || !stats.done.includes('paint-road')) {
+  console.error('FAIL: painting or deliveries not registered by the game/onboarding');
+  process.exitCode = 1;
+}
 await page.screenshot({ path: 'media/proto/game_hint_after.png' });
 await browser.close();

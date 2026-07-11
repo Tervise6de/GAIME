@@ -67,6 +67,7 @@ function finish() {
     ...sc.endStats,
     piles: world.piles.map((p) => ({ label: p.label, left: Math.max(0, p.amount), taken: p.taken || 0 })),
     msPerTick: +(simMsTotal / Math.max(1, simTicksTotal)).toFixed(3),
+    ...(sim._gc && sim._gc.log.length ? { gclog: sim._gc.log } : {}),
   };
 }
 

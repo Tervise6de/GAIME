@@ -139,3 +139,37 @@ Entry template:
   formal difficulty-normalization pass or a stronger bot supersedes this
   measurement, append a new entry. Baseline commander and both prototypes
   remain the last known good runnable references.
+
+## 2026-07-11 — Shepherd assault + brood throttle; static difficulty normalization REJECTED on evidence
+- Stage: WINNER_DEVELOPMENT (Stage 6)
+- Decision: (1) Give gcommander a muster→march→strike guard assault built on a
+  single MOVING WAR peak (a "shepherd blob" erased and re-stamped ~45px along
+  the safe route each repaint) instead of any static painted gradient. (2) Add
+  a brood-throttle verb: FEAR painted over the nest holds the brood (with a
+  "home overrides fear" ring so returners still deliver); gcommander banks once
+  pop>1400 and stores>500. (3) REJECT the planned static difficulty
+  normalization pass: measured correlations between static layout features and
+  observed difficulty are too weak to build on (best |r|=0.47 totalDetour vs
+  win-time, n=14; deaths correlate with nothing, |r|<=0.23).
+- Alternatives considered: (a) static WAR gradient ramps for the assault —
+  TRIED and REJECTED: every stamp is a local WAR maximum, so soldiers park on
+  the stamps like beads on a string (observed via screenshots, seed 1485);
+  (b) LURE recruit road to a staging pool — TRIED and REJECTED: it loses to
+  TRAIL-reinforced economy roads (24 soldiers in 288s); (c) generator
+  reject/retune band on path/detour features — REJECTED as machinery on an
+  unsupported assumption; difficulty spread is driven by dynamics (wave
+  placement vs roads), not static geometry.
+- Evidence class: VERIFIED FACT for all bot results (each run observed);
+  the win-rate remains a STRONG-PROXY LOWER BOUND on winnability, silent on
+  human play. The normalization rejection is a MEASURED NEGATIVE RESULT
+  (n=14-16, weak correlations), not proof no such estimator exists.
+- Why: the three mechanisms address every observed loss mode — guards now die
+  (t=34-92s across seeds), muster stalls escalate to the nest mouth, and
+  economy shortfalls (e.g. seed 1097: all piles drained yet lost 1174/1200
+  after 2460 deaths' respawn costs) flip to wins via banking. Brood throttle
+  is also a PLAYER verb: it makes grow-vs-bank an expressible decision that
+  Loop 1 showed dominates outcomes.
+- Reversibility / exit condition: all changes additive (sim: 2 small guarded
+  edits; commander baseline re-verified byte-identical — WON seed 7 t=175,
+  679 died). If a future difficulty estimator shows real predictive power,
+  supersede the rejection with a new entry.

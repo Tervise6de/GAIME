@@ -11,32 +11,36 @@ snapshot — detail belongs in the logs and in git history.
   prototypes/stormwarden/; skill-gradient assumption VERIFIED on held-out
   seeds — see PLAYTEST_LOG).
 - **Current implementation:** `game/` — winnable/losable "First Season"
-  scenario + onboarding + economy + escalation; `game/dist/HIVEMIND.html`
-  single-file distributable; two frozen prototypes; `tools/` verification
-  harness (headless runner, bot matrix, UI click tests, single-file
-  builder, gameplay recorder, `win_sweep.mjs` cross-seed winnability).
-  Bots: hand-tuned `commander` (seed-7 baseline) + generic map-driven
-  `gcommander` (plays any generated territory).
+  scenario + onboarding + economy + escalation + brood-throttle verb (FEAR
+  on nest = hold brood/bank); `game/dist/HIVEMIND.html` single-file
+  distributable; two frozen prototypes; `tools/` verification harness
+  (headless runner, bot matrix, UI click tests — now with real assertions,
+  single-file builder, gameplay recorder, `win_sweep.mjs`,
+  `difficulty_probe.mjs`). Bots: hand-tuned `commander` (seed-7 baseline) +
+  generic map-driven `gcommander` (muster→march→strike shepherd assault,
+  brood banking; wins ANY of the 16 reference generated territories).
 - **Active hypothesis:** humans can learn and enjoy the painting verb —
   scripted play proves the depth exists; human feel is the top unknown.
 - **Last known good commit:** HEAD of main at end of overnight-1 (Loop 3;
   40/40 generated maps pass fairness checks; seed-7 commander regression
   WON t=175; dist verified from file://).
-- **Current build status:** GREEN — re-verified on the final morning run
-  (2026-07-11): rebuilt-from-checkout, headless bot matrix reproduced on
-  seed 7 (commander WON 1200/1200 @175s; smart 949, warband 0, naive
-  collapse, idle 0 — five distinct outcomes); single-file HIVEMIND.html
-  re-run reaches the identical win card. See CLAUDE.md for the one-line
-  re-verification command.
-- **Highest-value next action:** a guard-clearing bot (or human play) to
-  raise the winnability lower bound above 56%, and a difficulty-normalization
-  pass on the generator (win-times 272-390s and deaths 231-1294 are too
-  spread). Winnability is now MEASURED, not assumed — see below.
-- **Winnability (NEW, 2026-07-11):** generalized `gcommander` bot wins 9/16
-  generated seeds (56%); 5 of 7 losses are the guarded rich pile never
-  cleared (a fixable strategy gap, not structural unfairness). This is a
-  STRONG-PROXY LOWER BOUND, not proof, and says nothing about human players.
-  Full data: `data/winnability_sweep_20260711.md`.
+- **Current build status:** GREEN — re-verified 2026-07-11 pm after the
+  guard-clearing/brood-throttle session: seed-7 matrix has five distinct
+  outcomes (commander WON 1200 @175s / smart 949 / warband 511 / naive
+  collapse / idle 0 — warband/idle figures re-measured against HEAD parity,
+  matching committed behaviour exactly); UI click test passes with real
+  assertions; gen_check 40/40; dist (52.7KB) rebuilt and reaches the win
+  card. See CLAUDE.md for the re-verification commands.
+- **Highest-value next action:** juice pass (delivery pulse, spider death
+  burst, WebAudio) + re-capture media; then human playtests (founder-blocked).
+  The brood-throttle onboarding beat is in but untested by humans.
+- **Winnability (UPDATED 2026-07-11 pm):** `gcommander` now wins **16/16**
+  generated seeds (was 9/16 in the morning) after the shepherd-blob guard
+  assault + brood throttle; win times 161-307s, deaths 172-686 (spread
+  tightened without touching the generator). STRONG-PROXY LOWER BOUND —
+  says nothing about human players. Static difficulty normalization was
+  REJECTED on measurement (features don't predict outcomes; see
+  DECISION_LOG). Full data: `data/winnability_sweep_20260711.md`.
 - **Blockers:** human playtesting cannot be done from this environment
   (founder action needed — see BACKLOG "Now" #5).
 - **Morning report ready:** true — re-verified and stamped on the final

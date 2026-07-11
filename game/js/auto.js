@@ -2,7 +2,9 @@
 // Pre-registered hypothesis (PLAYTEST_LOG 2026-07-10): if SMART cannot beat
 // NAIVE by >=1.25x food with <=0.6x deaths on the same seed, the painting
 // verb is hollow (pointing would be as good as routing).
-import { F, stamp, GW, GH, CELL } from './world.js';
+import { F, stamp, erase, GW, GH, CELL } from './world.js';
+import { ST, antsAlive } from './sim.js';
+import { SCENARIO } from './scenario.js';
 
 function stampLine(field, x0, y0, x1, y1, r, s, spacing = 26) {
   const dx = x1 - x0, dy = y1 - y0, len = Math.hypot(dx, dy);
@@ -184,38 +186,166 @@ function commander(sim) {
 // colony over-commits to the two nearest piles and under-serves the distant
 // one), where hand-tuned play wins outright. Use it as a difficulty/coverage
 // PROXY across seeds, never as proof of human winnability.
+function countSoldiers(sim) {
+  let n = 0;
+  for (let i = 0; i < sim.count; i++) if (sim.alive[i] && sim.astate[i] === ST.SOLDIER) n++;
+  return n;
+}
+
+// Guard assault doctrine: a trickle of soldiers loses to a hunter (its kill
+// radius exceeds their attack radius), so the guard must be hit by one MASS.
+// Static painted gradients cannot transport that mass — every stamp's center
+// is a local WAR maximum, so soldiers park on the stamps like beads on a
+// string (observed on seed 1485). Instead a single SHEPHERD blob is erased
+// and re-stamped one step further along the safe route each repaint, and the
+// pack follows its one moving peak: muster at the nest doorstep where
+// recruit density is highest, march the blob to the guard, strike. Nest
+// defence always pre-empts the assault — over-committing is what killed the
+// previous guard-priority attempt (DECISION_LOG 2026-07-11).
+const MUSTER_POP = 450;        // colony size that can afford an army
+const MUSTER_FORCE_T = 120;    // ...or just strike late rather than never
+const STRIKE_AT = 60;          // brigade size that folds a 260hp hunter fast
+const MUSTER_PATIENCE = 12;    // repaints before marching with what we have
+const STRIKE_FLOOR = 25;       // never march with less than this
+const WAVE_BROKE = 10;         // survivors below this: fall back and re-muster
+const MARCH_STEP = 45;         // px the shepherd blob advances per repaint
+
 function gcommander(sim) {
   const { fields, nest, piles, spiders } = sim.world;
+  const st = sim._gc || (sim._gc = { phase: 'grow', musterPaints: 0, log: [] });
+  const mark = (phase, extra) => {
+    if (st.phase === phase) return;
+    st.phase = phase;
+    st.log.push(`${sim.time.toFixed(0)}s ${phase}${extra ? ' ' + extra : ''}`);
+  };
   const rich = piles[0];
   const guard = spiders[0];
-  const targets = spiders.filter((sp) => sp.alive &&
-    (Math.hypot(sp.hx - nest.x, sp.hy - nest.y) < 340 || (sp === guard && rich.amount > 0)));
-  targets.sort((p, q) => Math.hypot(p.x - nest.x, p.y - nest.y) - Math.hypot(q.x - nest.x, q.y - nest.y));
-  const threat = targets[0];
-  if (threat) {
-    const ang = Math.atan2(threat.y - nest.y, threat.x - nest.x);
-    const ax = threat.x - Math.cos(ang) * 150, ay = threat.y - Math.sin(ang) * 150;
-    stampLine(fields[F.LURE], nest.x, nest.y, ax, ay, 26, 0.8);
-    stampLine(fields[F.WAR], ax, ay, threat.x, threat.y, 44, 1.0);
-    stamp(fields[F.WAR], threat.x, threat.y, 90, 1.0);
+  const assaulting = guard && guard.alive && rich.amount > 0;
+
+  // objective gone (guard dead / pile drained): erase the war paint so the
+  // brigade demotes back to foraging instead of milling for ~40s of decay
+  if (st.phase !== 'grow' && !assaulting) {
+    erase(fields, guard.hx, guard.hy, guard.tr + 220);
+    // wipe the shepherd blob too, or it keeps drafting the economy for ~40s
+    if (st.paintPos) erase(fields, st.paintPos[0], st.paintPos[1], 120);
+    st.paintPos = null; st.marchD = 0;
+    mark('grow', guard.alive ? 'pile-drained' : 'guard-dead'); st.musterPaints = 0;
   }
-  // wall deep roamers (routed around anyway); leave near-nest approaches open
+
+  // brood throttle: once the workforce saturates the piles' extraction rates,
+  // growth is pure waste — hold the brood and bank the difference (measured:
+  // seed 1097 drained every pile yet lost 1174/1200 to 2460 deaths' respawn
+  // costs). Blocked spawns also stop death-replacement, so keep a deep
+  // manpower buffer and let the FEAR decay re-open brood on its own if the
+  // colony thins out.
+  const pop = antsAlive(sim);
+  if (pop > 1400 && sim.foodStock > 500 && sim.foodStock < SCENARIO.quota) {
+    stamp(fields[F.FEAR], nest.x, nest.y, 44, 1.0);
+    if (!st.banked) { st.banked = true; st.log.push(`${sim.time.toFixed(0)}s brood-held pop=${pop}`); }
+  }
+
+  // a hunter denned near the nest is always the first fight
+  const press = spiders
+    .filter((sp) => sp.alive && Math.hypot(sp.hx - nest.x, sp.hy - nest.y) < 340)
+    .sort((p, q) => Math.hypot(p.x - nest.x, p.y - nest.y) - Math.hypot(q.x - nest.x, q.y - nest.y))[0];
+  if (press) {
+    const ang = Math.atan2(press.y - nest.y, press.x - nest.x);
+    const ax = press.x - Math.cos(ang) * 150, ay = press.y - Math.sin(ang) * 150;
+    stampLine(fields[F.LURE], nest.x, nest.y, ax, ay, 26, 0.8);
+    stampLine(fields[F.WAR], ax, ay, press.x, press.y, 44, 1.0);
+    stamp(fields[F.WAR], press.x, press.y, 90, 1.0);
+  }
+
+  // wall deep roamers; never the pressed target, never the assault target
+  // (FEAR outweighs WAR for foragers, so fearing the guard blocks recruitment)
   for (const sp of spiders) {
-    if (!sp.alive || sp === threat) continue;
+    if (!sp.alive || sp === press || (assaulting && sp === guard)) continue;
     if (Math.hypot(sp.hx - nest.x, sp.hy - nest.y) < 340) continue;
     stamp(fields[F.FEAR], sp.hx, sp.hy, sp.tr + 20, 1.0);
   }
+
   const prev = costField(sim.world);
   for (const p of piles) {
     if (p.amount <= 0) continue;
     if (p === rich && guard && guard.alive) continue;
     roadRoute(fields, prev, p, nest);
   }
+
+  if (!assaulting || press) return; // press fight owns the WAR field for now
+
+  // safe route to the den (fall back to the pile itself if the den cell is
+  // unroutable — pile reachability is generator-guaranteed)
+  const wp = routeTo(prev, guard.hx, guard.hy) || routeTo(prev, rich.x, rich.y);
+  if (!wp) return;
+  // arclength parameterization for the shepherd blob
+  const cum = [0];
+  for (let i = 1; i < wp.length; i++) {
+    cum.push(cum[i - 1] + Math.hypot(wp[i][0] - wp[i - 1][0], wp[i][1] - wp[i - 1][1]));
+  }
+  const totalLen = cum[cum.length - 1];
+  const posAt = (d) => {
+    d = Math.max(0, Math.min(totalLen, d));
+    let i = 1;
+    while (i < cum.length - 1 && cum[i] < d) i++;
+    const t = (d - cum[i - 1]) / Math.max(1e-6, cum[i] - cum[i - 1]);
+    return [wp[i - 1][0] + (wp[i][0] - wp[i - 1][0]) * t,
+      wp[i - 1][1] + (wp[i][1] - wp[i - 1][1]) * t];
+  };
+
+  const soldiers = countSoldiers(sim);
+  // one moving peak: erase where the blob was, stamp where it goes
+  const moveBlob = (to, r) => {
+    if (st.paintPos) erase(fields, st.paintPos[0], st.paintPos[1], r + 30);
+    stamp(fields[F.WAR], to[0], to[1], r, 1.0);
+    st.paintPos = to;
+  };
+
+  if (st.phase === 'grow' || st.phase === 'muster') {
+    if (antsAlive(sim) < MUSTER_POP && sim.time < MUSTER_FORCE_T) return; // grow first
+    mark('muster', `pop=${antsAlive(sim)}`); st.musterPaints++;
+    // muster off the doorstep by default; if the route's near leg is a
+    // traffic dead spot and recruiting stalls (measured: 34 soldiers in 436s
+    // on seed 2455's left-edge route), escalate onto the nest mouth itself —
+    // the returner stream is guaranteed traffic.
+    const stalled = st.musterPaints > 15;
+    st.marchD = stalled ? 30 : 140;
+    moveBlob(posAt(st.marchD), stalled ? 70 : 64);
+    if (soldiers >= STRIKE_AT ||
+        (st.musterPaints >= MUSTER_PATIENCE && soldiers >= STRIKE_FLOOR)) {
+      mark('march', `soldiers=${soldiers}`);
+    }
+  } else if (st.phase === 'march') {
+    st.marchD += MARCH_STEP;
+    const at = posAt(st.marchD);
+    if (Math.hypot(at[0] - guard.x, at[1] - guard.y) < 130 || st.marchD >= totalLen) {
+      mark('strike', `soldiers=${soldiers}`);
+    } else {
+      moveBlob(at, 78);
+    }
+    if (soldiers < WAVE_BROKE) { mark('muster', 'wave-broke'); st.musterPaints = 0; }
+  }
+  if (st.phase === 'strike') {
+    // close on the hunter itself, but never leap further than the pack can
+    // follow — a teleporting peak strands the brigade behind an erased blob
+    let to = [guard.x, guard.y];
+    if (st.paintPos) {
+      const dx = guard.x - st.paintPos[0], dy = guard.y - st.paintPos[1];
+      const d = Math.hypot(dx, dy);
+      if (d > MARCH_STEP * 1.6) {
+        const k = (MARCH_STEP * 1.6) / d;
+        to = [st.paintPos[0] + dx * k, st.paintPos[1] + dy * k];
+      }
+    }
+    moveBlob(to, 85);
+    if (soldiers < WAVE_BROKE) { mark('muster', 'wave-broke'); st.musterPaints = 0; }
+  }
 }
 
 export const STRATEGIES = { naive, smart, warband, idle, commander, gcommander };
 
-export function makeAutoPlayer(name, periodTicks = 240) {
+// gcommander repaints at half period: the shepherd blob must step often
+// enough to move ~22px/s. Other strategies keep the original cadence.
+export function makeAutoPlayer(name, periodTicks = name === 'gcommander' ? 120 : 240) {
   const fn = STRATEGIES[name];
   if (!fn) return null;
   return (sim) => {

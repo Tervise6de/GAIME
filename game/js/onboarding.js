@@ -49,6 +49,13 @@ const HINTS = [
     text: 'Workers are wandering to their deaths. Press [2] and paint FEAR over danger to wall them away from it.',
     marker: null,
   },
+  {
+    id: 'brood-throttle',
+    when: (ob, sim) => sim.foodStock > 600 && sim.time > 180,
+    until: (ob, sim) => !!sim.broodHeld,
+    text: 'Grown enough? Paint FEAR on the NEST to hold new brood — banked food, not more mouths, wins the season.',
+    marker: (sim) => ({ at: { x: sim.world.nest.x, y: sim.world.nest.y } }),
+  },
 ];
 
 export function updateOnboarding(ob, sim, ui) {

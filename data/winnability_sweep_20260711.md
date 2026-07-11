@@ -57,3 +57,55 @@ gathered, which after brood + death costs lands below the 1200 net quota.
 Among wins alone, clear-time spans 272–390 s and deaths span 231–1294 — a wide
 spread. Generated maps are structurally fair (40/40 gen_check) but vary a lot
 in how bloody/hard they play. Difficulty normalization remains open work.
+
+---
+
+# UPDATE (same day, later session): 16/16 after guard-clearing + brood throttle
+
+Bot upgraded (`dev-20260711-guardclear` session): muster→march→strike guard
+assault on a single moving WAR peak ("shepherd blob"), muster-stall escalation
+to the nest mouth, and a brood throttle (FEAR on the nest holds brood; the
+colony banks instead of growing — also a new PLAYER verb).
+
+| seed | result | died | slain | t (s) | guard dead at |
+|------|--------|-----:|------:|------:|--------------:|
+| 1000 | WON | 217 | 1 | 202 | 40s |
+| 1097 | WON | 273 | 3 | 307 | 40s |
+| 1194 | WON | 682 | 4 | 176 | 58s |
+| 1291 | WON | 602 | 4 | 218 | 42s |
+| 1388 | WON | 355 | 2 | 197 | 60s |
+| 1485 | WON | 176 | 2 | 284 | 68s |
+| 1582 | WON | 686 | 1 | 186 | (press fight — guard denned near nest) |
+| 1679 | WON | 288 | 1 | 165 | 66s |
+| 1776 | WON | 632 | 3 | 264 | 132s (one re-muster) |
+| 1873 | WON | 686 | 4 | 161 | 34s |
+| 1970 | WON | 449 | 2 | 213 | 60s |
+| 2067 | WON | 268 | 3 | 246 | 50s |
+| 2164 | WON | 515 | 4 | 275 | 54s |
+| 2261 | WON | 244 | 2 | 287 | 130s (one re-muster) |
+| 2358 | WON | 399 | 3 | 180 | 52s |
+| 2455 | WON | 172 | 1 | 192 | 94s (stall escalation) |
+
+**Result: 16/16 (100%).** Win times 161–307 s (was 272–390 among 9 wins),
+deaths 172–686 (was 231–1294). Baseline seed-7 `commander` re-verified
+byte-identical (WON t=175, 679 died); full five-doctrine matrix reproduces
+HEAD behaviour exactly. gcommander still loses seed 7 (1108/1200, known
+source-commitment weakness on the handcrafted geometry) — `commander` remains
+the seed-7 reference.
+
+Evidence class: VERIFIED FACT for every run above; the 100% is a STRONG-PROXY
+LOWER BOUND on map winnability by a scripted generic player. It says nothing
+about human players. Determinism caveat: outcomes are chaotic in strategy
+details (a 50px muster shift flipped three seeds in both directions), so
+per-seed results are samples of dynamics, not stable per-map properties; the
+union claim "every one of these 16 maps has at least one observed winning
+line" is the robust statement.
+
+## Difficulty normalization: REJECTED on measurement
+
+Static layout features (path lengths, hunter-detour costs, den distances —
+`tools/difficulty_probe.mjs`) were correlated against observed outcomes:
+best |r| = 0.47 (totalDetour vs win-time, n=14); deaths correlate with
+nothing (|r| <= 0.23). Difficulty spread is dominated by dynamics (wave
+placement vs roads), not static geometry — a generator reject/retune band on
+these features would be unfounded machinery. See DECISION_LOG 2026-07-11.

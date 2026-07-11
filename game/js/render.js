@@ -140,7 +140,7 @@ export function hudText(sim, fps, SCEN) {
   const pct = Math.min(100, (sim.foodStock / SCEN.quota) * 100).toFixed(0);
   return `HIVEMIND — the first season
 stores <b>${sim.foodStock.toFixed(0)} / ${SCEN.quota}</b> (${pct}%) · winter in <b>${left.toFixed(0)}s</b>
-colony <span${colonyWarn}>${alive}</span> (keep above ${SCEN.colonyFloor}) · fallen ${sim.antsDied} · hunters slain ${sim.spidersKilled}
+colony <span${colonyWarn}>${alive}</span> (keep above ${SCEN.colonyFloor})${sim.broodHeld ? ' · <span style="color:#c9a0ff">brood held</span>' : ''} · fallen ${sim.antsDied} · hunters slain ${sim.spidersKilled}
 ${fps} fps`;
 }
 

@@ -187,3 +187,50 @@ Entry template:
   preserved as the seed-7 balance reference); committed win_sweep tool + data
   table; guard-priority change reverted. Difficulty normalization + a
   guard-clearing bot stay on the backlog.
+
+## 2026-07-11 ~13:00 UTC — Guard-clearing (shepherd assault) + brood throttle: 16/16 generated seeds
+- Hypothesis / what was tested: (1) the 5/7 "guard never dies" sweep losses
+  are a fixable strategy gap; (2) economy-shortfall losses trace to unchecked
+  brood spending; (3) static layout features predict per-map difficulty.
+- How it was run: iterative bot development with per-change verification
+  (tools/run_proto.mjs per seed at fast=40; screenshots to diagnose soldier
+  behaviour); three full 16-seed sweeps; seed-7 five-doctrine matrix; UI
+  click test (repaired — see below); gen_check 40 seeds; dist rebuild + run.
+- Observed results (facts):
+  - Static WAR gradients CANNOT transport an army: every stamp center is a
+    local field maximum, so soldiers park on the stamps ("beads on a string",
+    seen directly in screenshots on seed 1485). A LURE recruit road also
+    fails (24 soldiers in 288s) — it loses to TRAIL-reinforced economy roads.
+  - A single MOVING WAR peak (erase + re-stamp ~45px along the route per 2s)
+    transports the mass reliably: guards die t=34–94s across all seeds.
+  - Muster at 140px along the route stalls on maps whose route leg is a
+    traffic dead spot (seed 2455: 34 soldiers in 436s); escalating the blob
+    to the nest mouth after 15 stalled repaints fixes it (guard dead 94s).
+  - Brood throttle (FEAR on nest = hold brood) flips every economy-shortfall
+    loss: 1097 (1174→WON, deaths 2460→273), 1291 (never-won→WON t=218),
+    2164 (984→WON). Implemented with a "home overrides fear" ring so nest
+    FEAR cannot block deliveries.
+  - Final sweep: 16/16 WINS (was 9/16 this morning). Win-time spread
+    tightened 272–390→161–307s, deaths 231–1294→172–686 WITHOUT generator
+    changes.
+  - Difficulty-normalization premise FALSIFIED: static features vs outcomes
+    best |r|=0.47 (n=14), deaths |r|<=0.23. Task re-scoped to a rejection
+    (DECISION_LOG).
+  - Regressions: commander seed-7 byte-identical (WON t=175, 679 died,
+    matrix five distinct outcomes, dist reaches win card); gen_check 40/40.
+  - Found + fixed a silently-vacuous test: click_test_hivemind's first
+    mousedown was consumed by the title screen, so it had never painted
+    anything since the title was added; it also had no assertions. Now it
+    starts the game, paints ~5s, and asserts hint progression + deliveries
+    (passes: paint-road → road-continuity → rally, 45 banked).
+- Evidence class: VERIFIED FACT for all runs above; 16/16 is a STRONG-PROXY
+  LOWER BOUND on winnability by a generic scripted player — NOT proof of
+  human winnability or fun. Per-seed outcomes are chaotic in strategy
+  details; the robust claim is the union ("each map has an observed winning
+  line").
+- Weaknesses: brood-throttle thresholds (pop>1400, stores>500) are tuned on
+  this seed set; the throttle verb has an onboarding hint but no human has
+  seen it; gcommander still loses seed 7 (known source-commitment weakness).
+- Action taken: shipped (auto.js shepherd assault + throttle; sim.js brood
+  hold + fear-ring; HUD "brood held"; onboarding hint; repaired click test;
+  difficulty_probe tool); data table updated; DECISION_LOG entry appended.

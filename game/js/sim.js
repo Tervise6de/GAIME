@@ -55,8 +55,12 @@ export function step(s, dt) {
 
   // --- population ---
   if (!s.freeList) s.freeList = [];
+  // brood throttle verb: FEAR painted over the nest holds the brood — the
+  // colony banks food instead of spending it on growth (grow vs bank is the
+  // player's call; late-game growth is pure waste once piles are rate-bound)
+  s.broodHeld = fields[F.FEAR][idxAt(nest.x, nest.y)] > 0.35;
   const target = Math.min(MAX_ANTS, 250 + Math.floor(s.time * 10)); // start small, earn the swarm
-  let deficit = target - (s.count - s.freeList.length);
+  let deficit = s.broodHeld ? 0 : target - (s.count - s.freeList.length);
   while (deficit-- > 0) spawnAnt(s);
 
   // --- field decay (+ light diffusion on TRAIL every 3rd tick) ---
@@ -93,7 +97,10 @@ export function step(s, dt) {
       for (const da of [-SENSE_A, 0, SENSE_A]) {
         const sx = x + Math.cos(h + da) * SENSE_D, sy = y + Math.sin(h + da) * SENSE_D;
         const si = idxAt(sx, sy);
-        const d = homeDist[si] + fields[F.FEAR][si] * 30 + rng() * 0.4;
+        // home overrides fear: inside the nest ring FEAR is a brood signal
+        // (see brood throttle), not a wall — else nest FEAR blocks delivery
+        const fearD = homeDist[si] > 9 ? fields[F.FEAR][si] * 30 : 0;
+        const d = homeDist[si] + fearD + rng() * 0.4;
         if (d < bestD) { bestD = d; best = da; }
       }
       h += Math.sign(best) * Math.min(TURN, Math.abs(best)) + (rng() - 0.5) * 0.12;
