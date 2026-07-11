@@ -108,9 +108,26 @@ export function makeRenderer(canvas, world) {
   const fctx = fc.getContext('2d');
   const fimg = fctx.createImageData(GW, GH);
 
+  // per-pile grain mounds, precomputed once (seeded): the pile renders as
+  // discrete grains and visibly EMPTIES outside-in as it is harvested
+  const pileGrains = (world ? world.piles : []).map((p) => {
+    const grains = [];
+    for (let k = 0; k < 64; k++) {
+      const a = r() * 6.28;
+      const d = Math.sqrt(r()) * p.r * 0.85;
+      grains.push({
+        dx: Math.cos(a) * d, dy: Math.sin(a) * d * 0.82, d,
+        gr: 1.6 + r() * 2.2, rot: r() * 3.14,
+        c: `rgb(${205 + (r() * 50) | 0},${145 + (r() * 55) | 0},${45 + (r() * 40) | 0})`,
+      });
+    }
+    grains.sort((g1, g2) => g2.d - g1.d); // outer first: harvest eats the rim
+    return { grains, amount0: p.amount };
+  });
+
   // transient feedback state (render-side only — never touches the sim)
   const fx = { lastBanked: -1, deadSeen: new Set(), pulses: [], bursts: [], lastT: 0 };
-  return { ctx, bg, fc, fctx, fimg, fx };
+  return { ctx, bg, fc, fctx, fimg, fx, pileGrains };
 }
 
 // detect sim events by delta and spawn transient feedback
@@ -177,14 +194,32 @@ export function draw(R, sim, ui) {
   ctx.drawImage(R.fc, 0, 0, GW, GH, 0, 0, W, H);
   ctx.restore();
 
-  // food piles
-  for (const p of world.piles) {
-    if (p.amount <= 0) continue;
-    const rr = p.r * (0.35 + 0.65 * Math.min(1, p.amount / 600));
-    const g = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, rr);
-    g.addColorStop(0, '#ffe9a8'); g.addColorStop(0.55, '#e8a93d'); g.addColorStop(1, 'rgba(120,70,10,0)');
-    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, rr, 0, 7); ctx.fill();
-  }
+  // food piles: a warm under-glow plus a mound of discrete grains that
+  // empties outside-in with the actual amount left
+  world.piles.forEach((p, pi) => {
+    if (p.amount <= 0) return;
+    const pg = R.pileGrains[pi];
+    const frac = Math.min(1, p.amount / (pg ? pg.amount0 : 600));
+    const rr = p.r * (0.3 + 0.7 * frac);
+    const g = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, rr * 1.15);
+    g.addColorStop(0, 'rgba(255,225,150,0.55)'); g.addColorStop(0.6, 'rgba(220,150,50,0.28)'); g.addColorStop(1, 'rgba(120,70,10,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, rr * 1.15, 0, 7); ctx.fill();
+    if (pg) {
+      const n = pg.grains.length;
+      const start = Math.floor(n * (1 - frac)); // rim grains vanish first
+      for (let k = start; k < n; k++) {
+        const gr = pg.grains[k];
+        const sc = 0.3 + 0.7 * frac;
+        ctx.save();
+        ctx.translate(p.x + gr.dx * sc, p.y + gr.dy * sc); ctx.rotate(gr.rot);
+        ctx.fillStyle = gr.c;
+        ctx.beginPath(); ctx.ellipse(0, 0, gr.gr, gr.gr * 0.62, 0, 0, 7); ctx.fill();
+        ctx.fillStyle = 'rgba(255,240,200,0.5)';
+        ctx.beginPath(); ctx.ellipse(-gr.gr * 0.25, -gr.gr * 0.2, gr.gr * 0.35, gr.gr * 0.2, 0, 0, 7); ctx.fill();
+        ctx.restore();
+      }
+    }
+  });
 
   // nest
   {
@@ -220,19 +255,51 @@ export function draw(R, sim, ui) {
   }
   ctx.globalCompositeOperation = 'source-over';
 
-  // spiders
+  // spiders: two-lobe body, articulated legs with an alternating gait
+  // (opposite leg pairs lift in antiphase), eye glints — reads as a hunter,
+  // not a asterisk, at closer inspection
   for (const sp of world.spiders) {
     if (!sp.alive) continue;
     ctx.save(); ctx.translate(sp.x, sp.y); ctx.rotate(sp.a);
-    ctx.strokeStyle = '#2b0f0c'; ctx.lineWidth = 2.4;
-    for (let k = 0; k < 4; k++) {
-      const a = (k / 4) * Math.PI - Math.PI / 2 + 0.35;
-      ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(a) * 16, Math.sin(a) * 16); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-Math.cos(a) * 16, Math.sin(a) * 16); ctx.stroke();
+    // ground shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.beginPath(); ctx.ellipse(-2, 2.5, 13, 7, 0, 0, 7); ctx.fill();
+    // legs: two segments (hip->knee->foot), gait phase alternates per leg
+    for (let side = -1; side <= 1; side += 2) {
+      for (let k = 0; k < 4; k++) {
+        const base = (-0.95 + k * 0.62) * side + (side < 0 ? Math.PI : 0);
+        const phase = sim.time * 6 + k * 1.9 + (side + 1) * 0.9 + ((k % 2) * Math.PI);
+        const swing = Math.sin(phase) * 0.14;
+        const lift = Math.max(0, Math.sin(phase)) * 0.25;
+        const a1 = base + swing;
+        const hx = Math.cos(a1) * 4.5, hy = Math.sin(a1) * 4.5;
+        const kx = Math.cos(a1) * 11, ky = Math.sin(a1) * 11 - lift * 4;
+        const fa = a1 + 0.35 * side;
+        const fx2 = Math.cos(fa) * 17.5, fy2 = Math.sin(fa) * 17.5;
+        ctx.strokeStyle = '#40160e'; ctx.lineWidth = 2.2;
+        ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(kx, ky); ctx.stroke();
+        ctx.strokeStyle = '#331109'; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.moveTo(kx, ky); ctx.lineTo(fx2, fy2); ctx.stroke();
+      }
     }
-    const g = ctx.createRadialGradient(0, 0, 1, 0, 0, 11);
-    g.addColorStop(0, '#6e1f18'); g.addColorStop(1, '#240b08');
-    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, 10, 0, 7); ctx.fill();
+    // abdomen (rear lobe) with a pale dorsal marking
+    const ga = ctx.createRadialGradient(-6, -2, 1, -5, 0, 8.5);
+    ga.addColorStop(0, '#79251b'); ga.addColorStop(0.7, '#3a1009'); ga.addColorStop(1, '#1c0705');
+    ctx.fillStyle = ga;
+    ctx.beginPath(); ctx.ellipse(-5, 0, 8, 6.2, 0, 0, 7); ctx.fill();
+    ctx.strokeStyle = 'rgba(220,170,120,0.28)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(-9.5, 0); ctx.lineTo(-2.5, 0); ctx.stroke();
+    // cephalothorax (front lobe)
+    const gc = ctx.createRadialGradient(4, -1.5, 0.5, 4.5, 0, 5.5);
+    gc.addColorStop(0, '#8a3020'); gc.addColorStop(1, '#2a0c07');
+    ctx.fillStyle = gc;
+    ctx.beginPath(); ctx.ellipse(4.5, 0, 5.2, 4.4, 0, 0, 7); ctx.fill();
+    // eye glints + fangs
+    ctx.fillStyle = 'rgba(255,200,160,0.9)';
+    ctx.fillRect(7.5, -2.2, 1.3, 1.3); ctx.fillRect(7.5, 1, 1.3, 1.3);
+    ctx.strokeStyle = '#1c0705'; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(9, -1.6); ctx.lineTo(11.5, -0.7); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(9, 1.6); ctx.lineTo(11.5, 0.7); ctx.stroke();
     ctx.restore();
     // hp arc
     ctx.strokeStyle = 'rgba(255,90,70,0.8)'; ctx.lineWidth = 2.5;

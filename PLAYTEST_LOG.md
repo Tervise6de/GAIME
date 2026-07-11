@@ -336,3 +336,28 @@ Entry template:
     humans is UNKNOWN — same founder-blocked human-playtest dependency.
 - Action taken: committed; scenario is in the build behind ?scn=drought and
   the title-screen [S] switch; data in data/drought_sweep_20260711.md.
+
+## 2026-07-11 ~16:50 UTC — Art continuation: pile grain mounds + articulated spiders
+
+- Hypothesis / what was tested: remaining art-direction scope (BACKLOG Now
+  #2): piles read as gradient blobs and spiders as asterisks at closer
+  inspection.
+- How it was run: implemented render-only changes (per-pile precomputed
+  grain mounds that empty outside-in with the real amount left; spiders as
+  two-lobe bodies with two-segment legs on an alternating gait, eye glints,
+  fangs, ground shadow); verified with 2-3x zoomed closeups
+  (tools/art_closeup.mjs, media/proto/closeup_*.png), full-frame stills,
+  and the standard battery.
+- Observed results (facts): commander seed-7 regression byte-identical
+  (WON 1200 t=175 died 679) — render-only confirmed; click test PASS;
+  60 fps observed in stills with grain piles + spider live; dist rebuilt
+  72.0KB and reproduces the drought win (205). hivemind.gif re-recorded
+  with the new art (51 frames, 3.9MB, was 6.4MB pre-juice).
+- Evidence class: VERIFIED FACT for determinism/tests/fps; the visual
+  quality is CREATIVE JUDGMENT from stills (piles now visibly DEPLETE —
+  which is also information design, the rim grains vanish as it drains).
+- Weaknesses: spider legs still subtle at play zoom (fine in motion, gait
+  animates); ant silhouette unchanged (2600 draws/frame budget); palette
+  identity still informal.
+- Action taken: committed. Remaining art scope: palette pass, ant
+  silhouette if a cheap trick appears.
