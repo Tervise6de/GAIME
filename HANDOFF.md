@@ -27,7 +27,10 @@ snapshot, not an accumulating history — history lives in git.
   4. Bot tuning also cut deaths hard (seed 24: 1348→316) and sped wins
      (avg 286→251s). Onboarding marker/text now map-agnostic (was seed-7).
   5. Loop 5 juice: nest delivery glow + spider-death burst — balance-neutral
-     (sim writes fx/nestPulse; nothing reads them back).
+     (sim writes fx/nestPulse; nothing reads them back). Plus procedural
+     WebAudio (game/js/audio.js): synthesized harvest ticks, death crunch,
+     win/lose stings. Gated to a real click gesture, so bots/headless stay
+     silent; unheard in this env (runs-clean verified, pleasant assumed).
 - **Build status:** GREEN. Seed-7 commander WINS t=305 (deterministic);
   juice verified identical win pre/post; dist `game/dist/HIVEMIND.html` (50KB)
   verified WIN from file://; click test exit 0.
@@ -36,8 +39,9 @@ snapshot, not an accumulating history — history lives in git.
      aim ~250-330s), then re-run `win_sweep.mjs` and re-certify `seeds.js`.
   2. Brood-throttle verb (grow-vs-bank) for economic depth — then re-certify
      (it changes the economy the pool was certified against).
-  3. Procedural WebAudio (delivery blip, fight rumble, win/lose sting) —
-     licence-clean; the audio half of the juice pass.
+  3. Audio polish: the procedural WebAudio base shipped (audio.js); a human
+     with sound should sanity-check it's pleasant (unheard from this env) and
+     add ambience/mix if wanted.
 - **CRITICAL maintenance rule:** `game/js/seeds.js` is only valid for the
   CURRENT generator + bot. After ANY change to world generation, the commander
   bot, or the economy, regenerate it:

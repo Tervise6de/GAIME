@@ -12,8 +12,9 @@ duplicating them. Rejected items keep a one-line reason.
 2. Brood throttle verb (paint the nest: grow vs bank) — player control over
    the growth economy discovered to dominate outcomes in Loop 1. NOTE:
    re-run win_sweep.mjs + re-certify seeds.js after (changes the economy).
-3. Procedural WebAudio (licence-clean): delivery blip, fight rumble, win/lose
-   sting. Visual juice shipped (Loop 5); audio is the remaining half.
+3. Audio polish: procedural base shipped (audio.js — harvest tick, death
+   crunch, win/lose sting). Human-verify it's pleasant (unheard from this
+   env); consider ambience/mix and a mute toggle.
 4. Second scenario ("The Long Drought") reusing systems, no new tech.
 5. Founder-facing: arrange 5-10 human playtests of game/dist/HIVEMIND.html
    (measure: season completed ≤3 attempts; all verbs used; voluntary

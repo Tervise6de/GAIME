@@ -13,7 +13,8 @@ open http://localhost:8123/game/index.html
 
 **Controls:** paint with LEFT mouse, erase with RIGHT. `1` LURE (roads),
 `2` FEAR (walls), `3` RALLY (warbands). Mouse wheel = brush size, `P` =
-pause. Click to begin. The game teaches the rest contextually.
+pause. Click to begin (this also enables sound). The game teaches the rest
+contextually.
 
 **Watch instead:** `media/hivemind.gif` (13s battle clip),
 `media/gameplay_commander_seed7.webm` (~2 min of scripted competent play),
@@ -50,7 +51,9 @@ summons hunters onto your roads.
    map; a cross-seed sweep (`tools/win_sweep.mjs`) showed it beats 56/60
    seeds. The "New Territory" button now draws only from a SIM-CERTIFIED seed
    pool (`game/js/seeds.js`), so replay variation is real AND every offered
-   map is beatable. Plus a juice pass (nest delivery glow, hunter-death burst).
+   map is beatable. Plus a juice pass — nest delivery glow, hunter-death
+   burst, and procedural (licence-clean, synthesized) audio: harvest ticks,
+   a death crunch, win/lose stings.
 
 ## Why HIVEMIND beat STORMWARDEN
 
