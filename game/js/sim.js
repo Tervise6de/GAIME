@@ -18,6 +18,9 @@ export function makeSim(world) {
     count: 0, tick: 0, time: 0,
     foodBanked: 0, antsDied: 0, spidersKilled: 0, antsSpawned: 0,
     foodStock: 30,           // net colony wealth: gains on delivery, pays for brood
+    // --- purely visual state (never read by scenario/bots; balance-neutral) ---
+    fx: [],                  // transient bursts (spider deaths)
+    nestPulse: 0,            // nest glow, bumped by deliveries, decays
   };
 }
 
@@ -52,6 +55,10 @@ function forageScore(fields, i) {
 export function step(s, dt) {
   const { fields, blocked, homeDist, nest, piles, spiders, rng } = s.world;
   s.tick++; s.time += dt;
+
+  // --- visual FX bookkeeping (balance-neutral: nothing below reads these) ---
+  s.nestPulse *= 0.982;
+  if (s.fx.length) { for (const e of s.fx) e.t += dt; s.fx = s.fx.filter((e) => e.t < e.life); }
 
   // --- population ---
   if (!s.freeList) s.freeList = [];
@@ -102,7 +109,7 @@ export function step(s, dt) {
       // reached nest?
       const dx = x - nest.x, dy = y - nest.y;
       if (dx * dx + dy * dy < nest.r * nest.r) {
-        if (s.acarry[i]) { s.foodBanked += s.acarry[i]; s.foodStock += s.acarry[i]; s.acarry[i] = 0; }
+        if (s.acarry[i]) { s.foodBanked += s.acarry[i]; s.foodStock += s.acarry[i]; s.nestPulse = Math.min(2, s.nestPulse + 0.06 * s.acarry[i]); s.acarry[i] = 0; }
         s.astate[i] = ST.FORAGE; h = rng() * Math.PI * 2;
       }
     } else if (s.astate[i] === ST.SOLDIER) {
@@ -170,7 +177,11 @@ export function step(s, dt) {
       }
     }
     sp.hp -= soldiersNear * 34 * dt;
-    if (sp.hp <= 0) { sp.alive = false; s.spidersKilled++; }
+    if (sp.hp <= 0) {
+      sp.alive = false; s.spidersKilled++;
+      // death burst — the payoff moment of a won fight (visual only)
+      s.fx.push({ x: sp.x, y: sp.y, t: 0, life: 0.95, seed: (s.tick % 628) / 100 });
+    }
   }
 }
 

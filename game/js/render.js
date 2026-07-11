@@ -76,12 +76,22 @@ export function draw(R, sim, ui) {
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, rr, 0, 7); ctx.fill();
   }
 
-  // nest
+  // nest — glow swells with deliveries (nestPulse), so the reward is legible
   {
     const n = world.nest;
+    const pulse = Math.min(1.6, sim.nestPulse || 0);
     const g = ctx.createRadialGradient(n.x, n.y, 2, n.x, n.y, n.r + 26);
     g.addColorStop(0, '#ffd9a0'); g.addColorStop(0.4, '#7a4b20'); g.addColorStop(1, 'rgba(40,22,8,0)');
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(n.x, n.y, n.r + 26, 0, 7); ctx.fill();
+    if (pulse > 0.01) {
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      const rg = ctx.createRadialGradient(n.x, n.y, 2, n.x, n.y, n.r + 20 + pulse * 22);
+      rg.addColorStop(0, `rgba(255,224,150,${0.10 + pulse * 0.28})`);
+      rg.addColorStop(1, 'rgba(255,200,120,0)');
+      ctx.fillStyle = rg; ctx.beginPath(); ctx.arc(n.x, n.y, n.r + 20 + pulse * 22, 0, 7); ctx.fill();
+      ctx.restore();
+    }
   }
 
   // ants — oriented 3px streaks, colored by role
@@ -118,6 +128,26 @@ export function draw(R, sim, ui) {
     // hp arc
     ctx.strokeStyle = 'rgba(255,90,70,0.8)'; ctx.lineWidth = 2.5;
     ctx.beginPath(); ctx.arc(sp.x, sp.y, 15, -Math.PI / 2, -Math.PI / 2 + (sp.hp / sp.maxhp) * Math.PI * 2); ctx.stroke();
+  }
+
+  // spider-death bursts — a shockwave ring + ember shards (the fight payoff)
+  if (sim.fx && sim.fx.length) {
+    ctx.save();
+    for (const e of sim.fx) {
+      const k = Math.min(1, e.t / e.life);       // 0..1 progress
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.strokeStyle = `rgba(255,${(140 - 90 * k) | 0},70,${(1 - k) * 0.8})`;
+      ctx.lineWidth = 3.5 * (1 - k) + 0.5;
+      ctx.beginPath(); ctx.arc(e.x, e.y, 8 + k * 64, 0, 7); ctx.stroke();
+      for (let j = 0; j < 11; j++) {
+        const a = (j / 11) * 6.2832 + e.seed;
+        const d = k * (44 + (j % 3) * 20);
+        ctx.fillStyle = `rgba(255,${(190 - 110 * k) | 0},80,${(1 - k) * 0.9})`;
+        ctx.beginPath(); ctx.arc(e.x + Math.cos(a) * d, e.y + Math.sin(a) * d, 2.6 * (1 - k) + 0.5, 0, 7); ctx.fill();
+      }
+    }
+    ctx.restore();
+    ctx.globalCompositeOperation = 'source-over';
   }
 
   // brush cursor + tool label
