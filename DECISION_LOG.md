@@ -113,3 +113,45 @@ Entry template:
 - Reversibility / exit condition: SW fallback stays runnable; pivot if HM
   onboarding/readability work fails to make scripted-novice completion
   possible, or morning verdict rejects it.
+
+---
+
+## 2026-07-11 — Commander bot generalized; generated maps 87.5% bot-winnable
+
+- Decision: replace the seed-7-hardcoded commander bot (fixed BOTTOM/TOP lanes
+  and literal pile coordinates) with a fully world-derived planner, and adopt
+  cross-seed bot-winnability as the balance oracle behind the existing
+  structural fairness guarantees.
+- What the generalized commander does (all paths derived at runtime):
+  * `safeField()` — Dijkstra cost field from the nest that penalizes live
+    hunter territory, so harvest roads bend AROUND kill zones (general-map
+    equivalent of seed 7's hand-placed edge lanes).
+  * `routeDown()` — steepest-descent path extraction from any cost field.
+  * `routeBlocker()` — detects a hunter sitting on a pile's route; that pile is
+    not roaded until the blocker falls (generalizes "kill the guard first").
+  * Assault march routes around bystander hunters (safeField excluding the
+    target den); FEAR-walls every live hunter except the one being assaulted.
+- Evidence (VERIFIED FACT, this build, scripted bot, deterministic seeds):
+  cross-seed sweep seeds 100-123 (24 generated maps), commander vs idle,
+  headless. Result: 21/24 WIN (87.5%); idle wins 0/24 (no trivially-winnable
+  map). Win-time min 187s / median 314s / max 479s (mean 329s). Seed 7
+  regression preserved: commander WINS t=269.6 net 1202, idle LOSES. Artifact:
+  tools/sweep_results_seed100-123.json; harness: tools/sweep_winnability.mjs.
+- The 3 losses (103/106/110) were all timeouts at net 1000-1180 sharing one
+  signature: the rich pile stays contested (original guard + a nearby roamer
+  and/or a progress-triggered wave) while the two lesser piles (700+600=1300)
+  sit only ~100 above the 1200 quota, so tight-margin harvesting runs out of
+  the 480s clock. This is a GENERATION balance gap, not a bot-capability gap —
+  the fairness generator guarantees reachability, not winnable margin.
+- Rejected this session: a "harvest-first" economy heuristic for the bot
+  (only fight for locked piles when clean food < quota need). It fixed one
+  loss but REGRESSED the tuned seed 7 (269s→372s, deaths 430→911) because the
+  on/off mustFight toggle made the bot half-commit to assaults. Reverted.
+- Evidence class: winnability rate and win-times VERIFIED FACT (scripted bot,
+  not human). "Bot-winnable" is a STRONG PROXY for "human-winnable with
+  skill", not proof of fun or of human completion.
+- Next (normalization, not done this session — needs a full re-sweep budget to
+  verify without regressing seed 7): gate generated layouts on a cheap
+  winnable-margin heuristic (guarantee two lesser piles are cleanly reachable
+  and total the quota with margin), or run this sweep as an offline generation
+  acceptance test and reject the ~12% hardest seeds.

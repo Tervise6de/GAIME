@@ -9,8 +9,8 @@ a rejected push means another session holds the lock. Refresh
 commit. Never force-push.
 
 ```
-status: active
+status: released
 session: overnight-2-20260711
-last_update_utc: 2026-07-11T03:40:00Z
-note: WINNER_DEVELOPMENT — generalized commander bot + cross-seed winnability/difficulty sweep (Backlog Now #1)
+last_update_utc: 2026-07-11T04:05:00Z
+note: overnight-2 complete — commander generalized, 24-seed winnability sweep (87.5%), evidence logged; no session active
 ```

@@ -5,9 +5,13 @@ duplicating them. Rejected items keep a one-line reason.
 
 ## Now
 
-1. Generalize commander bot to derived paths (BFS route extraction) and
-   verify generated maps are bot-WINNABLE (not just fair) across ≥20 seeds;
-   normalize difficulty.
+1. Difficulty normalization (GENERATION side). Sweep proved 87.5% of fair
+   maps are bot-winnable but the ~12% losses are tight-margin timeouts and the
+   win-time spread is wide (187-479s). Gate generated layouts on a cheap
+   winnable-margin heuristic (two lesser piles cleanly reachable AND totalling
+   quota + margin), OR wire tools/sweep_winnability.mjs in as an offline
+   generation acceptance test. VERIFY with a full re-sweep — must not regress
+   seed 7 (commander WIN t≈270).
 2. Brood throttle verb (paint the nest: grow vs bank) — player control over
    the growth economy discovered to dominate outcomes in Loop 1.
 3. Juice pass: nest delivery pulse, spider death burst, procedural WebAudio;
@@ -45,3 +49,7 @@ duplicating them. Rejected items keep a one-line reason.
   concept only.
 - Time-triggered escalation waves — competent play outruns them; replaced
   by progress-triggered waves (evidence in PLAYTEST_LOG 22:00 entry).
+- Bot-side "harvest-first" economy heuristic — regressed the tuned seed 7
+  (269s→372s, deaths 430→911) via an on/off mustFight toggle that half-
+  commits to assaults. Reverted (DECISION_LOG 2026-07-11). Normalize on the
+  generation side instead.

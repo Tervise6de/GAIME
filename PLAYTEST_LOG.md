@@ -137,3 +137,41 @@ Entry template:
   cannot play generated maps (hardcoded waypoints) so winnability is
   structurally plausible but unproven off seed 7.
 - Action taken: committed; balance sweep across seeds moved to backlog Now.
+
+---
+
+## 2026-07-11 ~03:45 UTC — HIVEMIND cross-seed winnability sweep @ generalized commander
+
+- Hypothesis / what was tested: are the structurally-fair GENERATED maps
+  actually bot-WINNABLE (not just reachable), and how wide is the difficulty
+  spread? Prereq: generalize the commander bot off seed-7 hardcoded lanes so a
+  loss reflects map difficulty, not bot blindness.
+- How it was run: `node tools/sweep_winnability.mjs --start 100 --count 24
+  --fast 20 --cap 42 --idle` — seeds 100-123 (24 generated maps), commander and
+  idle each run headless to scenario end, deterministic seeded sim. Seed 7
+  (handcrafted) run separately as regression.
+- Observed result (facts only):
+  * Winnability: 21/24 WIN = 87.5%. idle 0/24 (no map winnable by doing nothing).
+  * Win-time: min 187.2s, p25 276s, median 313.7s, p75 373.5s, max 479s,
+    mean 329.1s. Mean gross gathered 1717, mean deaths 856 (winners).
+  * Losses: seed 103 (net 1018), 106 (net 537→703 range), 110 (net 1178, 22
+    short) — all reached the 480s timeout, none a colony collapse.
+  * Seed 7 regression: commander WINS t=269.6 net 1202 died 430; idle LOSES 0.
+  * Single-file dist (game/dist/HIVEMIND.html) verified identical from file://:
+    commander WINS t=269.6 net 1202.
+  * Perf: msPerTick ~0.4-0.57 at full colony (headless), 60fps.
+- Diagnosis of losses (from mid-game probes of 101/106/110): the pre-fix
+  commander drove foragers straight through hunter kill-zones (seed 101: 0 net,
+  7221 dead) — fixed by hunter-aware routing (safeField/routeBlocker) + FEAR
+  walls + bystander-avoiding assault march (101 → clean WIN). Remaining losses
+  share the "contested rich pile + tight lesser-pile margin (1300 vs 1200
+  quota)" signature — a generation-margin gap, not a bot gap.
+- Evidence class: winnability rate + win-times VERIFIED FACT (scripted bot,
+  this build). "Bot-winnable" is a STRONG PROXY for skilled-human winnable, NOT
+  proof of fun or human completion.
+- Weaknesses found: (1) ~12% of fair maps are too tight to win in time; (2)
+  progress-triggered waves pile onto the busiest pile, spiking churn on hard
+  seeds; (3) win-time spread (187-479s) is wide — difficulty not yet normalized.
+- Action taken: committed the generalized commander (verified). Rejected a
+  bot-side harvest-first heuristic (regressed seed 7 — reverted). Logged the
+  generation-side normalization path in DECISION_LOG / BACKLOG as the next step.
