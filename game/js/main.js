@@ -5,6 +5,7 @@ import { makeRenderer, draw, hudText, drawEndCard, drawTitle } from './render.js
 import { makeAutoPlayer } from './auto.js';
 import { SCENARIO, makeScenarioState, updateScenario } from './scenario.js';
 import { makeOnboarding, updateOnboarding, drawOnboarding } from './onboarding.js';
+import { initAudio } from './audio.js';
 
 const q = new URLSearchParams(location.search);
 const seed = parseInt(q.get('seed') || '7', 10);
@@ -31,6 +32,7 @@ function canvasPos(e) {
 }
 canvas.addEventListener('mousemove', (e) => { [ui.mx, ui.my] = canvasPos(e); });
 canvas.addEventListener('mousedown', (e) => {
+  initAudio(); // audio may only start from a user gesture
   if (!ui.started) { ui.started = true; return; }
   ui.painting = e.button === 2 ? 2 : 1;
 });

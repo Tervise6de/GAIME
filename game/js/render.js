@@ -1,6 +1,7 @@
 // Rendering: soil, fields as luminous washes, ants as oriented sparks.
 import { W, H, CELL, GW, GH, F } from './world.js';
 import { ST, antsAlive } from './sim.js';
+import { sfxDelivery, sfxSpiderDeath } from './audio.js';
 
 export function makeRenderer(canvas) {
   const ctx = canvas.getContext('2d');
@@ -19,12 +20,38 @@ export function makeRenderer(canvas) {
   const fctx = fc.getContext('2d');
   const fimg = fctx.createImageData(GW, GH);
 
-  return { ctx, bg, fc, fctx, fimg };
+  // transient feedback state (render-side only — never touches the sim)
+  const fx = { lastBanked: -1, deadSeen: new Set(), pulses: [], bursts: [], lastT: 0 };
+  return { ctx, bg, fc, fctx, fimg, fx };
+}
+
+// detect sim events by delta and spawn transient feedback
+function updateFx(fx, sim) {
+  const dt = Math.min(0.05, Math.max(0.008, sim.time - fx.lastT || 0.016));
+  fx.lastT = sim.time;
+  if (fx.lastBanked < 0) fx.lastBanked = sim.foodBanked;
+  if (sim.foodBanked > fx.lastBanked) {
+    if (fx.pulses.length < 4) fx.pulses.push({ t: 0 });
+    sfxDelivery();
+  }
+  fx.lastBanked = sim.foodBanked;
+  sim.world.spiders.forEach((sp, i) => {
+    if (!sp.alive && !fx.deadSeen.has(i)) {
+      fx.deadSeen.add(i);
+      fx.bursts.push({ x: sp.x, y: sp.y, t: 0 });
+      sfxSpiderDeath();
+    }
+  });
+  for (const p of fx.pulses) p.t += dt / 0.7;
+  for (const b of fx.bursts) b.t += dt / 1.1;
+  fx.pulses = fx.pulses.filter((p) => p.t < 1);
+  fx.bursts = fx.bursts.filter((b) => b.t < 1);
 }
 
 export function draw(R, sim, ui) {
   const { ctx } = R;
   const { world } = sim;
+  updateFx(R.fx, sim);
   ctx.globalCompositeOperation = 'source-over';
   ctx.drawImage(R.bg, 0, 0);
 
@@ -82,6 +109,12 @@ export function draw(R, sim, ui) {
     const g = ctx.createRadialGradient(n.x, n.y, 2, n.x, n.y, n.r + 26);
     g.addColorStop(0, '#ffd9a0'); g.addColorStop(0.4, '#7a4b20'); g.addColorStop(1, 'rgba(40,22,8,0)');
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(n.x, n.y, n.r + 26, 0, 7); ctx.fill();
+    // delivery pulses: a ripple of plenty spreading from the granary
+    for (const p of R.fx.pulses) {
+      ctx.strokeStyle = `rgba(255,220,150,${0.55 * (1 - p.t)})`;
+      ctx.lineWidth = 2.5 * (1 - p.t) + 0.5;
+      ctx.beginPath(); ctx.arc(n.x, n.y, n.r + 4 + p.t * 46, 0, 7); ctx.stroke();
+    }
   }
 
   // ants — oriented 3px streaks, colored by role
@@ -119,6 +152,24 @@ export function draw(R, sim, ui) {
     ctx.strokeStyle = 'rgba(255,90,70,0.8)'; ctx.lineWidth = 2.5;
     ctx.beginPath(); ctx.arc(sp.x, sp.y, 15, -Math.PI / 2, -Math.PI / 2 + (sp.hp / sp.maxhp) * Math.PI * 2); ctx.stroke();
   }
+
+  // hunter death bursts: shockwave ring + flying sparks
+  ctx.globalCompositeOperation = 'lighter';
+  for (const b of R.fx.bursts) {
+    const e = 1 - (1 - b.t) * (1 - b.t); // ease-out
+    ctx.strokeStyle = `rgba(255,140,90,${0.8 * (1 - b.t)})`;
+    ctx.lineWidth = 3 * (1 - b.t) + 0.5;
+    ctx.beginPath(); ctx.arc(b.x, b.y, 6 + e * 70, 0, 7); ctx.stroke();
+    for (let k = 0; k < 10; k++) {
+      const a = (k / 10) * Math.PI * 2 + b.x; // stable per-burst spray angles
+      const rr = 8 + e * (46 + (k % 3) * 14);
+      ctx.fillStyle = `rgba(255,${170 - k * 8},80,${0.9 * (1 - b.t)})`;
+      ctx.beginPath();
+      ctx.arc(b.x + Math.cos(a) * rr, b.y + Math.sin(a) * rr, 2.2 * (1 - b.t) + 0.4, 0, 7);
+      ctx.fill();
+    }
+  }
+  ctx.globalCompositeOperation = 'source-over';
 
   // brush cursor + tool label
   if (ui && ui.showBrush) {

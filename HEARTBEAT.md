@@ -11,6 +11,6 @@ commit. Never force-push.
 ```
 status: active
 session: dev-20260711-guardclear
-last_update_utc: 2026-07-11T13:10:00Z
-note: 16/16 sweep done, docs updated, committing verified state; still working (media/juice next)
+last_update_utc: 2026-07-11T13:35:00Z
+note: juice pass verified (pulses, bursts, WebAudio, click test PASS, dist wins); re-recording media
 ```
