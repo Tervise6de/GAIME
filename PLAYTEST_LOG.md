@@ -266,3 +266,20 @@ Entry template:
 - Action taken: expanded the vetted "new territory" pool to 62 comfortable
   winners (win-time <=430s); 9 held out (thin margin); 13 recorded losses
   never served. Pool integrity re-checked (no dups/overlaps). Dist rebuilt.
+
+## 2026-07-11 ~03:15 UTC — 2nd failed guard fix: gated far-guard extended WAR
+- What was tested: apply the extended-WAR assault ONLY when the guard is far
+  (dist>480px), leaving near-guard maps byte-unchanged, to fix far-guard fizzle
+  without touching the many near-guard winners.
+- Observed: seed 7 unchanged (near guard, WIN). But seed 1291 — a comfortable
+  winner whose guard IS far — regressed again (WIN t=295 died 614 -> LOSE stock
+  1019 died 1119). Confirms the earlier finding a second way: ANY increase in
+  assault aggression raises front-line forager deaths enough to sink far-guard
+  WINNERS, even when gated to far guards only.
+- Evidence class: verified fact (deterministic). Negative result (2nd of 2).
+- Conclusion: the guard fizzle cannot be fixed by a more aggressive assault in
+  this architecture — deaths are the binding constraint (quota = net wealth).
+  A real fix needs soldiers that reach a far den WITHOUT extra forager exposure
+  (e.g. a soldier caste that promotes at the nest and pays no forage round-trip),
+  which is a sim-model change, not a bot tweak. DEFERRED. Reverted to the
+  validated 84.5% baseline; build GREEN.
