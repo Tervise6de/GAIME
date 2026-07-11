@@ -6,6 +6,7 @@ import { makeAutoPlayer } from './auto.js';
 import { SCENARIO, makeScenarioState, updateScenario } from './scenario.js';
 import { makeOnboarding, updateOnboarding, drawOnboarding } from './onboarding.js';
 import { nextCertifiedSeed } from './seeds.js';
+import { makeAudio, audioResume, audioTick } from './audio.js';
 
 const q = new URLSearchParams(location.search);
 const seed = parseInt(q.get('seed') || '7', 10);
@@ -21,6 +22,7 @@ const R = makeRenderer(canvas);
 const auto = autoName ? makeAutoPlayer(autoName) : null;
 const sc = makeScenarioState();
 const ob = makeOnboarding();
+const audio = makeAudio();
 
 const ui = { tool: 0, brush: 42, mx: 0, my: 0, painting: 0, showBrush: !auto, paused: false, started: !!(auto || fast) };
 const PLAYER_FIELDS = [F.LURE, F.FEAR, F.WAR];
@@ -32,6 +34,7 @@ function canvasPos(e) {
 }
 canvas.addEventListener('mousemove', (e) => { [ui.mx, ui.my] = canvasPos(e); });
 canvas.addEventListener('mousedown', (e) => {
+  audioResume(audio);              // create/resume AudioContext on a real gesture
   if (!ui.started) { ui.started = true; return; }
   ui.painting = e.button === 2 ? 2 : 1;
 });
@@ -99,6 +102,7 @@ function frame() {
     const n = fast > 0 ? fast : 1;
     for (let i = 0; i < n; i++) { tickOnce(); if (sc.over || window.__DONE) break; }
   }
+  if (ui.started) audioTick(audio, sim, sc);   // voices sim deltas; no-op until a click builds the ctx
   draw(R, sim, ui);
   if (!ui.started) drawTitle(R.ctx);
   if (!auto && !sc.over && ui.started) drawOnboarding(R.ctx, ob, sim, W, H);
