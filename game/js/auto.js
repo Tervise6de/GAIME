@@ -170,8 +170,11 @@ function commander(sim) {
     const ax = threat.hx - Math.cos(ang) * 150, ay = threat.hy - Math.sin(ang) * 150;
     routeLure(fields[F.LURE], sim.world, cf, ax, ay, 26, 0.8);
     stampLine(fields[F.WAR], ax, ay, threat.hx, threat.hy, 44, 1.0);
-    stamp(fields[F.WAR], threat.x, threat.y, 90, 1.0);
-    stamp(fields[F.WAR], threat.hx, threat.hy, 80, 1.0);
+    // cover the WHOLE territory: the hunter wanders up to tr from its den, so a
+    // narrow blob lets it outrun its soldiers (the guard then never dies and
+    // the pile behind it stays locked — the seed-2/3 loss mode).
+    stamp(fields[F.WAR], threat.hx, threat.hy, threat.tr + 10, 1.0);
+    stamp(fields[F.WAR], threat.x, threat.y, 70, 1.0);
   }
   // FEAR walls over every live hunter's ground protect the supply lines:
   // foragers are repelled, cutting attrition; soldiers sense only WAR, so the
