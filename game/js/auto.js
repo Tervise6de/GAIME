@@ -148,13 +148,15 @@ function derivePath(world, tx, ty) {
 
 // fill _pen with the danger field of the currently-live hunters (finite, so a
 // path always exists even if boxed in) and return a signature of that hunter
-// set so cached roads can be reused until the set changes.
-function refreshPenalty(spiders) {
+// set so cached roads can be reused until the set changes. `except` (the hunter
+// currently being assaulted) is left out so a WAR road can drive straight into
+// its den instead of skirting it.
+function refreshPenalty(spiders, except) {
   _pen.fill(0);
   let sig = spiders.length * 131071;
   for (let k = 0; k < spiders.length; k++) {
     const sp = spiders[k];
-    if (!sp.alive) continue;
+    if (!sp.alive || sp === except) continue;
     sig = (sig * 31 + ((sp.hx | 0) * 92821 ^ (sp.hy | 0))) | 0;
     // Tapered penalty: strong at the den, ~0 at the edge. Modest peak so a road
     // skirts a territory's rim (short detour) rather than arcing across the map
@@ -202,17 +204,33 @@ function commander(sim) {
   targets.sort((p, q) => Math.hypot(p.x - nest.x, p.y - nest.y) - Math.hypot(q.x - nest.x, q.y - nest.y));
   const threat = targets[0];
   if (threat) {
-    // short approach line + strike blob: converts a warband, not the nation
-    const ang = Math.atan2(threat.y - nest.y, threat.x - nest.x);
-    const ax = threat.x - Math.cos(ang) * 150, ay = threat.y - Math.sin(ang) * 150;
-    stampLine(fields[F.LURE], nest.x, nest.y, ax, ay, 26, 0.8);   // march route
-    stampLine(fields[F.WAR], ax, ay, threat.x, threat.y, 44, 1.0); // conversion zone
-    stamp(fields[F.WAR], threat.x, threat.y, 90, 1.0);
+    // Lay a continuous WAR road from the nest into the den, routed around OTHER
+    // hunters (refreshPenalty excludes the threat). Foragers sense WAR at +1.9,
+    // so this both DRAWS them in and — once they promote (WAR>0.25, capped at
+    // 35% of the colony) — gives soldiers an unbroken gradient to ascend right
+    // to the den. A stub near the den (the old approach) stranded the assault on
+    // generated maps where the harvest roads out-competed it: no foragers
+    // arrived, so the guard never fell and its rich pile went unharvested.
+    refreshPenalty(spiders, threat);
+    const wp = derivePath(sim.world, threat.x, threat.y);
+    const conv = threat.tr * 1.3;                 // conversion-zone radius at the den
+    if (wp) {
+      // LURE approach for the stretch OUTSIDE the den's conversion zone (draws a
+      // steady march without flooding), WAR only INSIDE it (promote + strike).
+      // Keeping WAR local to the den is what stops the meatgrinder: over-cap
+      // foragers only die at the front, not along the whole road.
+      for (let i = 0; i < wp.length - 1; i++) {
+        const near = Math.hypot(wp[i][0] - threat.x, wp[i][1] - threat.y) < conv;
+        const field = near ? F.WAR : F.LURE;
+        stampLine(fields[field], wp[i][0], wp[i][1], wp[i + 1][0], wp[i + 1][1], 26, near ? 1.0 : 0.8);
+      }
+    }
+    stamp(fields[F.WAR], threat.x, threat.y, 80, 1.0);
   }
   // wall every other live hunter's territory with FEAR so wandering foragers are
   // pushed off dangerous ground (deaths drain foodStock via respawn cost — the
   // dominant lever on this scenario). The roads route well clear of hunters (see
-  // the two-tier penalty), so these walls no longer overlap and choke them.
+  // the tapered penalty), so these walls no longer overlap and choke them.
   // Soldiers sense only WAR, so this never blunts the assault on the target.
   for (const sp of spiders) {
     if (sp.alive && sp !== threat) stamp(fields[F.FEAR], sp.hx, sp.hy, sp.tr + 18, 1.0);
@@ -221,7 +239,7 @@ function commander(sim) {
   // the guarded rich pile waits until its hunter falls; a wave that parks on a
   // lane pauses that road until it is cleared. Roads route around live hunters
   // and are cached until the live-hunter set changes (Dijkstra reruns only then).
-  const sig = refreshPenalty(spiders);
+  const sig = refreshPenalty(spiders, null);
   if (!sim.world._roadCache) sim.world._roadCache = new Map();
   const cache = sim.world._roadCache;
   for (let pi = 0; pi < piles.length; pi++) {

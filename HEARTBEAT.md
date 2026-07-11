@@ -11,6 +11,6 @@ commit. Never force-push.
 ```
 status: active
 session: dev-ecstatic-ride-20260711
-last_update_utc: 2026-07-11T01:45:00Z
-note: Stage 6 Loop 4 — generalizing commander bot to BFS-derived roads; cross-seed winnability sweep. Work on branch claude/ecstatic-ride-h0dy5s.
+last_update_utc: 2026-07-11T02:15:00Z
+note: Stage 6 Loop 4 — commander bot generalized (WAR-road assault); 24/24 generated seeds bot-WINNABLE + seed 7. Work on branch claude/ecstatic-ride-h0dy5s.
 ```
