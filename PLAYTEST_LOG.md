@@ -220,3 +220,34 @@ Entry template:
 - Action taken: shipped `guardAssault` in gcommander (baseline commander frozen
   and preserved); rebuilt game/dist/HIVEMIND.html (48.0KB); added new sweep
   data file; old sweep retained as the "before".
+
+## 2026-07-11 ~11:50 UTC — guard-assault v2 (route to reachable pile) @ (this session)
+- Hypothesis / what was tested: the one residual guard-stall (seed 2164) is
+  caused by the guard DEN sitting on a blocked cell, so routeTo to it returns
+  no path and the march goes blind. Routing the assault to the RICH PILE (which
+  the fairness check guarantees reachable) instead should fix it generally, and
+  a cleaner approach should not regress the other wins.
+- How it was run: `tools/gen_difficulty.mjs` (new) to extract structural
+  features via the true BFS distance field — confirmed seed 2164's guardDist =
+  unreachable. Then edited `guardAssault` to route to `rich`, re-ran the full
+  16-seed sweep via run_proto, and re-checked seed 7.
+- What was observed (VERIFIED FACT):
+  - Winnability 14/16 → **15/16 (94%)**. Seed 2164 went 886 (lost) → 1200 (won,
+    2 slain). No win→loss regression.
+  - BONUS: the reachable-pile approach cut deaths sharply on several seeds —
+    1000: 1171→218, 2067: 462→142 — because the blind straight-line fallback is
+    gone. Death band is now 142–1190 (lower average, still not normalized).
+  - Only residual: seed 1291 (lost 1086) fully harvests the whole map and slays
+    the guard ×4 but bleeds too much (died 1046) on an exposed corridor.
+    Investigated as a difficulty-normalization candidate — it is NOT a clean
+    structural outlier (2261/2067 won with near-identical midCorridor; 1776/2358
+    won at midCorridor≈3), so no generator reject filter was added.
+  - Seed 7 unchanged: commander WON t=175; idle lost.
+- Evidence class: VERIFIED FACT for the runs; 94% is a STRONG-PROXY LOWER BOUND
+  by a generic bot, not a human-winnability claim.
+- Weaknesses: seed 1291 still lost by the generic bot (winnable in principle);
+  per-map difficulty/bloodiness remains unnormalized with no clean structural
+  predictor found. Human feel untested.
+- Action taken: shipped guard-assault v2 (route to rich pile); added
+  tools/gen_difficulty.mjs; rebuilt dist (48.4KB); updated the sweep data file
+  to the final 15/16 table with the iteration history.

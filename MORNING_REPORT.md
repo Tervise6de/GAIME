@@ -87,12 +87,13 @@ assumption (a learnable-but-not-trivial sky) is already de-risked.
 - 3,200 agents simulate at ~0.6-1.0 ms/tick headless (60fps headroom).
 - [STRONG-PROXY LOWER BOUND] Procedurally generated territories are broadly
   winnable, not just structurally fair: a *generic* map-driven bot
-  (`gcommander`, hand-tuned to no map) wins **14 of 16 generated seeds (88%)**;
-  it engages the guarded rich pile on 13/16. The two misses are understood —
-  one geometry-specific stall, one map that is fully harvested but 22 net short
-  on overhead (effectively winnable). This is a lower bound by a deliberately
-  weak player, NOT a human-winnability claim; a careful player should do
-  better. (data/winnability_sweep_20260711_guardassault.md.)
+  (`gcommander`, hand-tuned to no map) wins **15 of 16 generated seeds (94%)**,
+  up from a 56% baseline once it was taught to commit force to the guarded rich
+  pile along the reachable pile road. The single miss (seed 1291) fully
+  harvests the whole map and slays the guard but bleeds too much on an exposed
+  corridor to make quota — winnable in principle. This is a lower bound by a
+  deliberately weak player, NOT a human-winnability claim; a careful player
+  should do better. (data/winnability_sweep_20260711_guardassault.md.)
 - STORMWARDEN's sky is learnable: an instrument bot beats persistence by
   +12.4pp on held-out seeds (91.7% vs ~78%) with a skill ceiling — but
   only after adding upstream telegraph stations, which taught us that the

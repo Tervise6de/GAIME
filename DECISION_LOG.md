@@ -176,3 +176,31 @@ Entry template:
   measurement supersedes this, append a new entry. Old sweep preserved at
   data/winnability_sweep_20260711.md; new at
   data/winnability_sweep_20260711_guardassault.md.
+
+## 2026-07-11 UTC — guard-assault v2: route to the reachable pile (94% winnability)
+- Stage: WINNER_DEVELOPMENT (Stage 6). Session dev-20260711-fok54l. Refines the
+  entry above.
+- Decision: Route the guard assault to the RICH PILE (guaranteed reachable by
+  the fairness check) rather than the guard DEN. Diagnosed via a new structural
+  difficulty probe (`tools/gen_difficulty.mjs`, true BFS distances) that seed
+  2164's guard den sits on a blocked cell — routeTo returned no path, the march
+  went blind, soldiers never massed. The guard is ~70px from its pile, so
+  staging at the reachable pile drops the column on it regardless of den
+  geometry. Winnability 14/16 → 15/16, and deaths dropped sharply on several
+  seeds (1000: 1171→218) because the blind fallback is gone.
+- Alternatives considered: (a) special-case blocked dens with a fallback offset
+  — REJECTED, routing to the always-reachable pile is simpler and strictly more
+  robust. (b) Add a generator reject filter to normalize difficulty and drop the
+  one hard seed (1291) — REJECTED: 1291 is not a clean structural outlier
+  (2261/2067 won with near-identical geometry; 1776/2358 won at midCorridor≈3),
+  so filtering would discard winnable maps. Documented honestly instead.
+- Evidence class: VERIFIED FACT (15/16 wins observed via run_proto per seed;
+  seed 2164 886→1200; seed 7 commander still WON t=175; idle loses). The 94% is
+  a STRONG-PROXY LOWER BOUND by a generic bot — not a human claim.
+- Why: closes the last true guard-engagement gap and improves the difficulty
+  story as a side effect (lower average deaths), while keeping the honest
+  admission that per-map difficulty variance is not yet normalized and 1291
+  remains a bloody near-miss the generic bot loses on overhead.
+- Reversibility / exit condition: additive, isolated to gcommander (baseline
+  commander and both prototypes unchanged). Superseded by any future difficulty
+  normalization pass or human/stronger-bot measurement.

@@ -11,6 +11,6 @@ commit. Never force-push.
 ```
 status: active
 session: dev-20260711-fok54l
-last_update_utc: 2026-07-11T11:20:00Z
-note: gcommander guard-assault (safe-routed early strike); two former losses now win; running full 16-seed sweep to confirm no regressions
+last_update_utc: 2026-07-11T12:05:00Z
+note: guard-assault v2 (route to reachable pile) → 15/16 (94%) winnability, zero regressions, seed 2164 fixed, deaths cut; build GREEN, dist rebuilt
 ```

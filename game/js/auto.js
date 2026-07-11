@@ -105,8 +105,13 @@ function roadRoute(fields, prev, target, nest) {
 // arriving column converts to soldiers and masses on it. Because it waits for
 // the easy harvest to finish, it never splits the early game (preserving the
 // baseline wins) and never marches for nothing (the colony is large and safe).
-function guardAssault(fields, prev, guard, nest) {
-  const wp = routeTo(prev, guard.hx, guard.hy);
+function guardAssault(fields, prev, guard, rich, nest) {
+  // Route to the RICH PILE, not the guard den: the pile is guaranteed
+  // reachable by the fairness check, whereas a den can sit on a blocked cell
+  // (seed 2164) so routeTo to it returns no path and the march goes blind. The
+  // guard sits ~70px from its pile, so a staging point ~120px out from the
+  // guard along the pile road drops the converted column on it either way.
+  const wp = routeTo(prev, rich.x, rich.y);
   let stage = null;
   if (wp) {
     for (let i = wp.length - 1; i >= 0; i--) {
@@ -250,7 +255,7 @@ function gcommander(sim) {
   // the early harvest — which the baseline wins depend on — is never split.
   const lesserLeft = piles.slice(1).reduce((a, p) => a + Math.max(0, p.amount), 0);
   if (guard && guard.alive && rich.amount > 0 && lesserLeft < 1150) {
-    guardAssault(fields, prev, guard, nest);
+    guardAssault(fields, prev, guard, rich, nest);
   }
 }
 

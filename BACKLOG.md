@@ -11,11 +11,12 @@ duplicating them. Rejected items keep a one-line reason.
    seeds play in a target band. NOTE: the guard-assault made several wins
    bloodier (e.g. seed 1000 died 1171), so death-variance is now the sharper
    axis to normalize.
-2. Close the last two winnability gaps: seed 2164 (guard never engaged — the
-   safe route never lets soldiers mass on this specific guard geometry) and
-   seed 1291 (map fully harvested but 22 net short on overhead — an economy
-   nudge, not a guard problem). Guard-clearing itself is now largely solved
-   (gcommander 56%→88%, done this session).
+2. Last winnability gap: seed 1291 (map fully harvested + guard slain ×4, but
+   bleeds too much on an exposed corridor → 1086/1200). Not a clean structural
+   reject candidate (no feature isolates it). Options: a smarter assault that
+   FEAR-walls the mid roamer off the corridor, or an economy nudge. Low
+   priority — guard-clearing is solved (gcommander 56%→94% this session; seed
+   2164 blocked-den stall fixed by routing to the reachable pile).
 3. Brood throttle verb (paint the nest: grow vs bank) — player control over
    the growth economy discovered to dominate outcomes in Loop 1.
 4. Juice pass: nest delivery pulse, spider death burst, procedural WebAudio;
