@@ -6,11 +6,16 @@ const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromi
 const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
 page.on('pageerror', (e) => console.error('[pageerror]', e.message));
 await page.goto('http://localhost:8123/game/index.html?seed=7', { waitUntil: 'load' });
-await page.waitForTimeout(3600);
 
 const box = await (await page.$('#cv')).boundingBox();
 const P = (x, y) => [box.x + (x * box.width) / 1280, box.y + (y * box.height) / 720];
 const hint = () => page.evaluate(() => (window.__OB && window.__OB.active ? window.__OB.active.id : null));
+
+// dismiss the title screen (the first click only starts the season — it does
+// not paint), then let a few seconds of play pass before the first hint check
+const [cx, cy] = P(640, 360);
+await page.mouse.click(cx, cy);
+await page.waitForTimeout(3600);
 
 console.log('hint at t=4:', await hint());
 await page.screenshot({ path: 'media/proto/game_hint1.png' });
@@ -40,3 +45,11 @@ const stats = await page.evaluate(() => ({
 console.log(JSON.stringify(stats));
 await page.screenshot({ path: 'media/proto/game_hint_after.png' });
 await browser.close();
+
+// assertions — painting must register, deliveries must happen, onboarding must advance
+const fail = [];
+if (!(stats.lure > 50)) fail.push(`LURE not painted (lurePainted=${stats.lure})`);
+if (!(stats.banked > 0)) fail.push(`no food delivered (banked=${stats.banked})`);
+if (!stats.done.includes('paint-road')) fail.push(`onboarding did not advance (done=${JSON.stringify(stats.done)})`);
+if (fail.length) { console.error('CLICK TEST FAIL:', fail.join('; ')); process.exit(1); }
+console.log('click test OK');
