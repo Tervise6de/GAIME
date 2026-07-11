@@ -187,3 +187,23 @@ Entry template:
 - Action taken: committed bot + harness (3ccac25); whitelist + main.js wiring
   + dist this commit. Next: make the generator itself balance-aware (cheap
   structural proxies) so the whitelist can be larger / on-the-fly.
+
+## 2026-07-11 ~00:25 UTC — Loop 4 follow-up: is a cheap gen-time balance gate feasible?
+- Hypothesis / what was tested: whether a simple STRUCTURAL feature of a
+  generated map (pile distances, guard/den distances, den-vs-road overlap)
+  predicts winnability, so generation could reject unfair maps at page load
+  without simulating.
+- How it was run: computed features for all 64 swept seeds and split by the
+  known commander win/lose outcome.
+- Observed result (facts): NO clean separator. win vs lose means — guardD
+  712 vs 783, dRich 710 vs 788, dLesserMax 847 vs 871, midRoadGap 17 vs 57
+  (all heavily overlapping). Losers are heterogeneous: some have distant piles
+  (2007 dLesserMax=1052) and some have close piles yet still lose (1001=587,
+  1005=597). Difficulty is emergent from the full sim (geometry x wave timing
+  x hunter roaming), not readable from geometry alone.
+- Evidence class: VERIFIED FACT (deterministic). Conclusion: a cheap
+  structural balance gate is NOT feasible — simulation is REQUIRED to know a
+  map is fair, which makes the offline-simulated whitelist necessary, not just
+  convenient. Do not add a structural gate (it would give false confidence).
+- Action taken: recorded; abandoned the gen-time-gate idea; kept the
+  simulation-verified whitelist as the shipping mechanism.
