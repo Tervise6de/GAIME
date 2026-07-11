@@ -624,9 +624,16 @@ function makeRenderer(canvas, world) {
     return { grains, amount0: p.amount };
   });
 
+  // drifting dust motes for the drought's heat-haze (render-only ambience;
+  // positions precomputed from the same seeded LCG, animated by sim.time)
+  const dust = [];
+  for (let k = 0; k < 42; k++) {
+    dust.push({ x: r() * W, y: r() * H, spd: 14 + r() * 26, len: 5 + r() * 9, drift: r() * 6.28, a: 0.05 + r() * 0.08 });
+  }
+
   // transient feedback state (render-side only — never touches the sim)
   const fx = { lastBanked: -1, deadSeen: new Set(), pulses: [], bursts: [], lastT: 0 };
-  return { ctx, bg, fc, fctx, fimg, fx, pileGrains };
+  return { ctx, bg, fc, fctx, fimg, fx, pileGrains, dust };
 }
 
 // detect sim events by delta and spawn transient feedback
@@ -658,6 +665,13 @@ function draw(R, sim, ui) {
   updateFx(R.fx, sim);
   ctx.globalCompositeOperation = 'source-over';
   ctx.drawImage(R.bg, 0, 0);
+
+  // the drought bleaches the land: a dusty warm wash over the baked earth
+  // (scenario identity is visual, not just numeric)
+  if (SCENARIO.type === 'endure') {
+    ctx.fillStyle = 'rgba(210,155,75,0.07)';
+    ctx.fillRect(0, 0, W, H);
+  }
 
   // rocks are baked into the background (they never move)
 
@@ -819,6 +833,17 @@ function draw(R, sim, ui) {
       ctx.beginPath();
       ctx.arc(b.x + Math.cos(a) * rr, b.y + Math.sin(a) * rr, 2.2 * (1 - b.t) + 0.4, 0, 7);
       ctx.fill();
+    }
+  }
+  // drought heat-haze: wind-borne dust streaking across the dying land
+  if (SCENARIO.type === 'endure') {
+    for (const d of R.dust) {
+      const t = sim.time * d.spd;
+      const x = (d.x + t + Math.sin(sim.time * 0.7 + d.drift) * 30) % W;
+      const y = (d.y + Math.sin(sim.time * 0.4 + d.drift * 2) * 14 + H) % H;
+      ctx.strokeStyle = `rgba(235,200,140,${d.a})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + d.len, y + d.len * 0.18); ctx.stroke();
     }
   }
   ctx.globalCompositeOperation = 'source-over';

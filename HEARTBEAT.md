@@ -11,6 +11,6 @@ commit. Never force-push.
 ```
 status: active
 session: dev-20260711-afternoon-9pfynq
-last_update_utc: 2026-07-11T16:10:00Z
-note: The Long Drought scenario implemented and winning on seed 7 (gcommander 205/200, all non-throttle bots starve); cross-seed drought sweep running
+last_update_utc: 2026-07-11T17:00:00Z
+note: drought validated 16/16 + seed 7; GIF refreshed; art pass (grain piles, spider bodies, drought heat-haze); wrapping docs next
 ```
