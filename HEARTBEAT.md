@@ -11,6 +11,6 @@ commit. Never force-push.
 ```
 status: active
 session: dev-ecstatic-ride-20260711
-last_update_utc: 2026-07-11T02:45:00Z
-note: Stage 6 Loop 4 — commander oracle 24/24; oracle-vetted seed pool wired into [N] "new territory"; click test fixed. Work on branch claude/ecstatic-ride-h0dy5s.
+last_update_utc: 2026-07-11T03:05:00Z
+note: Stage 6 Loop 4 — commander oracle 24/24; vetted seed pool; juice pass (delivery pulse + death burst, sim-pure). Work on branch claude/ecstatic-ride-h0dy5s.
 ```

@@ -6,6 +6,7 @@ import { makeAutoPlayer } from './auto.js';
 import { SCENARIO, makeScenarioState, updateScenario } from './scenario.js';
 import { makeOnboarding, updateOnboarding, drawOnboarding } from './onboarding.js';
 import { pickSeed } from './seedpool.js';
+import { makeEffects, deathBurst, deliveryPing, updateEffects, drawEffects } from './effects.js';
 
 const q = new URLSearchParams(location.search);
 const seed = parseInt(q.get('seed') || '7', 10);
@@ -21,6 +22,10 @@ const R = makeRenderer(canvas);
 const auto = autoName ? makeAutoPlayer(autoName) : null;
 const sc = makeScenarioState();
 const ob = makeOnboarding();
+const fx = makeEffects();
+// cosmetic event tracking (compared per frame, never affects the sim)
+let prevBanked = 0;
+const prevAlive = world.spiders.map((s) => s.alive);
 
 const ui = { tool: 0, brush: 42, mx: 0, my: 0, painting: 0, showBrush: !auto, paused: false, started: !!(auto || fast) };
 const PLAYER_FIELDS = [F.LURE, F.FEAR, F.WAR];
@@ -95,11 +100,26 @@ function tickOnce() {
 }
 
 function frame() {
+  let ticked = 0;
   if (!ui.paused && !sc.over && ui.started) {
     const n = fast > 0 ? fast : 1;
-    for (let i = 0; i < n; i++) { tickOnce(); if (sc.over || window.__DONE) break; }
+    for (let i = 0; i < n; i++) { tickOnce(); ticked++; if (sc.over || window.__DONE) break; }
   }
+  // cosmetic events: compare post-step world to last frame (never feeds the sim)
+  for (let i = 0; i < world.spiders.length; i++) {
+    const a = world.spiders[i].alive;
+    if (i < prevAlive.length && prevAlive[i] && !a) deathBurst(fx, world.spiders[i].x, world.spiders[i].y);
+    prevAlive[i] = a;
+  }
+  if (sim.foodBanked > prevBanked) {
+    deliveryPing(fx, world.nest.x, world.nest.y, Math.min(6, sim.foodBanked - prevBanked));
+    prevBanked = sim.foodBanked;
+  }
+  // effects run on sim-time while stepping, else real-time so a final death
+  // burst still plays out over the end card
+  updateEffects(fx, DT * (ticked || 1));
   draw(R, sim, ui);
+  drawEffects(R.ctx, fx, world.nest);
   if (!ui.started) drawTitle(R.ctx);
   if (!auto && !sc.over && ui.started) drawOnboarding(R.ctx, ob, sim, W, H);
   if (sc.over && sc.endStats) drawEndCard(R.ctx, sc.endStats, SCENARIO);
