@@ -85,6 +85,14 @@ assumption (a learnable-but-not-trivial sky) is already de-risked.
 - Unbounded war conversion bankrupts the economy; capping soldiers at 35%
   creates a managed militarization tradeoff.
 - 3,200 agents simulate at ~0.6-1.0 ms/tick headless (60fps headroom).
+- [STRONG-PROXY LOWER BOUND] Procedurally generated territories are broadly
+  winnable, not just structurally fair: a *generic* map-driven bot
+  (`gcommander`, hand-tuned to no map) wins **14 of 16 generated seeds (88%)**;
+  it engages the guarded rich pile on 13/16. The two misses are understood —
+  one geometry-specific stall, one map that is fully harvested but 22 net short
+  on overhead (effectively winnable). This is a lower bound by a deliberately
+  weak player, NOT a human-winnability claim; a careful player should do
+  better. (data/winnability_sweep_20260711_guardassault.md.)
 - STORMWARDEN's sky is learnable: an instrument bot beats persistence by
   +12.4pp on held-out seeds (91.7% vs ~78%) with a skill ceiling — but
   only after adding upstream telegraph stations, which taught us that the
@@ -99,7 +107,10 @@ assumption (a learnable-but-not-trivial sky) is already de-risked.
   has felt the painting verb yet. [ASSUMPTION — the single most important
   unknown]
 - Session pacing (8-min scenario) is tuned to bots, not people.
-- One handcrafted map; replay variation is designed but not built.
+- Replay variation is built (a fairness-guaranteed generator, 88% winnable by
+  a generic bot) but its *human* variety and difficulty consistency are
+  untested; difficulty across seeds is not yet normalized (win-time and death
+  spread are wide, and the guard-assault made some wins notably bloodier).
 - "AI-led studio can sustain content production" — untested beyond tonight.
 - Market proxies are from web sources, not our own wishlist/playtest data.
 
