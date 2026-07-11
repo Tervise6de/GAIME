@@ -137,3 +137,33 @@ Entry template:
   cannot play generated maps (hardcoded waypoints) so winnability is
   structurally plausible but unproven off seed 7.
 - Action taken: committed; balance sweep across seeds moved to backlog Now.
+
+## 2026-07-11 ~07:10 UTC — Final morning run: clean-checkout re-verification
+- Hypothesis / what was tested: does the committed build actually launch,
+  run, render and reach its win/lose states from a fresh clone, with no
+  hidden regressions before the morning assessment?
+- How it was run: `npm install` (Playwright only) on a fresh checkout;
+  `python3 -m http.server 8123`; bot matrix (commander/idle) via
+  tools/run_proto.mjs; single-file rebuild via tools/build_single.mjs +
+  byte-diff vs committed; tools/gen_check.mjs (40 seeds); both click tests;
+  fresh screenshots via headless runner.
+- Observed result (facts): commander WINS seed 7 — 1200/1200 stores,
+  gathered 1566, season 175s, colony 1999, fallen 679, hunters slain 4;
+  idle LOSES (0/1200, "winter came"). Single-file HIVEMIND.html rebuilt
+  byte-identical to the committed copy (no drift). 40/40 generated maps
+  pass all fairness guarantees. Stormwarden prototype forecasts and scores.
+  56–60 fps at 3,200 agents (msPerTick ~0.37). Rendering confirmed by
+  screenshot: HUD, verbs, tagline, twin scent-roads, hunter zones all draw.
+- Evidence class: VERIFIED FACT (build/launch/render/win-lose all green,
+  deterministic). Human fun remains ASSUMPTION (unchanged — no human play).
+- Weaknesses found & fixed: tools/click_test_hivemind.mjs never actually
+  painted — its single continuous mouse press was consumed by the title
+  card (main.js dismisses on the first mousedown and returns), so the drag
+  ran with painting=0 (lure stayed 0). Fixed by dismissing the title with a
+  separate click first; the test now paints (lure=295) and the onboarding
+  correctly advances paint-road -> road-continuity. This was a HARNESS bug;
+  the game was never affected (a human's click-to-begin then click-drag
+  always worked).
+- Action taken: fix committed; two fresh verified stills added
+  (shot_verified_action.png = mid-season core hook; shot_verified_win.png =
+  end-card); MORNING_REPORT re-verification stamp added; lock released.

@@ -5,17 +5,18 @@ duplicating them. Rejected items keep a one-line reason.
 
 ## Now
 
-1. Generalize commander bot to derived paths (BFS route extraction) and
+1. Founder-gated (THE open assumption): arrange 5-10 human playtests of
+   game/dist/HIVEMIND.html (measure: season completed ≤3 attempts; all
+   verbs used unprompted; voluntary restarts; kill-signal: "ants won't
+   obey" quits). Everything below is gated on this signal.
+2. Generalize commander bot to derived paths (BFS route extraction) and
    verify generated maps are bot-WINNABLE (not just fair) across ≥20 seeds;
    normalize difficulty.
-2. Brood throttle verb (paint the nest: grow vs bank) — player control over
+3. Brood throttle verb (paint the nest: grow vs bank) — player control over
    the growth economy discovered to dominate outcomes in Loop 1.
-3. Juice pass: nest delivery pulse, spider death burst, procedural WebAudio;
+4. Juice pass: nest delivery pulse, spider death burst, procedural WebAudio;
    re-capture media afterwards.
-4. Second scenario ("The Long Drought") reusing systems, no new tech.
-5. Founder-facing: arrange 5-10 human playtests of game/dist/HIVEMIND.html
-   (measure: season completed ≤3 attempts; all verbs used; voluntary
-   restarts; kill-signal: "ants won't obey" quits).
+5. Second scenario ("The Long Drought") reusing systems, no new tech.
 
 ## Next
 

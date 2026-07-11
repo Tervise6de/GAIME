@@ -20,15 +20,19 @@ snapshot — detail belongs in the logs and in git history.
 - **Last known good commit:** HEAD of main at end of overnight-1 (Loop 3;
   40/40 generated maps pass fairness checks; seed-7 commander regression
   WON t=175; dist verified from file://).
-- **Current build status:** GREEN — verified headless at 60fps; see
-  CLAUDE.md for the one-line re-verification command.
-- **Highest-value next action:** generalized commander bot + cross-seed
-  winnability/difficulty sweep; if in the final morning run: execute the
-  Stage 7 checklist in AUTONOMOUS_STUDIO_PROTOCOL.md instead.
+- **Current build status:** GREEN — re-verified from a clean checkout on
+  the final morning run (2026-07-11): commander WINS seed 7 (1200/1200,
+  175s), idle LOSES, single-file build byte-identical, 40/40 maps fair,
+  56–60fps at 3,200 agents, rendering confirmed by screenshot. One harness
+  bug fixed (UI click test now actually paints). See CLAUDE.md for the
+  one-line re-verification command.
+- **Highest-value next action:** (human-gated) 5–10 human playtests of
+  `game/dist/HIVEMIND.html`; then generalized commander bot + cross-seed
+  winnability/difficulty sweep, and the brood-throttle verb.
 - **Blockers:** human playtesting cannot be done from this environment
   (founder action needed — see BACKLOG "Now" #5).
-- **Morning report ready:** true (written end of overnight-1; refresh if
-  later sessions change the build).
+- **Morning report ready:** true — MORNING_REPORT.md carries a 2026-07-11
+  final-run re-verification stamp; recommendation CONTINUE WITH CONDITIONS.
 
 ## Stages
 
@@ -41,6 +45,8 @@ WINNER_DEVELOPMENT (Protocol Stage 6).
 3. TWO_FINALISTS ✓
 4. DUAL_PROTOTYPES ✓
 5. PROTOTYPE_COMPARISON ✓
-6. WINNER_DEVELOPMENT ← current
-7. VERTICAL_SLICE
-8. MORNING_ASSESSMENT (report current; final morning run pending)
+6. WINNER_DEVELOPMENT ✓ (loops 1-3)
+7. VERTICAL_SLICE (maturation of stage 6 — ongoing when development resumes)
+8. MORNING_ASSESSMENT ✓ — final morning run executed 2026-07-11; build
+   re-verified GREEN, media refreshed, report finalized (CONTINUE WITH
+   CONDITIONS)

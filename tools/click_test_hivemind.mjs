@@ -15,7 +15,14 @@ const hint = () => page.evaluate(() => (window.__OB && window.__OB.active ? wind
 console.log('hint at t=4:', await hint());
 await page.screenshot({ path: 'media/proto/game_hint1.png' });
 
-// drag-paint a lure road along the top route (nest -> high pile)
+// dismiss the title card first — the first mousedown only starts the game
+// (main.js: if (!ui.started) { started = true; return; }), it does not paint.
+await page.mouse.move(...P(640, 360));
+await page.mouse.down();
+await page.mouse.up();
+await page.waitForTimeout(200);
+
+// now drag-paint a lure road along the top route (nest -> high pile)
 const route = [[170, 360], [220, 200], [300, 80], [520, 62], [720, 66], [900, 88], [1055, 120]];
 let [sx, sy] = P(route[0][0], route[0][1]);
 await page.mouse.move(sx, sy);

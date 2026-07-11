@@ -2,6 +2,18 @@
 
 Play or view the build before reading the analysis.
 
+> **Final-run re-verification — 2026-07-11 (Tallinn ~10:10).** This build was
+> re-run from a clean checkout this morning and is GREEN end to end:
+> commander bot WINS seed 7 (1200/1200, season 175s), idle LOSES (0/1200);
+> single-file `game/dist/HIVEMIND.html` rebuilds byte-identical (no drift);
+> 40/40 generated maps pass fairness; both prototypes run; 56–60 fps at
+> 3,200 agents. Fresh verified stills captured this morning:
+> `media/shot_verified_action.png` (mid-season, 68% — the core hook) and
+> `media/shot_verified_win.png` (the win end-card). One harness bug was
+> fixed (the UI click test never actually painted because its first
+> mousedown was consumed dismissing the title card — see PLAYTEST_LOG);
+> the game itself was never affected. No launch or build failures found.
+
 ## How to play (2 minutes to first road)
 
 **Fastest (any OS, incl. Windows):** download/open `game/dist/HIVEMIND.html`
@@ -18,8 +30,10 @@ pause. Click to begin. The game teaches the rest contextually.
 **Watch instead:** `media/hivemind.gif` (13s battle clip),
 `media/gameplay_commander_seed7.webm` (~2 min of scripted competent play),
 screenshots `media/shot_*.png`. The core-hook image is
-`media/shot_battle.png` — twin scent-roads, golden ant-rivers, a red
-warband striking a hunter.
+`media/shot_verified_action.png` (re-captured 2026-07-11) — twin cyan LURE
+roads, golden ant-rivers to the food piles, red hunter zones and a red
+warband stream, at 68% stores. `media/shot_verified_win.png` is the win
+end-card; `media/shot_battle.png` is the original close-combat still.
 
 ## What the game is
 
