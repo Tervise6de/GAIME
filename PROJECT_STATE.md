@@ -14,29 +14,33 @@ snapshot — detail belongs in the logs and in git history.
   scenario + onboarding + economy + escalation; `game/dist/HIVEMIND.html`
   single-file distributable; two frozen prototypes; `tools/` verification
   harness (headless runner, bot matrix, UI click tests, single-file
-  builder, gameplay recorder, `win_sweep.mjs` cross-seed winnability).
+  builder, gameplay recorder, `win_sweep.mjs` + robust poll-based
+  `bot_sweep.mjs` cross-seed winnability).
   Bots: hand-tuned `commander` (seed-7 baseline) + generic map-driven
-  `gcommander` (plays any generated territory).
+  `gcommander` (plays any generated territory) + `gcmdr2` (gcommander with a
+  concurrent guard-clearing second front).
 - **Active hypothesis:** humans can learn and enjoy the painting verb —
   scripted play proves the depth exists; human feel is the top unknown.
-- **Last known good commit:** HEAD of main at end of overnight-1 (Loop 3;
-  40/40 generated maps pass fairness checks; seed-7 commander regression
-  WON t=175; dist verified from file://).
-- **Current build status:** GREEN — re-verified on the final morning run
-  (2026-07-11): rebuilt-from-checkout, headless bot matrix reproduced on
-  seed 7 (commander WON 1200/1200 @175s; smart 949, warband 0, naive
-  collapse, idle 0 — five distinct outcomes); single-file HIVEMIND.html
-  re-run reaches the identical win card. See CLAUDE.md for the one-line
-  re-verification command.
-- **Highest-value next action:** a guard-clearing bot (or human play) to
-  raise the winnability lower bound above 56%, and a difficulty-normalization
-  pass on the generator (win-times 272-390s and deaths 231-1294 are too
-  spread). Winnability is now MEASURED, not assumed — see below.
-- **Winnability (NEW, 2026-07-11):** generalized `gcommander` bot wins 9/16
-  generated seeds (56%); 5 of 7 losses are the guarded rich pile never
-  cleared (a fixable strategy gap, not structural unfairness). This is a
-  STRONG-PROXY LOWER BOUND, not proof, and says nothing about human players.
-  Full data: `data/winnability_sweep_20260711.md`.
+- **Last known good commit:** tip of branch
+  `claude/gaime-steam-autonomous-studio-u4ny57` (gcmdr2 added; every commit
+  verified before push — commander WON seed 7, dist verified from `file://`,
+  gcmdr2 10/16 measured).
+- **Current build status:** GREEN — verified 2026-07-11 (dev-difficulty-norm
+  session): commander WINS seed 7 (1200/1200); idle/smart/warband lose
+  (distinct outcomes); single-file HIVEMIND.html rebuilt (48.9KB, now includes
+  gcmdr2) and re-run from `file://` reaches the win card (commander won,
+  1200 stores). See CLAUDE.md for the one-line re-verification command.
+- **Highest-value next action:** difficulty-normalization pass on the generator
+  (win-times still 272-409s, deaths 177-1294 — too spread), and cracking the
+  4 remaining `rich:0%` hard maps (need smarter far-guard routing or human
+  play). Winnability is MEASURED, not assumed — see below.
+- **Winnability (UPDATED 2026-07-11):** the concurrent-front `gcmdr2` bot wins
+  10/16 generated seeds (62.5%), up from `gcommander`'s 9/16 (56%): +1 win,
+  zero win regressions, no death explosion. 4 losses remain the guarded rich
+  pile never opened — genuinely expensive guards (honest difficulty), not
+  structural unfairness. Still a STRONG-PROXY LOWER BOUND, not proof, and
+  silent on human players. Full data: `data/gcmdr2_sweep_20260711.md`
+  (baseline: `data/winnability_sweep_20260711.md`).
 - **Blockers:** human playtesting cannot be done from this environment
   (founder action needed — see BACKLOG "Now" #5).
 - **Morning report ready:** true — re-verified and stamped on the final

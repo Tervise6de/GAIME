@@ -139,3 +139,33 @@ Entry template:
   formal difficulty-normalization pass or a stronger bot supersedes this
   measurement, append a new entry. Baseline commander and both prototypes
   remain the last known good runnable references.
+
+## 2026-07-11 — gcmdr2 concurrent-front guard-clearing raises the winnability lower bound to 62.5%
+- Stage: WINNER_DEVELOPMENT (Stage 6)
+- Decision: Ship `gcmdr2` as a SEPARATE strategy alongside the untouched
+  `gcommander` (original measurement baseline) and hand-tuned `commander`
+  (seed-7 balance reference). gcmdr2 = gcommander + a concurrent guard front:
+  paint the guarded rich pile's war zone every cycle IN ADDITION to nest
+  defence (nest first; fixed 35% soldier cap retains defenders). Adopt the new
+  poll-based `tools/bot_sweep.mjs` as the reliable cross-seed harness.
+- Alternatives considered: (a) gate the guard attack on "nest currently safe" —
+  REJECTED, proved byte-identical to gcommander (the old bot already fought the
+  guard exactly when it was the sole nearest target); (b) sole-priority guard
+  attack — ALREADY REJECTED (prior session; death explosions); (c) stronger,
+  wider LURE on the guard march (0.95/30) to pull more ants out — TRIED and
+  REVERTED (overfit: converted seed 2358 but regressed seed 1679, a lateral
+  trade with instability); (d) generalize `commander` in place — REJECTED as
+  before (destroys the verified seed-7 baseline).
+- Evidence class: VERIFIED FACT (gcmdr2 10/16 vs gcommander 9/16 on identical
+  seeds; +1 win, zero win regressions, no death explosion — win-death floor
+  improved 231->177; seed 7 gcmdr2 == gcommander at 1062/1200). The winnability
+  conclusion remains a STRONG-PROXY LOWER BOUND, now 62.5%, still not proof of
+  any map's (un)winnability and still silent on human players.
+- Why: converts the single dominant, previously-unbeaten loss mode (guarded
+  rich pile never opened) into a measured improvement without touching the
+  verified game balance, and isolates a genuinely hard residual (4 maps with an
+  expensive, essential guard) as honest difficulty rather than a bot defect.
+- Reversibility / exit condition: gcmdr2 is additive and isolated; gcommander,
+  commander and both prototypes remain the last known good runnable references.
+  If difficulty normalization or a stronger far-guard router supersedes this,
+  append a new entry.

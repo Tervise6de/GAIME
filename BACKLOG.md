@@ -9,10 +9,12 @@ duplicating them. Rejected items keep a one-line reason.
    231-1294 are too spread (data/winnability_sweep_20260711.md). Add a
    post-gen difficulty estimate (guard distance, pile spread, wave pressure)
    and reject/retune outliers so seeds play in a target band.
-2. Stronger guard-clearing for gcommander (sustained rally that actually
-   kills a distant guard without abandoning the nest) to raise the 56%
-   winnability lower bound — the guard-priority naive attempt failed (death
-   explosions), so this needs a smarter multi-front approach.
+2. Crack the 4 remaining `rich:0%` hard maps (1485,2164,2358,2455). gcmdr2's
+   concurrent second front raised the lower bound 56%->62.5% (+1 win, no death
+   explosion), but these 4 place an expensive, ESSENTIAL guard the generic bot
+   can't route enough force to while harvesting in time. Needs smarter
+   far-guard routing (stronger-LURE march was tried and reverted — overfit) or
+   human play. Data: data/gcmdr2_sweep_20260711.md.
 3. Brood throttle verb (paint the nest: grow vs bank) — player control over
    the growth economy discovered to dominate outcomes in Loop 1.
 4. Juice pass: nest delivery pulse, spider death burst, procedural WebAudio;

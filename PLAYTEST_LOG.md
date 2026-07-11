@@ -187,3 +187,36 @@ Entry template:
   preserved as the seed-7 balance reference); committed win_sweep tool + data
   table; guard-priority change reverted. Difficulty normalization + a
   guard-clearing bot stay on the backlog.
+
+## 2026-07-11 ~10:40 UTC — Guard-clearing bot (gcmdr2): concurrent second front
+- Hypothesis / what was tested: can a disciplined guard-clearing routine raise
+  the 56% winnability lower bound WITHOUT the death explosion that sank the
+  earlier guard-priority attempt? Diagnosis first: a naive "gate the guard
+  attack on nest-safe" variant turned out BYTE-IDENTICAL to gcommander (the old
+  bot already fought the guard exactly when it was the sole nearest target), so
+  the real gap was that the far guard is never the nearest target while waves
+  press the nest, and so is never attacked at all.
+- The change: gcmdr2 paints the guard's war zone every cycle IN ADDITION to
+  nest defence (nest war painted first; fixed 35% soldier cap keeps defenders),
+  committing the surplus soldiers gcommander left idle. Never drops nest defence
+  — the opposite of the rejected sole-priority variant.
+- How it was run: game/js/auto.js gcmdr2; new poll-based tools/bot_sweep.mjs at
+  fast=40 to __DONE (robust on long losing games). Same 16 seeds as the prior
+  sweep. Full table: data/gcmdr2_sweep_20260711.md.
+- Observed result (facts): gcmdr2 WINS 10/16 (62.5%) vs gcommander 9/16 (56%).
+  +1 win (seed 1679, rich 0%->61%), ZERO win regressions (every gcommander win
+  is also a gcmdr2 win). No death explosion — win-deaths floor improved
+  231->177 (seed 1000), max unchanged (1294). Seed 7: gcmdr2 == gcommander
+  exactly (1062/1200) — baseline untouched. Four losses (1485,2164,2358,2455)
+  stay rich:0%: the bot cannot route enough force to a distant guard while
+  harvesting in time — those maps' guarded pile is required AND expensive.
+- Evidence class: VERIFIED FACT (all runs observed here). 62.5% is a tightened
+  STRONG-PROXY LOWER BOUND, still not proof of any map's (un)winnability and
+  still silent on humans.
+- Weaknesses: only +1 of 5 hard losses cracked; the remaining 4 need either a
+  smarter far-guard routing (a stronger-LURE march was tried and REVERTED —
+  overfit, traded 1679 for 2358) or human play. Difficulty still not normalized.
+- Action taken: shipped gcmdr2 as a new strategy (gcommander + commander +
+  both prototypes preserved); committed bot_sweep tool + data table; the
+  stronger-LURE refinement reverted. Difficulty normalization stays on backlog;
+  cracking the last 4 hard maps folded into the guard-clearing item.

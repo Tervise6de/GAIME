@@ -78,3 +78,23 @@ instability, i.e. overfitting. gcmdr2 ships with the plain 0.8/26 strike.
   hand-tuned seed-7 `commander` and both prototypes are unchanged. On seed 7
   gcmdr2 reproduces gcommander exactly (1062/1200, rich 100 %, far 2 % — the
   separate "distant-pile under-service" issue, out of scope here).
+
+## Structural finding: the guarded rich pile is MANDATORY on every map
+
+Across all 32 runs in the two sweeps (2 bots × 16 seeds), **no game was ever
+won with `rich:0%`** — every rich-pile-sealed run lost. The arithmetic explains
+why: the two lesser piles total 1300 food GROSS, but the colony carries a fixed
+brood overhead. With `FREE_SPAWNS=700`, `SPAWN_COST=0.20`, and a population that
+climbs to ~2600, paid spawns run ~1900+ even at near-zero deaths, i.e. ~380+
+food burned on brood. So far+high alone nets only ~850–920 — below the 1200
+quota REGARDLESS of skill (verified: seed 1485 lost at 947 net with just 15
+deaths). Every map therefore requires cracking the guarded 900-food pile, and
+winning hinges on clearing its guard.
+
+**Design read (creative judgment, flag for human playtests):** a mandatory
+guard fight is arguably GOOD — it forces the RALLY/WAR verb and produces the
+clip-able battle moment the concept sells on. But it is a deliberate KNOB: if
+human play shows the forced guard fight is too punishing on some layouts, the
+lever is the quota (drop ~1200 → ~1000 to make far+high a viable-if-suboptimal
+path) or partial rich accessibility — NOT more bot tuning. Recorded so the next
+session tunes the right thing.

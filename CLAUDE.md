@@ -66,11 +66,15 @@ Tech: vanilla JS + Canvas 2D, zero runtime deps. Dev tooling: Playwright
     Expected: commander WINS (~t=175 on seed 7), all others lose.
   - `gcommander` = generic map-driven bot (plays ANY seed; `commander` is
     seed-7-only hand-tuned baseline — do not generalize it in place).
+    `gcmdr2` = gcommander + concurrent guard-clearing front (10/16 vs 9/16).
   - Stormwarden falsification: `?auto=<climo|persist|instrument>&days=400&seed=N`
-- Cross-seed winnability sweep: `node tools/win_sweep.mjs 16 40 1000 97`
-  (gcommander over generated seeds; data/winnability_sweep_20260711.md). NOTE:
-  its waitForFunction harness false-times-out on long/losing games — for
-  reliable single-seed results use `run_proto.mjs` per seed instead.
+- Cross-seed winnability sweep (ROBUST, poll-based — use this one):
+  `node tools/bot_sweep.mjs --bot=<gcommander|gcmdr2> --count=16 --first=1000 --stride=97 --fast=40`
+  (or `--seeds=1000,1097,...`). Prints per-seed rows + win-rate/spread summary;
+  polls `__DONE` like run_proto so long LOSING games are measured, not
+  false-timed-out. Latest: gcmdr2 10/16 (data/gcmdr2_sweep_20260711.md).
+  Legacy `tools/win_sweep.mjs` uses waitForFunction and false-times-out on
+  long/losing games — prefer bot_sweep.mjs or run_proto.mjs per seed.
 - UI click-through tests: `node tools/click_test_hivemind.mjs`, `tools/click_test_stormwarden.mjs`
 
 ## File map

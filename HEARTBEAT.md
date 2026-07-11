@@ -9,8 +9,8 @@ a rejected push means another session holds the lock. Refresh
 commit. Never force-push.
 
 ```
-status: active
+status: released
 session: dev-20260711-difficulty-norm
-last_update_utc: 2026-07-11T10:05:00Z
-note: claiming lock to work on generator difficulty normalization + guard-clearing bot (next actions from HANDOFF); build verified GREEN at claim
+last_update_utc: 2026-07-11T10:48:00Z
+note: gcmdr2 concurrent-front guard-clearing shipped (winnability 56%->62.5%, +1 win, no death explosion); robust bot_sweep.mjs added; rich-pile-mandatory finding recorded; build GREEN, dist rebuilt; no session active
 ```
