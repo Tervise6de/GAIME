@@ -75,5 +75,13 @@ for (const [auto, rs] of Object.entries(byAuto)) {
   console.log(`${auto}: ${wins}/${rs.length} won  (avg win time ${avgT}s)` +
     (losses.length ? `  LOSSES: ${losses.join(',')}` : ''));
 }
+// certified list: seeds the commander (the competence oracle) actually WON.
+// This is the only sound winnability signal — no cheap structural proxy
+// (guard distance, corridor sealing) separates winnable maps from unwinnable
+// ones, so a shipped New-Territory pool must be sim-certified, not generated
+// blind. Feed --auto commander only when emitting a pool.
+const certified = [...new Set(rows.filter((r) => r.won).map((r) => r.seed))].sort((a, b) => a - b);
+console.log('\nCERTIFIED ' + JSON.stringify(certified));
+
 // machine-readable tail
 console.log('\nJSON ' + JSON.stringify(rows));

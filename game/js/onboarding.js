@@ -12,8 +12,16 @@ const HINTS = [
     id: 'paint-road',
     when: (ob, sim) => sim.time > 3,
     until: (ob) => ob.lurePainted > 260,
-    text: 'Hold LEFT MOUSE and paint a scent road from the nest toward food — start with the unguarded piles east.',
-    marker: (sim) => ({ from: sim.world.nest, to: { x: 1060, y: 120 } }),
+    text: 'Hold LEFT MOUSE and paint a scent road from the nest toward food — start with an unguarded pile.',
+    // point at a real un-guarded pile on THIS map (works on generated seeds,
+    // not just the hand-built seed 7).
+    marker: (sim) => {
+      const { nest, piles, spiders } = sim.world;
+      const open = piles.filter((p) => !spiders.some(
+        (s) => s.alive && Math.hypot(s.hx - p.x, s.hy - p.y) < s.tr + p.r));
+      const t = (open[0] || piles[piles.length - 1]);
+      return { from: nest, to: { x: t.x, y: t.y } };
+    },
   },
   {
     id: 'road-continuity',

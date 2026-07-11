@@ -169,12 +169,18 @@ function commander(sim) {
     const ang = Math.atan2(threat.hy - nest.y, threat.hx - nest.x);
     const ax = threat.hx - Math.cos(ang) * 150, ay = threat.hy - Math.sin(ang) * 150;
     routeLure(fields[F.LURE], sim.world, cf, ax, ay, 26, 0.8);
-    stampLine(fields[F.WAR], ax, ay, threat.hx, threat.hy, 44, 1.0);
-    // cover the WHOLE territory: the hunter wanders up to tr from its den, so a
-    // narrow blob lets it outrun its soldiers (the guard then never dies and
-    // the pile behind it stays locked — the seed-2/3 loss mode).
-    stamp(fields[F.WAR], threat.hx, threat.hy, threat.tr + 10, 1.0);
-    stamp(fields[F.WAR], threat.x, threat.y, 70, 1.0);
+    // A single big WAR blob is near-zero at its edge (falloff), so a hunter at
+    // its leash edge sits in weak WAR and its soldiers don't follow — it never
+    // dies (seed-2/3 loss). But a blob wide AND strong over-converts the army
+    // into doomed soldiers (seed-4/12 loss). So paint a FULL-STRENGTH band from
+    // the den to the hunter's current spot plus tight discs: strong right where
+    // the hunter patrols, without flooding the whole map with WAR.
+    stampLine(fields[F.WAR], ax, ay, threat.hx, threat.hy, 42, 1.0);       // march in
+    stampLine(fields[F.WAR], threat.hx, threat.hy, threat.x, threat.y, 46, 1.0); // patrol band
+    // full-strength disc on the hunter's CURRENT position (re-centred every
+    // 120 ticks): scales with its territory so a big-range guard can't escape,
+    // yet stays a single tracking disc rather than a map-wide WAR flood.
+    stamp(fields[F.WAR], threat.x, threat.y, Math.max(70, threat.tr * 0.9), 1.0);
   }
   // FEAR walls over every live hunter's ground protect the supply lines:
   // foragers are repelled, cutting attrition; soldiers sense only WAR, so the
@@ -199,7 +205,10 @@ export const STRATEGIES = { naive, smart, warband, idle, commander };
 export function makeAutoPlayer(name, periodTicks = 240) {
   const fn = STRATEGIES[name];
   if (!fn) return null;
+  // the commander re-plans twice as often so its WAR band re-centres on the
+  // wandering guard before the hunter can slip out of it.
+  const period = name === 'commander' ? 120 : periodTicks;
   return (sim) => {
-    if (sim.tick % periodTicks === 1) fn(sim);
+    if (sim.tick % period === 1) fn(sim);
   };
 }

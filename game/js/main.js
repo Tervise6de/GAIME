@@ -5,6 +5,7 @@ import { makeRenderer, draw, hudText, drawEndCard, drawTitle } from './render.js
 import { makeAutoPlayer } from './auto.js';
 import { SCENARIO, makeScenarioState, updateScenario } from './scenario.js';
 import { makeOnboarding, updateOnboarding, drawOnboarding } from './onboarding.js';
+import { nextCertifiedSeed } from './seeds.js';
 
 const q = new URLSearchParams(location.search);
 const seed = parseInt(q.get('seed') || '7', 10);
@@ -47,7 +48,10 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'p' || e.key === 'P') ui.paused = !ui.paused;
   if (sc.over) {
     if (e.key === 'r' || e.key === 'R') location.search = `?seed=${seed}`;
-    if (e.key === 'n' || e.key === 'N') location.search = `?seed=${(Math.random() * 100000) | 0}`;
+    // New Territory draws from the SIM-CERTIFIED pool (see seeds.js): a random
+    // seed could be a fair-but-unwinnable map, which would read as a broken
+    // game, not a hard one.
+    if (e.key === 'n' || e.key === 'N') location.search = `?seed=${nextCertifiedSeed(seed, Math.random())}`;
   }
 });
 

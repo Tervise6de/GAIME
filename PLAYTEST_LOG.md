@@ -137,3 +137,39 @@ Entry template:
   cannot play generated maps (hardcoded waypoints) so winnability is
   structurally plausible but unproven off seed 7.
 - Action taken: committed; balance sweep across seeds moved to backlog Now.
+
+## 2026-07-11 ~00:45 UTC — Stage 6 Loop 4: winnability, not just fairness
+- Hypothesis / what was tested: the structural fairness guarantees (Loop 3)
+  imply generated maps are actually WINNABLE by competent play. Tested with a
+  generalized "commander" oracle that derives its plan from world geometry
+  (SPFA cost-field from the nest penalizing live-hunter ground, string-pulled
+  LURE roads to every un-guarded pile, WAR band tracking the wandering guard,
+  FEAR walls over supply lines) instead of seed-7 hardcoded waypoints.
+- How it was run: tools/win_sweep.mjs across seeds 1-30 (auto=commander,
+  fast=40); per-seed diagnosis via screenshots + route/distance metrics.
+- Observed result (facts):
+  (1) FAIRNESS != WINNABILITY. First pass: commander won 10/12 (seeds 1-12);
+      seeds 2,3 are fair (all piles reachable) yet unwinnable — the rich pile's
+      guard never died, locking 900 food, netting 599/830 of the 1200 quota.
+  (2) Bot competence matters and is tunable. The guard escaped its soldiers
+      because the WAR blob's falloff was near-zero at the hunter's leash edge.
+      Fixing WAR to a full-strength band tracking the hunter's current position
+      (re-planned every 120 ticks, disc scaled to its territory) took the sweep
+      to 29/30 WON, avg win-time 251s, with LOWER deaths across the board
+      (seed 24 deaths 1348->316). Seed 7 regression still WINS (t~305).
+  (3) One residual loss (seed 3): a corner-nest layout the oracle cannot beat
+      (0 hunters slain). Its unwinnability is EMERGENT — no cheap structural
+      proxy tested separated it from winners: guard distance (seed-3 721px is
+      LESS than winning seed-19's 1083px), max pile distance, or mid-hunter
+      corridor sealing (winners seal their corridors more than seed 3).
+- Conclusion / action: winnability can only be certified by SIMULATION, so the
+  human-facing "New Territory" (N key) now draws from a sim-certified pool
+  (game/js/seeds.js = every seed the oracle won), not a blind random seed.
+  A random seed risked serving a fair-but-unwinnable map that reads as broken.
+- Evidence class: VERIFIED FACT (29/30 deterministic oracle wins; seed-3 loss;
+  no structural proxy separates it). STRONG PROXY that a competent HUMAN can
+  win the certified maps (the oracle is a skilled-play proxy, not a human).
+  ASSUMPTION still: human enjoyment / difficulty pacing across seeds.
+- Weaknesses: certified pool is only valid for THIS bot+generator version
+  (must re-run the sweep after changes — noted in seeds.js); difficulty is not
+  yet normalized (win-times 148-466s); oracle is not proof of human win.

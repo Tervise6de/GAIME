@@ -784,12 +784,18 @@ function commander(sim) {
     const ang = Math.atan2(threat.hy - nest.y, threat.hx - nest.x);
     const ax = threat.hx - Math.cos(ang) * 150, ay = threat.hy - Math.sin(ang) * 150;
     routeLure(fields[F.LURE], sim.world, cf, ax, ay, 26, 0.8);
-    stampLine(fields[F.WAR], ax, ay, threat.hx, threat.hy, 44, 1.0);
-    // cover the WHOLE territory: the hunter wanders up to tr from its den, so a
-    // narrow blob lets it outrun its soldiers (the guard then never dies and
-    // the pile behind it stays locked — the seed-2/3 loss mode).
-    stamp(fields[F.WAR], threat.hx, threat.hy, threat.tr + 10, 1.0);
-    stamp(fields[F.WAR], threat.x, threat.y, 70, 1.0);
+    // A single big WAR blob is near-zero at its edge (falloff), so a hunter at
+    // its leash edge sits in weak WAR and its soldiers don't follow — it never
+    // dies (seed-2/3 loss). But a blob wide AND strong over-converts the army
+    // into doomed soldiers (seed-4/12 loss). So paint a FULL-STRENGTH band from
+    // the den to the hunter's current spot plus tight discs: strong right where
+    // the hunter patrols, without flooding the whole map with WAR.
+    stampLine(fields[F.WAR], ax, ay, threat.hx, threat.hy, 42, 1.0);       // march in
+    stampLine(fields[F.WAR], threat.hx, threat.hy, threat.x, threat.y, 46, 1.0); // patrol band
+    // full-strength disc on the hunter's CURRENT position (re-centred every
+    // 120 ticks): scales with its territory so a big-range guard can't escape,
+    // yet stays a single tracking disc rather than a map-wide WAR flood.
+    stamp(fields[F.WAR], threat.x, threat.y, Math.max(70, threat.tr * 0.9), 1.0);
   }
   // FEAR walls over every live hunter's ground protect the supply lines:
   // foragers are repelled, cutting attrition; soldiers sense only WAR, so the
@@ -814,8 +820,11 @@ const STRATEGIES = { naive, smart, warband, idle, commander };
 function makeAutoPlayer(name, periodTicks = 240) {
   const fn = STRATEGIES[name];
   if (!fn) return null;
+  // the commander re-plans twice as often so its WAR band re-centres on the
+  // wandering guard before the hunter can slip out of it.
+  const period = name === 'commander' ? 120 : periodTicks;
   return (sim) => {
-    if (sim.tick % periodTicks === 1) fn(sim);
+    if (sim.tick % period === 1) fn(sim);
   };
 }
 
@@ -910,8 +919,16 @@ const HINTS = [
     id: 'paint-road',
     when: (ob, sim) => sim.time > 3,
     until: (ob) => ob.lurePainted > 260,
-    text: 'Hold LEFT MOUSE and paint a scent road from the nest toward food — start with the unguarded piles east.',
-    marker: (sim) => ({ from: sim.world.nest, to: { x: 1060, y: 120 } }),
+    text: 'Hold LEFT MOUSE and paint a scent road from the nest toward food — start with an unguarded pile.',
+    // point at a real un-guarded pile on THIS map (works on generated seeds,
+    // not just the hand-built seed 7).
+    marker: (sim) => {
+      const { nest, piles, spiders } = sim.world;
+      const open = piles.filter((p) => !spiders.some(
+        (s) => s.alive && Math.hypot(s.hx - p.x, s.hy - p.y) < s.tr + p.r));
+      const t = (open[0] || piles[piles.length - 1]);
+      return { from: nest, to: { x: t.x, y: t.y } };
+    },
   },
   {
     id: 'road-continuity',
@@ -1006,8 +1023,40 @@ function drawOnboarding(ctx, ob, sim, W, H) {
 }
 
 
+// ===== seeds.js =====
+// Certified territory pool for "New Territory" (the N key).
+//
+// WHY THIS EXISTS (VERIFIED FACT, 2026-07-11): a map that passes the
+// generator's FAIRNESS guarantees (every pile reachable, lesser piles outside
+// hunter ground, nest not buried) is NOT necessarily WINNABLE. The competence
+// oracle (auto=commander) wins ~97% of generated seeds but loses a rare tail
+// (e.g. seed 3) whose difficulty is emergent — no cheap structural proxy
+// tested (guard distance, pile distance, mid-hunter corridor sealing)
+// separated the unwinnable map from winnable ones. So winnability can only be
+// certified by SIMULATION, and the human-facing pool must be sim-vetted.
+//
+// This list is every seed the commander oracle actually WON in
+// tools/win_sweep.mjs on the current build. Regenerate after ANY change to
+// world generation or the commander bot:
+//   node tools/win_sweep.mjs --seeds 1-60 --auto commander --fast 40
+// and copy the CERTIFIED line here. Seed 7 is the hand-tuned reference map.
+const CERTIFIED_SEEDS = [
+  1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+  21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
+];
+
+// Pick a certified seed other than the one just played, so New Territory always
+// changes the map. Deterministic given `rnd` (0..1) for testability.
+function nextCertifiedSeed(current, rnd) {
+  const pool = CERTIFIED_SEEDS.filter((s) => s !== current);
+  if (pool.length === 0) return current;
+  return pool[Math.min(pool.length - 1, Math.floor(rnd * pool.length))];
+}
+
+
 // ===== main.js =====
 // HIVEMIND — winner development build. Boot, loop, input, scenario, instrumentation.
+
 
 
 
@@ -1056,7 +1105,10 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'p' || e.key === 'P') ui.paused = !ui.paused;
   if (sc.over) {
     if (e.key === 'r' || e.key === 'R') location.search = `?seed=${seed}`;
-    if (e.key === 'n' || e.key === 'N') location.search = `?seed=${(Math.random() * 100000) | 0}`;
+    // New Territory draws from the SIM-CERTIFIED pool (see seeds.js): a random
+    // seed could be a fair-but-unwinnable map, which would read as a broken
+    // game, not a hard one.
+    if (e.key === 'n' || e.key === 'N') location.search = `?seed=${nextCertifiedSeed(seed, Math.random())}`;
   }
 });
 
