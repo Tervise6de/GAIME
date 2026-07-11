@@ -251,3 +251,31 @@ Entry template:
 - Action taken: shipped guard-assault v2 (route to rich pile); added
   tools/gen_difficulty.mjs; rebuilt dist (48.4KB); updated the sweep data file
   to the final 15/16 table with the iteration history.
+
+## 2026-07-11 ~12:40 UTC — guard-assault v3 (FEAR/WAR fix) + 40-seed sweep @ (this session)
+- Hypothesis / what was tested: (1) a rare death-explosion seed (4395, died
+  2078) is caused by the guard being FEAR-walled AND WAR-assaulted at once;
+  (2) the 94% measured on 16 seeds overstates winnability — the full 40-seed
+  set will show a longer tail.
+- How it was run: viewed a mid-game screenshot of seed 4395 (a purple FEAR wall
+  sitting on the guard while ants died at its edge), edited gcommander to skip
+  FEAR on the guard while assaulting, then re-ran BOTH halves of the 40-seed set
+  via run_proto. Re-verified seed 7.
+- What was observed (VERIFIED FACT):
+  - Full set: **34/40 won (85%)**. First 16: 15/16 (unchanged). Next 24: 19/24
+    (up from 18 — seed 3328 lost→won from the FEAR fix). Zero regressions.
+  - The FEAR fix did NOT rescue 4395: its guard is CLOSE (path dist ~440), so it
+    is a permanent near-nest threat and gets WAR'd every cycle regardless — a
+    close-guard grind, a distinct rarer failure mode (died 2078, net 393).
+  - Failure taxonomy over 40: 4 economy near-misses (1291, 3522, 4104, 4201 —
+    guard slain, map harvested, short on overhead), 1 guard stall (4007, rich
+    900 untouched), 1 close-guard grind (4395).
+  - Seed 7 unchanged: commander WON t=175; idle lost. dist rebuilt (48.7KB).
+- Evidence class: VERIFIED FACT for the runs; 85% is a STRONG-PROXY LOWER BOUND
+  by a generic bot. The honest full-set figure REPLACES the flattering
+  94%/16-seed subset in all docs.
+- Weaknesses: two hard tail seeds remain (close-guard grind; guard stall);
+  per-map difficulty unnormalized; human feel untested.
+- Action taken: shipped the FEAR/WAR fix; ran the full 40-seed sweep; rewrote
+  the data file to the 40-seed table + failure taxonomy; corrected PROJECT_STATE
+  and MORNING_REPORT from 94% to the honest 85%.

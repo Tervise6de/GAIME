@@ -11,12 +11,13 @@ duplicating them. Rejected items keep a one-line reason.
    seeds play in a target band. NOTE: the guard-assault made several wins
    bloodier (e.g. seed 1000 died 1171), so death-variance is now the sharper
    axis to normalize.
-2. Last winnability gap: seed 1291 (map fully harvested + guard slain ×4, but
-   bleeds too much on an exposed corridor → 1086/1200). Not a clean structural
-   reject candidate (no feature isolates it). Options: a smarter assault that
-   FEAR-walls the mid roamer off the corridor, or an economy nudge. Low
-   priority — guard-clearing is solved (gcommander 56%→94% this session; seed
-   2164 blocked-den stall fixed by routing to the reachable pile).
+2. Winnability tail (gcommander now 34/40 = 85%): two hard seeds remain —
+   4395 (CLOSE-guard grind: a guard near the nest is WAR'd forever, colony bleeds
+   died 2078 → needs a persistent-WAR cap / bail-out when the guard won't die and
+   the colony is shrinking) and 4007 (guard stall, rich untouched despite a
+   reachable den). Plus 4 economy near-misses (1291/3522/4104/4201) that fully
+   harvest the map but fall short on overhead — an economy nudge (see brood
+   throttle) or difficulty normalization, not a guard fix.
 3. Brood throttle verb (paint the nest: grow vs bank) — player control over
    the growth economy discovered to dominate outcomes in Loop 1.
 4. Juice pass: nest delivery pulse, spider death burst, procedural WebAudio;

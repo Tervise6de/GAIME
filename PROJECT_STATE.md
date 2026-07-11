@@ -24,23 +24,23 @@ snapshot — detail belongs in the logs and in git history.
   WON t=175; dist verified from file://).
 - **Current build status:** GREEN — verified this session (2026-07-11,
   fok54l): seed-7 commander WON 1200/1200 @175s, idle lost; gcommander seed-7
-  unchanged at 1062; full 16-seed sweep re-run clean (15/16); single-file
-  HIVEMIND.html rebuilt (48.4KB); UI click test exit 0. See CLAUDE.md for the
+  unchanged at 1062; full 40-seed sweep re-run (34/40 = 85%); single-file
+  HIVEMIND.html rebuilt (48.7KB); UI click test exit 0. See CLAUDE.md for the
   one-line re-verification command.
 - **Highest-value next action:** human play (still the top unknown), then
   difficulty normalization on the generator (win-times and death spread are
   wide) and closing the one residual guard-mass stall (seed 2164). Winnability
   is MEASURED, not assumed — see below.
 - **Winnability (UPDATED 2026-07-11, session fok54l):** `gcommander` gained a
-  staged guard assault that routes to the reachable rich pile and holds a WAR
-  well on the guard; it now wins **15/16 generated seeds (94%)**, up from 9/16
-  (56%), with ZERO regressions. Six former losses converted; the guarded rich
-  pile is now engaged on 15/16. The reachable-pile routing also cut deaths
-  sharply on several seeds (e.g. 1000: 1171→218). One residual loss: seed 1291
-  (fully harvests the whole map + slays the guard ×4 but bleeds too much on an
-  exposed corridor, 1086/1200 — winnable in principle, NOT a clean structural
-  reject candidate; see data file). STRONG-PROXY LOWER BOUND by a generic bot,
-  not a human claim. Full data:
+  staged guard assault (route to the reachable rich pile, hold a WAR well on the
+  guard, don't FEAR-wall a pile you're storming). Measured over the FULL 40-seed
+  fairness set: **34/40 = 85%**, up from the 56% first-16 baseline (the bot now
+  takes 15/16 of that subset). ZERO regressions from the assault work. The 6
+  losses form a clean taxonomy: 4 economy near-misses (guard slain + map
+  harvested, short on overhead — winnable in principle), 1 guard stall (4007),
+  1 close-guard death-grind (4395, died 2078). NOTE: the honest full-set number
+  is 85%; the first-16 subset alone reads 94% — do not quote the subset.
+  STRONG-PROXY LOWER BOUND by a generic bot, not a human claim. Full data:
   `data/winnability_sweep_20260711_guardassault.md` (before:
   `data/winnability_sweep_20260711.md`).
 - **Blockers:** human playtesting cannot be done from this environment

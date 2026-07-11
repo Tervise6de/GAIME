@@ -71,6 +71,11 @@ Tech: vanilla JS + Canvas 2D, zero runtime deps. Dev tooling: Playwright
   (gcommander over generated seeds; data/winnability_sweep_20260711.md). NOTE:
   its waitForFunction harness false-times-out on long/losing games — for
   reliable single-seed results use `run_proto.mjs` per seed instead.
+  Full-set winnability (per-seed, reliable): loop `run_proto.mjs` over seeds
+  `1000 + i·97`, i=0..39 — gcommander wins 34/40 (85%); data in
+  `data/winnability_sweep_20260711_guardassault.md`.
+- Map difficulty features: `node tools/gen_difficulty.mjs <N>` (true BFS
+  distances per generated seed; use to probe why a seed is hard).
 - UI click-through tests: `node tools/click_test_hivemind.mjs`, `tools/click_test_stormwarden.mjs`
 
 ## File map

@@ -238,9 +238,15 @@ function gcommander(sim) {
     stampLine(fields[F.WAR], ax, ay, threat.x, threat.y, 44, 1.0);
     stamp(fields[F.WAR], threat.x, threat.y, 90, 1.0);
   }
+  // decide the assault BEFORE walling: a guard we are storming must NOT also be
+  // FEAR-walled, or the wall repels the very column the WAR well is summoning
+  // and the ants die milling at the FEAR/WAR seam (seed 4395: died 2078).
+  const lesserLeft = piles.slice(1).reduce((a, p) => a + Math.max(0, p.amount), 0);
+  const assaulting = guard && guard.alive && rich.amount > 0 && lesserLeft < 1150;
   // wall deep roamers (routed around anyway); leave near-nest approaches open
   for (const sp of spiders) {
     if (!sp.alive || sp === threat) continue;
+    if (sp === guard && assaulting) continue;
     if (Math.hypot(sp.hx - nest.x, sp.hy - nest.y) < 340) continue;
     stamp(fields[F.FEAR], sp.hx, sp.hy, sp.tr + 20, 1.0);
   }
@@ -253,10 +259,7 @@ function gcommander(sim) {
   // once the easy piles are nearly exhausted, commit force to the guard so the
   // rich pile is not left on the map (the dominant loss mode). Gated late so
   // the early harvest — which the baseline wins depend on — is never split.
-  const lesserLeft = piles.slice(1).reduce((a, p) => a + Math.max(0, p.amount), 0);
-  if (guard && guard.alive && rich.amount > 0 && lesserLeft < 1150) {
-    guardAssault(fields, prev, guard, rich, nest);
-  }
+  if (assaulting) guardAssault(fields, prev, guard, rich, nest);
 }
 
 export const STRATEGIES = { naive, smart, warband, idle, commander, gcommander };

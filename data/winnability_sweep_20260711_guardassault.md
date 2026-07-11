@@ -1,89 +1,94 @@
 # Winnability sweep — guard-assault gcommander (2026-07-11, session fok54l)
 
-Follow-up to `winnability_sweep_20260711.md` (the 9/16 baseline). Same harness,
-same 16 seeds, same scenario ("The First Season", quota 1200 net, 480 s). The
-only change is in the bot: `gcommander` gained a **staged guard assault**
-(`guardAssault` in `game/js/auto.js`) that, once the easy piles start being
-spent, commits force to the guarded rich pile along the *reachable pile road*
-and holds a persistent WAR well on the guard so the arriving column converts to
-soldiers and masses on it.
+Follow-up to `winnability_sweep_20260711.md` (which measured 9/16 = 56% on the
+first 16 seeds). Same harness, same scenario ("The First Season", quota 1200
+net, 480 s). Two bot changes this session, all in `game/js/auto.js`:
+
+1. A **staged guard assault** (`guardAssault`): once the easy piles start being
+   spent, commit force to the guarded rich pile along the *reachable pile road*
+   and hold a persistent WAR well on the guard so the arriving column converts
+   to soldiers and masses on it.
+2. Route the assault to the **rich pile** (guaranteed reachable), not the guard
+   den (which can sit on a blocked cell — seed 2164).
+3. Do **not** FEAR-wall the guard while assaulting it (the wall repelled the
+   assault column and killed ants at the FEAR/WAR seam — seed 4395/3328).
 
 Harness: `tools/run_proto.mjs` per seed, `fast=40`, full scenario to `__DONE`
 (the reliable per-seed method — see CLAUDE.md note on win_sweep timeouts).
-`slain` = spiders killed. `rich_left` = food remaining in the guarded pile.
+`slain` = spiders killed. `rich_left` = food left in the guarded pile.
 
-| seed | BEFORE (9/16) | AFTER | net (after) | died | slain | rich_left |
-|------|---------------|-------|------------:|-----:|------:|----------:|
-| 1000 | WON  | WON  | 1200 |  218 | 2 | 543 |
-| 1097 | WON  | WON  | 1200 |  374 | 2 | 298 |
-| 1194 | WON  | WON  | 1201 |  561 | 3 | 321 |
-| 1291 | lost 854 | lost 1086 | 1086 | 1046 | 4 |   0 |
-| 1388 | WON  | WON  | 1200 |  474 | 3 |   0 |
-| 1485 | lost 947 | **WON** | 1200 |  450 | 2 | 144 |
-| 1582 | WON  | WON  | 1201 |  547 | 2 | 501 |
-| 1679 | lost 778 | **WON** | 1201 |  310 | 2 | 448 |
-| 1776 | lost 913 | **WON** | 1201 |  561 | 2 | 224 |
-| 1873 | WON  | WON  | 1201 | 1190 | 3 |   0 |
-| 1970 | WON  | WON  | 1201 | 1106 | 1 |   0 |
-| 2067 | WON  | WON  | 1201 |  142 | 1 | 561 |
-| 2164 | lost 683 | **WON** | 1200 |  583 | 2 | 368 |
-| 2261 | WON  | WON  | 1201 |  686 | 3 |  15 |
-| 2358 | lost 566 | **WON** | 1201 |  635 | 3 | 373 |
-| 2455 | lost 905 | **WON** | 1200 |  333 | 2 | 339 |
+## Full 40-seed fairness set (seeds 1000 + i·97, i = 0..39)
 
-**Result: 15 WON / 16 (94%), up from 9/16 (56%). Six former losses converted;
-zero regressions among the nine prior wins.** (STRONG-PROXY LOWER BOUND — a
-generic scripted bot, NOT a claim about human players or optimal play.)
+| seed | result | net | died | slain | rich_left |  | seed | result | net | died | slain | rich_left |
+|------|--------|----:|-----:|------:|----------:|--|------|--------|----:|-----:|------:|----------:|
+| 1000 | WON | 1200 |  218 | 2 | 543 |  | 2843 | WON | 1200 |  925 | 4 |   0 |
+| 1097 | WON | 1200 |  374 | 2 | 298 |  | 2940 | WON | 1201 |  570 | 2 | 234 |
+| 1194 | WON | 1201 |  561 | 3 | 321 |  | 3037 | WON | 1200 | 1434 | 3 |   0 |
+| 1291 | **lost** | 1086 | 1046 | 4 | 0 |  | 3134 | WON | 1200 |  333 | 2 |   0 |
+| 1388 | WON | 1200 |  474 | 3 |   0 |  | 3231 | WON | 1200 |  453 | 4 | 237 |
+| 1485 | WON | 1200 |  450 | 2 | 144 |  | 3328 | WON | 1201 |  312 | 3 |   0 |
+| 1582 | WON | 1201 |  547 | 2 | 501 |  | 3425 | WON | 1201 |  196 | 1 | 255 |
+| 1679 | WON | 1201 |  585 | 4 | 390 |  | 3522 | **lost** | 1088 | 417 | 3 | 0 |
+| 1776 | WON | 1201 |  561 | 2 | 224 |  | 3619 | WON | 1201 |  701 | 2 |  19 |
+| 1873 | WON | 1201 | 1190 | 3 |   0 |  | 3716 | WON | 1201 |  697 | 4 |   0 |
+| 1970 | WON | 1201 | 1106 | 1 |   0 |  | 3813 | WON | 1201 |  429 | 3 | 259 |
+| 2067 | WON | 1201 |  142 | 1 | 561 |  | 3910 | WON | 1200 |  523 | 4 |   0 |
+| 2164 | WON | 1200 |  583 | 2 | 368 |  | 4007 | **lost** |  882 | 281 | 0 | 900 |
+| 2261 | WON | 1201 |  543 | 2 |   0 |  | 4104 | **lost** | 1067 | 338 | 3 | 676 |
+| 2358 | WON | 1201 |  460 | 3 | 400 |  | 4201 | **lost** |  933 | 335 | 3 | 281 |
+| 2455 | WON | 1200 |  338 | 2 | 342 |  | 4298 | WON | 1201 |  707 | 3 |   0 |
+| 2552 | WON | 1201 |  463 | 3 | 251 |  | 4395 | **lost** |  393 | 2078 | 1 | 898 |
+| 2649 | WON | 1201 |  271 | 1 | 563 |  | 4492 | WON | 1201 |  667 | 3 |   0 |
+| 2746 | WON | 1200 |  198 | 1 |   0 |  | 4589 | WON | 1200 |  898 | 2 |  43 |
+|      |     |      |      |   |     |  | 4686 | WON | 1201 |  226 | 2 |   0 |
+|      |     |      |      |   |     |  | 4783 | WON | 1201 |  220 | 1 | 202 |
 
-## Why it worked (mechanism, confirmed on seed 1485)
+**Result: 34 WON / 40 (85%).** Up from the 56% baseline on the first 16 (which
+this bot now takes 15/16). The first-16 subset reads 94%, but the honest
+full-set number is **85%** — the extra 24 seeds surface a longer failure tail.
+(STRONG-PROXY LOWER BOUND by a generic scripted bot — NOT a human-winnability
+claim, NOT optimal play.)
 
-The dominant loss mode was never a guard the bot *couldn't* beat — it was a
-guard the bot never *engaged*. gcommander's Dijkstra roads route AROUND
-hunters, so on losing seeds it harvested the two easy piles cleanly
-(`died ≈ 15`, `slain: 0`, `rich: 0%`) and simply left the 900-food rich pile on
-the map, capping at ~1300 gathered → below the 1200 net quota after brood cost.
-It was **too timid, not too aggressive**. Seed 1485 went 947 (lost) → 1200
-(won), guard slain, rich harvested.
+## Failure taxonomy (the 6 losses, all understood)
 
-The earlier naive fix ("always prioritise the guard") over-committed and marched
-the colony through danger in straight lines → death explosions (win→loss).
-The disciplined version differs in two ways that matter: the march follows the
-**safe pile road** (not a straight line through the roamer's territory), and
-deep roamers stay **FEAR-walled**. Result: the guard dies without the colony
-being fed into the mid-map hunter.
+- **Economy near-misses (4): 1291, 3522, 4104, 4201.** The guard is slain and
+  most/all food is harvested (`rich_left` small or 0), but the run lands short
+  of 1200 net on brood + death overhead and the 480 s clock. These maps are
+  winnable in principle — a less lossy player clears them. They are the
+  clearest evidence that per-map difficulty is NOT normalized.
+- **Guard stall (1): 4007.** `slain: 0`, `rich: 900 left` — the assault column
+  never massed on this guard. Unlike seed 2164 (blocked den, since fixed) the
+  den here is reachable, so this is a geometry/timing stall, not a routing bug.
+- **Close-guard death-grind (1): 4395.** `died: 2078`, net 393. The guard sits
+  close to the nest (path dist ~440), so it is a *permanent* near-nest threat
+  and gets WAR'd every cycle; the colony grinds itself against a guard on the
+  rich pile (~416 food burned on death-replacement brood alone). This is the
+  same class as the original naive-assault death explosion, now confined to the
+  rare close-guard geometry rather than the common case.
 
-## Iteration: route to the pile, not the den (14/16 → 15/16)
+## Iteration history (this session)
 
-The first version routed the assault to the *guard den* and reached 14/16,
-stalling on **seed 2164**, whose guard den sits on a BLOCKED cell — `routeTo`
-found no path, the march went blind, soldiers never massed (`slain: 0`, rich
-900 untouched). Fix: route to the **rich pile** instead, which the fairness
-check guarantees is reachable; the guard is ~70px away, so staging at the pile
-drops the column on it regardless of den geometry. This won 2164 outright AND
-cut deaths sharply on several seeds (1000: 1171→218, 2067: 462→142) because the
-reachable-pile approach is cleaner than the blind fallback.
+- v1 (route to guard den): 14/16 on the first 16; stalled on 2164 (blocked den).
+- v2 (route to reachable rich pile): 15/16 on the first 16; fixed 2164 and cut
+  deaths sharply (1000: 1171→218) by removing the blind fallback.
+- v3 (don't FEAR-wall the guard while assaulting): fixed the FEAR/WAR seam;
+  converted 3328 (lost→won) with zero regressions. Final full-set: 34/40 (85%).
 
-## The single residual loss (understood, and NOT a clean reject candidate)
+## Difficulty is not normalized (open work, no clean predictor found)
 
-- **1291** — a bloodbath near-miss, NOT a guard failure. All three piles fully
-  harvested (rich cleared, guard slain ×4); the bot cleared the entire map but
-  landed 114 net short of 1200 at the buzzer on brood + death overhead
-  (`died: 1046`). Its mid roamer sits close to the nest→guard corridor
-  (`midCorridor ≈ 123`), so the assault runs a gauntlet and bleeds.
-- Difficulty normalization was investigated (`tools/gen_difficulty.mjs`,
-  structural features via the true BFS distance field). 1291 is **not** a clean
-  structural outlier: seeds 2261 (midCorridor 125) and 2067 (134) won with
-  near-identical geometry, and 1776/2358 won with midCorridor ≈ 3. No single
-  feature isolates it, so a generator reject filter would discard winnable maps
-  too. Left honest rather than papered over; the map is winnable in principle
-  (fully harvestable) — the generic bot's overhead loses it, a careful player
-  should not.
+`tools/gen_difficulty.mjs` extracts structural features (true BFS distances,
+mid-roamer-to-corridor, guard distance). No single feature cleanly separates
+the losses from the wins: e.g. 1291 (midCorridor 123) lost while 2261 (125) and
+2067 (134) won, and 1776/2358 won at midCorridor ≈ 3. The death band across
+wins alone is 142–1434. A generator reject filter on these features would
+discard winnable maps, so none was added; difficulty normalization remains
+genuinely open.
 
-## Caveats (unchanged from the prior sweep)
+## Caveats
 
 - Still a LOWER BOUND by a deliberately generic bot. On the handcrafted seed 7
   gcommander reaches 1062/1200 where hand-tuned `commander` wins at t=175; the
   bot is a coverage/difficulty PROXY, never proof of human winnability.
-- Deaths still span a wide band (142–1190). The reachable-pile routing lowered
-  the average, but per-map bloodiness is not normalized; difficulty variance
-  remains open work with no clean structural predictor found yet.
+- The assault raised bloodiness on some maps and has a bad tail (4395). Net it
+  is a large average improvement (56%→85% on the first 16's methodology
+  extended to 40), but it is not a free win on every seed.

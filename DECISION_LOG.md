@@ -204,3 +204,31 @@ Entry template:
 - Reversibility / exit condition: additive, isolated to gcommander (baseline
   commander and both prototypes unchanged). Superseded by any future difficulty
   normalization pass or human/stronger-bot measurement.
+
+## 2026-07-11 UTC — guard-assault v3 + honest 40-seed measurement (85%)
+- Stage: WINNER_DEVELOPMENT (Stage 6). Session dev-20260711-fok54l. Refines and
+  HONESTLY RE-SCOPES the two entries above.
+- Decision: (1) Stop FEAR-walling the guard while assaulting it — the deep-roamer
+  FEAR loop was walling the very guard the WAR well was summoning ants toward, so
+  the column died milling at the FEAR/WAR seam (seed 4395 died 2078; seed 3328
+  lost→won once fixed). (2) Extend the winnability sweep from 16 to the FULL
+  40-seed fairness set. Result: 34/40 = 85% (the first-16 subset reads 94%, but
+  the honest full-set number is 85%).
+- Alternatives considered: (a) keep quoting the 94%/16-seed figure — REJECTED as
+  small-sample optimism; evidence discipline requires the larger, less flattering
+  number. (b) Chase the two hard tail seeds (4007 stall, 4395 close-guard grind)
+  — DEFERRED: 4395 needs a persistent-WAR cap for close guards and 4007 a timing
+  fix; both risk the 34 wins for two rare geometries this late in the session,
+  and they are documented instead. (c) Add a generator difficulty filter to drop
+  the near-miss maps — REJECTED again (no clean structural predictor; would drop
+  winnable maps).
+- Evidence class: VERIFIED FACT (34/40 wins observed via run_proto per seed;
+  seed 7 commander still WON t=175; idle loses). The 85% is a STRONG-PROXY LOWER
+  BOUND by a generic bot — not a human claim. Failure taxonomy (4 economy
+  near-misses / 1 stall / 1 close-guard grind) is observed, not inferred.
+- Why: the honest 40-seed number is the right figure to carry into any
+  investment discussion; the two-seed tail is real and disclosed rather than
+  hidden behind a favorable 16-seed slice.
+- Reversibility / exit condition: all changes additive and isolated to
+  gcommander; baseline commander and both prototypes unchanged. Superseded by a
+  difficulty-normalization pass, a close-guard assault cap, or human play.
