@@ -19,7 +19,9 @@ pause. Click to begin. The game teaches the rest contextually.
 `media/gameplay_commander_seed7.webm` (~2 min of scripted competent play),
 screenshots `media/shot_*.png`. The core-hook image is
 `media/shot_battle.png` — twin scent-roads, golden ant-rivers, a red
-warband striking a hunter.
+warband striking a hunter. Newer stills in `media/gen/`:
+`nest_glow_roads.png`, `war_assault.png`, and `seed21_mid.png` (a *generated*
+territory — proof the game is not one hand-built map).
 
 ## What the game is
 
@@ -31,7 +33,7 @@ fantasy: *the colony is not yours to command, only to persuade.* First
 scenario: bank 1200 stores before winter (8 min) while your own success
 summons hunters onto your roads.
 
-## What was actually built tonight (one overnight run)
+## What was actually built (overnight runs 1-2)
 
 1. Market scan with evidence classes (CONCEPTS.md).
 2. Twelve concepts evaluated on fifteen criteria; two finalists chosen.
@@ -43,6 +45,12 @@ summons hunters onto your roads.
    economy, rate-limited piles, soldier-caste cap, progress-triggered
    escalation, contextual onboarding, title/end cards, danger readability,
    single-file distributable build, scripted-play verification suite.
+5. **Procedurally generated territories, and proof they are WINNABLE**
+   (overnight-2): a layout-agnostic "commander" competence oracle plays any
+   map; a cross-seed sweep (`tools/win_sweep.mjs`) showed it beats 56/60
+   seeds. The "New Territory" button now draws only from a SIM-CERTIFIED seed
+   pool (`game/js/seeds.js`), so replay variation is real AND every offered
+   map is beatable. Plus a juice pass (nest delivery glow, hunter-death burst).
 
 ## Why HIVEMIND beat STORMWARDEN
 
@@ -66,6 +74,12 @@ assumption (a learnable-but-not-trivial sky) is already de-risked.
   wants — and make queuing-in-danger lethal (teachable drama).
 - Unbounded war conversion bankrupts the economy; capping soldiers at 35%
   creates a managed militarization tradeoff.
+- **Fairness ≠ winnability, and winnability is emergent.** Maps that pass
+  the generator's reachability guarantees can still be unbeatable by perfect
+  play (~7% of seeds 1-60). No cheap structural proxy tested (guard/pile
+  distance, corridor sealing) predicted which — only running the sim does.
+  This is why the shipped map pool is sim-certified, not generated blind. The
+  competence oracle wins 56/60 seeds (avg ~250s of the 480s budget).
 - 3,200 agents simulate at ~0.6-1.0 ms/tick headless (60fps headroom).
 - STORMWARDEN's sky is learnable: an instrument bot beats persistence by
   +12.4pp on held-out seeds (91.7% vs ~78%) with a skill ceiling — but
@@ -81,7 +95,8 @@ assumption (a learnable-but-not-trivial sky) is already de-risked.
   has felt the painting verb yet. [ASSUMPTION — the single most important
   unknown]
 - Session pacing (8-min scenario) is tuned to bots, not people.
-- One handcrafted map; replay variation is designed but not built.
+- Replay variation is now BUILT and winnability-certified, but difficulty is
+  not yet normalized across it (oracle win-times span 148-466s).
 - "AI-led studio can sustain content production" — untested beyond tonight.
 - Market proxies are from web sources, not our own wishlist/playtest data.
 
@@ -128,9 +143,11 @@ quit citing "ants won't obey" after onboarding.
 
 ## Recommendation
 
-**CONTINUE WITH CONDITIONS.** Tonight's evidence justifies continued
-investment in HIVEMIND development, conditioned on: (1) human playtests of
-this build before major content spend; (2) map-variation + brood-throttle
-next so depth claims survive beyond one map; (3) an art-direction spike
-before any marketing beat. STORMWARDEN remains a credible pivot with its
-hardest assumption already proven.
+**CONTINUE WITH CONDITIONS.** The evidence justifies continued investment in
+HIVEMIND development, conditioned on: (1) human playtests of this build before
+major content spend — still the one decisive unretired risk; (2) difficulty
+normalization + the brood-throttle verb so the (now winnability-certified)
+replay variation is also well-paced and economically deep; (3) an
+art-direction spike before any marketing beat. Map variation and winnability —
+a prior condition — are now demonstrated. STORMWARDEN remains a credible pivot
+with its hardest assumption already proven.
