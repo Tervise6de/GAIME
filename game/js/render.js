@@ -207,7 +207,7 @@ export function drawEndCard(ctx, s, SCEN) {
   ctx.font = '15px ui-monospace, monospace';
   ctx.fillStyle = 'rgba(232,226,210,0.85)';
   const lines = [
-    `stores ${s.foodStock} / ${SCEN.quota}   ·   gathered ${s.gathered}   ·   season lasted ${s.time}s`,
+    `stores ${s.foodStock} / ${SCEN.quota}   ·   gathered ${s.gathered}   ·   spent on brood ${s.broodSpent ?? 0}   ·   season lasted ${s.time}s`,
     `colony ${s.colony}   ·   fallen ${s.died}   ·   hunters slain ${s.spidersSlain}`,
   ];
   lines.forEach((l, i) => ctx.fillText(l, W / 2, 345 + i * 26));

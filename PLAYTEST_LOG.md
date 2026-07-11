@@ -234,3 +234,31 @@ Entry template:
 - Action taken: shipped (auto.js shepherd assault + throttle; sim.js brood
   hold + fear-ring; HUD "brood held"; onboarding hint; repaired click test;
   difficulty_probe tool); data table updated; DECISION_LOG entry appended.
+
+## 2026-07-11 ~14:00 UTC — Juice pass, brood ledger, sweep-tool repair; 16/16 reproduced
+- Hypothesis / what was tested: feedback effects can ship without touching
+  sim determinism; the grow-vs-bank tradeoff can be made legible; the 16/16
+  winnability result is reproducible with one command.
+- How it was run: forced-death screenshot harness for the burst; realtime
+  recording (media/gameplay_commander_seed7.webm re-captured WITH effects);
+  full seed-7 matrix + click test + dist run after each change; repaired
+  win_sweep.mjs re-run on all 16 reference seeds.
+- Observed results (facts):
+  - Delivery pulses (gold rings at nest) and hunter death bursts (shockwave
+    + sparks) render correctly; zero-asset WebAudio (delivery pops, kill
+    thud) is gesture-gated and provably silent/no-op headless.
+  - Determinism preserved EXACTLY: commander seed 7 WON t=175 died 679;
+    gcommander seed 1873 WON 1201 died 686 t=161 — byte-identical pre/post
+    juice AND pre/post brood-ledger.
+  - End card now shows "spent on brood N": seed-7 commander ledger reads
+    gathered 1566 − brood 396 + 30 initial = 1200 stores exactly.
+  - win_sweep.mjs repaired (poll __DONE instead of waitForFunction): full
+    sweep completes with NO false timeouts and reproduces **16/16 WINS**
+    (stores 1200-1202) in one command. CLAUDE.md caveat replaced.
+  - Fresh media: juiced gameplay video, battle stills with pulses visible,
+    4-shot assault sequence (muster→march→strike→roads-open) in media/proto/.
+    hivemind.gif still pre-juice (no ffmpeg here).
+- Evidence class: VERIFIED FACT (all directly observed this session).
+- Weaknesses: audio is heard by no one yet (headless env) — synthesis
+  parameters are creative judgment pending human ears; GIF stale.
+- Action taken: committed juice + ledger + repaired tool; media refreshed.

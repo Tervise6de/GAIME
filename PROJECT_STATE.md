@@ -25,15 +25,17 @@ snapshot — detail belongs in the logs and in git history.
   40/40 generated maps pass fairness checks; seed-7 commander regression
   WON t=175; dist verified from file://).
 - **Current build status:** GREEN — re-verified 2026-07-11 pm after the
-  guard-clearing/brood-throttle session: seed-7 matrix has five distinct
-  outcomes (commander WON 1200 @175s / smart 949 / warband 511 / naive
-  collapse / idle 0 — warband/idle figures re-measured against HEAD parity,
-  matching committed behaviour exactly); UI click test passes with real
-  assertions; gen_check 40/40; dist (52.7KB) rebuilt and reaches the win
-  card. See CLAUDE.md for the re-verification commands.
-- **Highest-value next action:** juice pass (delivery pulse, spider death
-  burst, WebAudio) + re-capture media; then human playtests (founder-blocked).
-  The brood-throttle onboarding beat is in but untested by humans.
+  guard-clearing/brood-throttle/juice session: seed-7 matrix has five
+  distinct outcomes (commander WON 1200 @175s / smart 949 / warband 511 /
+  naive collapse / idle 0); repaired `win_sweep.mjs` reproduces 16/16 in one
+  command with no false timeouts; UI click test passes with real assertions;
+  gen_check 40/40; dist (57.2KB) rebuilt and reaches the win card with the
+  brood ledger. See CLAUDE.md for the re-verification commands.
+- **Highest-value next action:** human playtests (founder-blocked); from the
+  studio side, the art-direction spike (stills are the weakest asset). Juice
+  pass is DONE (delivery pulses, death bursts, gesture-gated WebAudio;
+  media re-captured except the GIF — no ffmpeg here). End card now shows the
+  grow-vs-bank ledger ("spent on brood").
 - **Winnability (UPDATED 2026-07-11 pm):** `gcommander` now wins **16/16**
   generated seeds (was 9/16 in the morning) after the shepherd-blob guard
   assault + brood throttle; win times 161-307s, deaths 172-686 (spread

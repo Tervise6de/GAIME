@@ -15,10 +15,10 @@ import { chromium } from 'playwright';
 const seedsArg = process.argv.find((a) => a.startsWith('--seeds='));
 const explicit = seedsArg ? seedsArg.slice('--seeds='.length).split(',').map(Number) : null;
 const N = parseInt(process.argv[2] || '16', 10);
-const fast = parseInt((process.argv[3] && /^\d+$/.test(process.argv[3]) ? process.argv[3] : '') || '20', 10);
+const fast = parseInt((process.argv[3] && /^\d+$/.test(process.argv[3]) ? process.argv[3] : '') || '40', 10);
 const first = parseInt(process.argv[4] || '1000', 10);
 const stride = parseInt(process.argv[5] || '97', 10);
-const WALL = parseInt((process.env.WALL_MS || '90000'), 10);
+const WALL = parseInt((process.env.WALL_MS || '200000'), 10);
 const seeds = explicit || Array.from({ length: N }, (_, i) => first + i * stride);
 
 const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
@@ -31,12 +31,19 @@ for (const seed of seeds) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
   page.on('pageerror', (e) => console.error('[pageerror]', e.message));
   await page.goto(`http://localhost:8123/game/index.html?seed=${seed}&auto=gcommander&fast=${fast}`, { waitUntil: 'load' });
-  let r = null;
-  try {
-    await page.waitForFunction('window.__DONE === true', { timeout: WALL, polling: 200 });
-    r = await page.evaluate(() => window.__RESULTS);
-  } catch {
-    console.error(`seed ${seed}: TIMEOUT (no __DONE)`);
+  // poll __DONE like tools/run_proto.mjs does — waitForFunction proved
+  // unreliable on long/losing games (false timeouts; see CLAUDE.md note,
+  // now fixed here)
+  const t0 = Date.now();
+  let done = false;
+  while (Date.now() - t0 < WALL) {
+    done = await page.evaluate('window.__DONE === true').catch(() => false);
+    if (done) break;
+    await new Promise((res) => setTimeout(res, 250));
+  }
+  const r = done ? await page.evaluate(() => window.__RESULTS).catch(() => null) : null;
+  if (!r) {
+    console.error(`seed ${seed}: TIMEOUT (no __DONE after ${WALL}ms)`);
     rows.push({ seed, won: null, stores: null, timeout: true });
     await page.close();
     continue;
@@ -45,7 +52,7 @@ for (const seed of seeds) {
   const piles = r.piles.map((p) => `${p.label}:${Math.round(100 * p.taken / (p.taken + p.left || 1))}%`).join(' ');
   rows.push({
     seed, won: r.won, stores: r.foodStock, gathered: r.gathered,
-    died: r.died, time: r.time, cov: piles,
+    died: r.died, time: r.time, cov: piles, gclog: r.gclog,
   });
   console.error(`seed ${seed}: ${r.won ? 'WON ' : 'lost'} stores=${r.foodStock} gathered=${r.gathered} died=${r.died} t=${r.time} | ${piles}`);
 }

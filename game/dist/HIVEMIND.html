@@ -249,6 +249,7 @@ function makeSim(world) {
     alive: new Uint8Array(MAX_ANTS),
     count: 0, tick: 0, time: 0,
     foodBanked: 0, antsDied: 0, spidersKilled: 0, antsSpawned: 0,
+    broodSpent: 0,           // food paid for brood — the grow-vs-bank ledger
     foodStock: 30,           // net colony wealth: gains on delivery, pays for brood
   };
 }
@@ -262,6 +263,7 @@ function spawnAnt(s) {
   if (s.antsSpawned >= FREE_SPAWNS) {
     if (s.foodStock < SPAWN_COST) return;
     s.foodStock -= SPAWN_COST;
+    s.broodSpent += SPAWN_COST;
   }
   // reuse dead slots first
   let i = -1;
@@ -697,7 +699,7 @@ function drawEndCard(ctx, s, SCEN) {
   ctx.font = '15px ui-monospace, monospace';
   ctx.fillStyle = 'rgba(232,226,210,0.85)';
   const lines = [
-    `stores ${s.foodStock} / ${SCEN.quota}   ·   gathered ${s.gathered}   ·   season lasted ${s.time}s`,
+    `stores ${s.foodStock} / ${SCEN.quota}   ·   gathered ${s.gathered}   ·   spent on brood ${s.broodSpent ?? 0}   ·   season lasted ${s.time}s`,
     `colony ${s.colony}   ·   fallen ${s.died}   ·   hunters slain ${s.spidersSlain}`,
   ];
   lines.forEach((l, i) => ctx.fillText(l, W / 2, 345 + i * 26));
@@ -1151,6 +1153,7 @@ function updateScenario(sc, sim, world) {
       reason: sc.reason,
       foodStock: Math.round(sim.foodStock),
       gathered: sim.foodBanked,
+      broodSpent: Math.round(sim.broodSpent),
       died: sim.antsDied,
       spidersSlain: sim.spidersKilled,
       time: +sim.time.toFixed(1),
@@ -1367,6 +1370,7 @@ function tickOnce() {
   if (stopTicks && sim.tick >= stopTicks && !window.__DONE) {
     sc.endStats = sc.endStats || {
       won: false, foodStock: Math.round(sim.foodStock), gathered: sim.foodBanked,
+      broodSpent: Math.round(sim.broodSpent),
       died: sim.antsDied, spidersSlain: sim.spidersKilled, time: +sim.time.toFixed(1),
       colony: antsAlive(sim),
     };

@@ -63,6 +63,7 @@ export function updateScenario(sc, sim, world) {
       reason: sc.reason,
       foodStock: Math.round(sim.foodStock),
       gathered: sim.foodBanked,
+      broodSpent: Math.round(sim.broodSpent),
       died: sim.antsDied,
       spidersSlain: sim.spidersKilled,
       time: +sim.time.toFixed(1),

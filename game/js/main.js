@@ -86,6 +86,7 @@ function tickOnce() {
   if (stopTicks && sim.tick >= stopTicks && !window.__DONE) {
     sc.endStats = sc.endStats || {
       won: false, foodStock: Math.round(sim.foodStock), gathered: sim.foodBanked,
+      broodSpent: Math.round(sim.broodSpent),
       died: sim.antsDied, spidersSlain: sim.spidersKilled, time: +sim.time.toFixed(1),
       colony: antsAlive(sim),
     };

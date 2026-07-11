@@ -5,24 +5,24 @@ duplicating them. Rejected items keep a one-line reason.
 
 ## Now
 
-1. Onboarding beat for the brood throttle (FEAR on the nest = hold brood /
-   bank): the verb exists and the HUD shows "brood held", but nothing teaches
-   it. Fold into the onboarding sequence without lengthening it much.
-2. Juice pass: nest delivery pulse, spider death burst, procedural WebAudio;
-   re-capture media afterwards.
-3. Founder-facing: arrange 5-10 human playtests of game/dist/HIVEMIND.html
+1. Founder-facing: arrange 5-10 human playtests of game/dist/HIVEMIND.html
    (measure: season completed ≤3 attempts; all verbs used; voluntary
-   restarts; kill-signal: "ants won't obey" quits).
-4. Difficulty variance across seeds: static-feature normalization was
+   restarts; kill-signal: "ants won't obey" quits). THE critical open
+   validation — everything else is polish until humans play.
+2. Art direction spike (palette, ant silhouettes, terrain texture) — current
+   look is programmer-glow; strong in motion, thin in stills. Steam page
+   lives on stills.
+3. Second scenario ("The Long Drought") reusing systems, no new tech —
+   proves the systems generalize beyond one goal structure.
+4. Refresh hivemind.gif from the juiced build (needs ffmpeg; current GIF is
+   pre-juice).
+5. Difficulty variance across seeds: static-feature normalization was
    REJECTED on evidence (weak correlations — see DECISION_LOG 2026-07-11).
    Re-examine only if human playtests show the variance hurts; the lever
    would be dynamic (wave placement/count), not generator rejection.
 
 ## Next
 
-- Second scenario ("The Long Drought") reusing systems, no new tech.
-- Art direction spike (palette, ant silhouettes, terrain texture) — current
-  look is programmer-glow; strong in motion, thin in stills.
 - Fauna variety: 2-3 non-spider threats/prey with distinct field responses.
 - Difficulty curve: scenario parameter sweep via bot matrix (keep commander
   win-time 250-350s per scenario).

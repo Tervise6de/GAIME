@@ -68,9 +68,13 @@ Tech: vanilla JS + Canvas 2D, zero runtime deps. Dev tooling: Playwright
     seed-7-only hand-tuned baseline — do not generalize it in place).
   - Stormwarden falsification: `?auto=<climo|persist|instrument>&days=400&seed=N`
 - Cross-seed winnability sweep: `node tools/win_sweep.mjs 16 40 1000 97`
-  (gcommander over generated seeds; data/winnability_sweep_20260711.md). NOTE:
-  its waitForFunction harness false-times-out on long/losing games — for
-  reliable single-seed results use `run_proto.mjs` per seed instead.
+  (gcommander over generated seeds; data/winnability_sweep_20260711.md).
+  Repaired 2026-07-11: now polls __DONE like run_proto (the old
+  waitForFunction harness false-timed-out on long games). Expected: 16/16
+  WINS on the reference seed set.
+- Map-feature probe: `node tools/difficulty_probe.mjs 16 1000 97` (static
+  layout features per seed; measured NOT to predict difficulty — see
+  DECISION_LOG 2026-07-11 before building on it).
 - UI click-through tests: `node tools/click_test_hivemind.mjs`, `tools/click_test_stormwarden.mjs`
 
 ## File map

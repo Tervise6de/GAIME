@@ -17,6 +17,7 @@ export function makeSim(world) {
     alive: new Uint8Array(MAX_ANTS),
     count: 0, tick: 0, time: 0,
     foodBanked: 0, antsDied: 0, spidersKilled: 0, antsSpawned: 0,
+    broodSpent: 0,           // food paid for brood — the grow-vs-bank ledger
     foodStock: 30,           // net colony wealth: gains on delivery, pays for brood
   };
 }
@@ -30,6 +31,7 @@ function spawnAnt(s) {
   if (s.antsSpawned >= FREE_SPAWNS) {
     if (s.foodStock < SPAWN_COST) return;
     s.foodStock -= SPAWN_COST;
+    s.broodSpent += SPAWN_COST;
   }
   // reuse dead slots first
   let i = -1;
