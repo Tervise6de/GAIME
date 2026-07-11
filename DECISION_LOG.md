@@ -173,3 +173,45 @@ Entry template:
   edits; commander baseline re-verified byte-identical — WON seed 7 t=175,
   679 died). If a future difficulty estimator shows real predictive power,
   supersede the rejection with a new entry.
+
+## 2026-07-11 — Second scenario is an ENDURANCE inversion ("The Long Drought"); brood release semantics changed to pause-the-clock
+
+- Stage: 6 (WINNER_DEVELOPMENT / vertical slice)
+- Decision: (1) The second scenario inverts the goal structure rather than
+  re-skinning the quota: survive to the returning rains (t=420) with a
+  200-store reserve while piles evaporate (0.8/s each) and every ant eats
+  upkeep (0.004/s, ramping in over 90s as the drought deepens). Hunters
+  arrive when piles dry to dust. Scenario layer only — zero new sim tech.
+  (2) Waves in the drought trigger on pile-death, not the clock: aggressive
+  harvest dries piles sooner, so success still summons the hunters (the
+  2026-07-10 rejection of time-triggered waves is about outrunnable clocks
+  in a race goal; a fixed-duration endurance cannot be outrun, and
+  pile-death timing stays coupled to player action). (3) Holding brood
+  PAUSES the sim growth clock instead of banking a deficit — releasing a
+  long hold no longer spawns a catch-up burst (measured: ~1600 ants in one
+  tick, instant starvation). Never-held runs are bit-for-bit unchanged.
+  (4) Scenario selection via ?scn= + title-screen [S]; upkeep ramp
+  (90s) exists because the forced early growth curve starved EVERY strategy
+  by t≈60 under flat upkeep (measured).
+- Alternatives considered: (a) drought as "gather quota with shrinking
+  piles" — rejected: same goal shape as First Season, proves nothing about
+  generalization; (b) flat upkeep from t=0 — TRIED and REJECTED on
+  measurement (universal starvation before any economy exists); (c) letting
+  the growth-deficit catch-up burst stand as "realistic brood explosion" —
+  rejected: it punishes exactly the verb the game teaches, invisibly;
+  (d) requiring only stock>0 at the rains (no reserve) — rejected: lean
+  coasting trivializes the endgame; the reserve makes the final 100s a real
+  budget question.
+- Evidence class: bot results VERIFIED FACT (see PLAYTEST_LOG 16:20);
+  scenario tuning numbers are BALANCE JUDGMENT anchored to a strong-proxy
+  lower bound (gcommander 16/16 + seed 7, all non-throttle bots starve);
+  human fun/readability of the drought is UNKNOWN.
+- Why: the studio's top unresolved UNBLOCKED assumption was "the systems
+  generalize beyond one goal structure". The strongest possible cheap test
+  is a goal that makes the previous champion strategy LOSE — commander
+  (First Season winner) starving at t=221 with 2462 ants is that proof.
+- Reversibility / exit condition: the scenario is additive (?scn= gated,
+  default unchanged). If human playtests show the drought reads as
+  bookkeeping rather than tension, retune upkeep/evap or demote it to a
+  campaign-later slot; the growth-clock pause stays regardless (it fixes a
+  real landmine in both scenarios).

@@ -247,7 +247,7 @@ function makeSim(world) {
     astate: new Uint8Array(MAX_ANTS),
     acarry: new Uint8Array(MAX_ANTS),
     alive: new Uint8Array(MAX_ANTS),
-    count: 0, tick: 0, time: 0,
+    count: 0, tick: 0, time: 0, heldTime: 0,
     foodBanked: 0, antsDied: 0, spidersKilled: 0, antsSpawned: 0,
     broodSpent: 0,           // food paid for brood — the grow-vs-bank ledger
     foodStock: 30,           // net colony wealth: gains on delivery, pays for brood
@@ -293,7 +293,14 @@ function step(s, dt) {
   // colony banks food instead of spending it on growth (grow vs bank is the
   // player's call; late-game growth is pure waste once piles are rate-bound)
   s.broodHeld = fields[F.FEAR][idxAt(nest.x, nest.y)] > 0.35;
-  const target = Math.min(MAX_ANTS, 250 + Math.floor(s.time * 10)); // start small, earn the swarm
+  // holding brood PAUSES the growth clock — it never banks a deficit. A
+  // release must resume gentle growth from where the colony is, not spawn a
+  // catch-up burst to where the clock says it should be (measured: a t=218
+  // release after 150s held spawned ~1600 ants in one tick and starved the
+  // colony instantly). heldTime subtracts exactly, so never-held runs keep
+  // the original bit-for-bit growth curve.
+  if (s.broodHeld) s.heldTime += dt;
+  const target = Math.min(MAX_ANTS, 250 + Math.floor((s.time - s.heldTime) * 10)); // start small, earn the swarm
   let deficit = s.broodHeld ? 0 : target - (s.count - s.freeList.length);
   while (deficit-- > 0) spawnAnt(s);
 
@@ -491,6 +498,7 @@ function sfxSpiderDeath() {
 
 // ===== render.js =====
 // Rendering: soil, fields as luminous washes, ants as oriented sparks.
+
 
 
 
@@ -765,9 +773,17 @@ function hudText(sim, fps, SCEN) {
   const left = Math.max(0, SCEN.timeLimit - sim.time);
   const alive = antsAlive(sim);
   const colonyWarn = alive < SCEN.colonyFloor * 1.4 ? ' style="color:#ff8a70"' : '';
-  const pct = Math.min(100, (sim.foodStock / SCEN.quota) * 100).toFixed(0);
-  return `HIVEMIND — the first season
-stores <b>${sim.foodStock.toFixed(0)} / ${SCEN.quota}</b> (${pct}%) · winter in <b>${left.toFixed(0)}s</b>
+  let goalLine;
+  if (SCEN.type === 'endure') {
+    const upkeep = alive * SCEN.upkeep * Math.min(1, sim.time / SCEN.upkeepRampT);
+    const starving = sim.foodStock < SCEN.reserve;
+    goalLine = `stores <b${starving ? ' style="color:#ff8a70"' : ''}>${sim.foodStock.toFixed(0)}</b> (rains must find ${SCEN.reserve}) · rains in <b>${left.toFixed(0)}s</b> · colony eats ${upkeep.toFixed(1)}/s`;
+  } else {
+    const pct = Math.min(100, (sim.foodStock / SCEN.quota) * 100).toFixed(0);
+    goalLine = `stores <b>${sim.foodStock.toFixed(0)} / ${SCEN.quota}</b> (${pct}%) · winter in <b>${left.toFixed(0)}s</b>`;
+  }
+  return `HIVEMIND — ${SCEN.name}
+${goalLine}
 colony <span${colonyWarn}>${alive}</span> (keep above ${SCEN.colonyFloor})${sim.broodHeld ? ' · <span style="color:#c9a0ff">brood held</span>' : ''} · fallen ${sim.antsDied} · hunters slain ${sim.spidersKilled}
 ${fps} fps`;
 }
@@ -783,14 +799,15 @@ function drawEndCard(ctx, s, SCEN) {
   ctx.fillText(s.reason || '', W / 2, 296);
   ctx.font = '15px ui-monospace, monospace';
   ctx.fillStyle = 'rgba(232,226,210,0.85)';
+  const goal = SCEN.type === 'endure' ? `stores ${s.foodStock} (rains ask ${SCEN.reserve})` : `stores ${s.foodStock} / ${SCEN.quota}`;
   const lines = [
-    `stores ${s.foodStock} / ${SCEN.quota}   ·   gathered ${s.gathered}   ·   spent on brood ${s.broodSpent ?? 0}   ·   season lasted ${s.time}s`,
+    `${goal}   ·   gathered ${s.gathered}   ·   spent on brood ${s.broodSpent ?? 0}   ·   lasted ${s.time}s`,
     `colony ${s.colony}   ·   fallen ${s.died}   ·   hunters slain ${s.spidersSlain}`,
   ];
   lines.forEach((l, i) => ctx.fillText(l, W / 2, 345 + i * 26));
   ctx.fillStyle = 'rgba(200,230,215,0.75)';
   ctx.font = 'bold 15px ui-monospace, monospace';
-  ctx.fillText('[R] same season again      [N] new territory', W / 2, 430);
+  ctx.fillText('[R] try this territory again      [N] new territory', W / 2, 430);
   ctx.textAlign = 'left';
 }
 
@@ -807,10 +824,16 @@ function drawTitle(ctx) {
   ctx.font = '15px ui-monospace, monospace';
   ctx.fillStyle = 'rgba(200,230,215,0.85)';
   ctx.fillText('paint scent, not orders: [1] LURE roads · [2] FEAR walls · [3] RALLY warbands', W / 2, 380);
-  ctx.fillText('fill the winter stores before the season ends · keep the colony alive', W / 2, 406);
+  const goal = SCENARIO.type === 'endure'
+    ? 'the piles wither and every ant eats · reach the rains with seed to replant'
+    : 'fill the winter stores before the season ends · keep the colony alive';
+  ctx.fillText(goal, W / 2, 406);
   ctx.fillStyle = '#ffe9bd';
   ctx.font = 'bold 17px ui-monospace, monospace';
-  ctx.fillText('— click to begin the first season —', W / 2, 470);
+  ctx.fillText(`— click to begin ${SCENARIO.name} —`, W / 2, 470);
+  ctx.fillStyle = 'rgba(200,230,215,0.6)';
+  ctx.font = '13px ui-monospace, monospace';
+  ctx.fillText('[S] switch scenario', W / 2, 500);
   ctx.textAlign = 'left';
 }
 
@@ -1057,7 +1080,25 @@ function gcommander(sim) {
   // manpower buffer and let the FEAR decay re-open brood on its own if the
   // colony thins out.
   const pop = antsAlive(sim);
-  if (pop > 1400 && sim.foodStock > 500 && sim.foodStock < SCENARIO.quota) {
+  if (SCENARIO.type === 'endure') {
+    // drought doctrine: growth is a mortgage — every ant eats until the
+    // rains, and a colony can never shrink, only stop growing. Cap the
+    // population at what the still-living piles can feed with margin; when
+    // the map is nearly dry that cap collapses and brood stays held for good.
+    const liveRate = piles.reduce((a, p) => a + (p.amount > 0 ? p.rate : 0), 0);
+    const cap = liveRate > 0 ? 700 : 450; // lean while harvesting, tiny after
+    // hysteresis: once holding, KEEP restamping until pop falls to the
+    // release line — a gap where we neither stamp nor erase lets the nest
+    // FEAR decay through the 0.35 threshold and reopen brood by accident
+    const hold = st.banked ? pop >= cap * 0.8 : pop > cap;
+    if (hold) {
+      stamp(fields[F.FEAR], nest.x, nest.y, 44, 1.0);
+      if (!st.banked) { st.banked = true; st.log.push(`${sim.time.toFixed(0)}s brood-held pop=${pop} cap=${cap | 0}`); }
+    } else if (st.banked) {
+      erase(fields, nest.x, nest.y, 48); // reopen brood fast if we thinned out
+      st.banked = false; st.log.push(`${sim.time.toFixed(0)}s brood-open pop=${pop} cap=${cap | 0}`);
+    }
+  } else if (pop > 1400 && sim.foodStock > 500 && sim.foodStock < SCENARIO.quota) {
     stamp(fields[F.FEAR], nest.x, nest.y, 44, 1.0);
     if (!st.banked) { st.banked = true; st.log.push(`${sim.time.toFixed(0)}s brood-held pop=${pop}`); }
   }
@@ -1173,66 +1214,149 @@ function makeAutoPlayer(name, periodTicks = name === 'gcommander' ? 120 : 240) {
 
 
 // ===== scenario.js =====
-// Scenario: goal structure, escalation, win/lose. "The First Season".
-// Tuned so that no single lazy verb wins: the quota (1100 net of ~2200 on
-// the map) requires the guarded rich pile AND the distant piles; the waves
-// march hunters onto the nest's doorstep and must be answered; the colony
-// starts small so the swarm itself must be grown from harvest.
-const SCENARIO = {
-  quota: 1200,            // foodStock to win — demands most of the map
-  timeLimit: 480,         // seconds
-  colonyFloor: 150,       // lose if colony falls below this after grace
-  graceTime: 30,
-  // waves trigger on PROGRESS, not clock — success summons the hunters
-  waves: [
-    { atStores: 300, x: 460, y: 470, tr: 110 },   // presses the bottom lane
-    { atStores: 700, x: 350, y: 430, tr: 110 },   // squeezes the nest approaches
-    { atStores: 1100, x: 250, y: 250, tr: 100 },  // at the doorstep
-  ],
+// Scenarios: different goal structures over the SAME systems (selected by
+// ?scn=). Proving the verb set generalizes beyond one goal shape is the
+// point — no new sim tech is allowed here, only scenario-layer pressure.
+//
+// "The First Season" (default): a RACE — fill the winter quota before time.
+//   Growth is good; waves trigger on progress. Tuned so no single lazy verb
+//   wins: the quota (1200 net of ~2200 on the map) requires the guarded rich
+//   pile AND the distant piles; the colony starts small so the swarm itself
+//   must be grown from harvest.
+//
+// "The Long Drought": an ENDURANCE — survive until the rains return. Piles
+//   wither in the sun (unharvested food is LOST), every ant eats upkeep, and
+//   the rains must find a seed reserve in the granary. The season rewards
+//   growth; the drought punishes it — the brood throttle (FEAR on the nest)
+//   moves from optional optimization to the load-bearing decision, because a
+//   colony can never shrink, only stop growing. Hunters arrive as the land
+//   dies: each pile that dries to dust sends one toward the nest.
+const SCENARIOS = {
+  first: {
+    key: 'first', name: 'the first season', type: 'gather',
+    quota: 1200,            // foodStock to win — demands most of the map
+    timeLimit: 480,         // seconds
+    colonyFloor: 150,       // lose if colony falls below this after grace
+    graceTime: 30,
+    // waves trigger on PROGRESS, not clock — success summons the hunters
+    waves: [
+      { atStores: 300, x: 460, y: 470, tr: 110 },   // presses the bottom lane
+      { atStores: 700, x: 350, y: 430, tr: 110 },   // squeezes the nest approaches
+      { atStores: 1100, x: 250, y: 250, tr: 100 },  // at the doorstep
+    ],
+  },
+  drought: {
+    key: 'drought', name: 'the long drought', type: 'endure',
+    timeLimit: 420,         // the rains return
+    reserve: 200,           // stores the rains must find — the replanting seed
+    colonyFloor: 150,
+    graceTime: 40,
+    startStock: 160,        // the drought begins with last season's surplus
+    upkeep: 0.004,          // food per ant per second — every mouth eats
+    upkeepRampT: 90,        // the drought DEEPENS: upkeep fades in over this
+                            // window, or the forced early growth curve
+                            // (target 250+10t) starves every strategy by t≈60
+                            // before any economy can spin up (measured)
+    evap: 0.8,              // food per second the sun takes from each live pile
+  },
 };
+
+let SCENARIO = SCENARIOS.first;
+function selectScenario(key) {
+  SCENARIO = SCENARIOS[key] || SCENARIOS.first;
+  return SCENARIO;
+}
 
 function makeScenarioState() {
   return { over: false, won: false, reason: '', wavesSpawned: 0, endStats: null };
 }
 
-function updateScenario(sc, sim, world) {
-  if (sc.over) return;
+function spawnHunter(sim, world, wx, wy, tr) {
+  world.spiders.push({
+    x: wx, y: wy, hx: wx, hy: wy, tr,
+    hp: 260, maxhp: 260, a: world.rng() * 6.28, alive: true, arrived: sim.time,
+  });
+}
+
+// place a wave on the road to the busiest remaining pile, never on the nest
+function pressPoint(sim, world) {
+  const target = [...world.piles].sort((a, b) => (b.taken || 0) - (a.taken || 0))[0] || world.piles[0];
+  const t = 0.4 + world.rng() * 0.25;
+  const px = world.nest.x + (target.x - world.nest.x) * t;
+  const py = world.nest.y + (target.y - world.nest.y) * t;
+  const ang = world.rng() * Math.PI * 2, off = 50 + world.rng() * 90;
+  let wx = Math.max(60, Math.min(1220, px + Math.cos(ang) * off));
+  let wy = Math.max(60, Math.min(660, py + Math.sin(ang) * off));
+  if (Math.hypot(wx - world.nest.x, wy - world.nest.y) < 240) {
+    const a2 = Math.atan2(wy - world.nest.y, wx - world.nest.x);
+    wx = world.nest.x + Math.cos(a2) * 260; wy = world.nest.y + Math.sin(a2) * 260;
+  }
+  return [wx, wy];
+}
+
+function updateGather(sc, sim, world, S) {
   const alive = sim.count - (sim.freeList ? sim.freeList.length : 0);
 
   // reinforcement waves — summoned by the colony's own success
-  while (sc.wavesSpawned < SCENARIO.waves.length && sim.foodStock >= SCENARIO.waves[sc.wavesSpawned].atStores) {
-    const w = SCENARIO.waves[sc.wavesSpawned];
+  while (sc.wavesSpawned < S.waves.length && sim.foodStock >= S.waves[sc.wavesSpawned].atStores) {
+    const w = S.waves[sc.wavesSpawned];
     let wx = w.x, wy = w.y;
-    if (world.seed !== 7) {
-      // generated maps: press the road to the busiest remaining pile
-      const target = [...world.piles].sort((a, b) => (b.taken || 0) - (a.taken || 0))[0] || world.piles[0];
-      const t = 0.4 + world.rng() * 0.25;
-      const px = world.nest.x + (target.x - world.nest.x) * t;
-      const py = world.nest.y + (target.y - world.nest.y) * t;
-      const ang = world.rng() * Math.PI * 2, off = 50 + world.rng() * 90;
-      wx = Math.max(60, Math.min(1220, px + Math.cos(ang) * off));
-      wy = Math.max(60, Math.min(660, py + Math.sin(ang) * off));
-      if (Math.hypot(wx - world.nest.x, wy - world.nest.y) < 240) {
-        const a2 = Math.atan2(wy - world.nest.y, wx - world.nest.x);
-        wx = world.nest.x + Math.cos(a2) * 260; wy = world.nest.y + Math.sin(a2) * 260;
-      }
-    }
-    world.spiders.push({
-      x: wx, y: wy, hx: wx, hy: wy, tr: w.tr,
-      hp: 260, maxhp: 260, a: world.rng() * 6.28, alive: true, arrived: sim.time,
-    });
+    if (world.seed !== 7) [wx, wy] = pressPoint(sim, world);
+    spawnHunter(sim, world, wx, wy, w.tr);
     sc.wavesSpawned++;
   }
 
-  if (sim.foodStock >= SCENARIO.quota) {
+  if (sim.foodStock >= S.quota) {
     sc.over = true; sc.won = true; sc.reason = 'The stockpile is full. The colony will outlive the winter.';
-  } else if (sim.time > SCENARIO.graceTime && alive < SCENARIO.colonyFloor) {
+  } else if (sim.time > S.graceTime && alive < S.colonyFloor) {
     sc.over = true; sc.won = false; sc.reason = 'The colony dwindled below survival. The nest falls silent.';
-  } else if (sim.time >= SCENARIO.timeLimit) {
-    sc.over = true; sc.won = false; sc.reason = `Winter came. ${Math.round(sim.foodStock)} of ${SCENARIO.quota} stores gathered.`;
+  } else if (sim.time >= S.timeLimit) {
+    sc.over = true; sc.won = false; sc.reason = `Winter came. ${Math.round(sim.foodStock)} of ${S.quota} stores gathered.`;
+  }
+}
+
+function updateEndure(sc, sim, world, S, dt) {
+  const alive = sim.count - (sim.freeList ? sim.freeList.length : 0);
+
+  // every mouth eats — the colony pays for its own size, and the toll
+  // deepens with the drought (full price from upkeepRampT onward)
+  const eff = S.upkeep * Math.min(1, sim.time / S.upkeepRampT);
+  sim.foodStock = Math.max(0, sim.foodStock - alive * eff * dt);
+
+  // the sun takes what the colony does not; a pile that dries to dust sends
+  // a desperate hunter toward the last living ground (the nest approaches)
+  for (const p of world.piles) {
+    if (p.amount > 0) p.amount = Math.max(0, p.amount - S.evap * dt);
+    if (p.amount <= 0 && !p.dusted) {
+      p.dusted = true;
+      const [wx, wy] = pressPoint(sim, world);
+      spawnHunter(sim, world, wx, wy, 105);
+      sc.wavesSpawned++;
+    }
   }
 
+  const stock = Math.round(sim.foodStock);
+  if (sim.time >= S.timeLimit) {
+    sc.over = true;
+    sc.won = sim.foodStock >= S.reserve;
+    sc.reason = sc.won
+      ? `The rains return. ${stock} stores remain — the colony replants.`
+      : `The rains return, but only ${stock} of ${S.reserve} stores remain. Too little seed to replant.`;
+  } else if (sim.time > S.graceTime && alive < S.colonyFloor) {
+    sc.over = true; sc.won = false; sc.reason = 'The colony dwindled below survival. The nest falls silent.';
+  } else if (sim.time > S.graceTime && sim.foodStock <= 0) {
+    sc.over = true; sc.won = false; sc.reason = 'The granary ran dry. The colony starves in the dust.';
+  }
+}
+
+function updateScenario(sc, sim, world, dt = 1 / 60) {
+  if (sc.over) return;
+  const S = SCENARIO;
+  if (S.type === 'endure') updateEndure(sc, sim, world, S, dt);
+  else updateGather(sc, sim, world, S);
+
   if (sc.over && !sc.endStats) {
+    const alive = sim.count - (sim.freeList ? sim.freeList.length : 0);
     sc.endStats = {
       won: sc.won,
       reason: sc.reason,
@@ -1252,6 +1376,7 @@ function updateScenario(sc, sim, world) {
 // Contextual onboarding: one hint at a time, each dismissed by the player
 // actually DOING the thing. The core lesson is counterintuitive and must be
 // taught: ants smell only a few steps ahead — you build roads, not orders.
+
 
 
 function makeOnboarding() {
@@ -1309,6 +1434,28 @@ const HINTS = [
   },
 ];
 
+// the drought re-teaches the same verbs under an inverted goal: harvest
+// before the sun does, and treat growth as a debt (upkeep never stops)
+const HINTS_DROUGHT = [
+  HINTS[0], HINTS[1],
+  {
+    id: 'sun-tax',
+    when: (ob, sim) => sim.time > 14,
+    until: (ob, sim) => sim.foodBanked >= 60,
+    text: 'The sun is drinking the piles — food left ungathered is LOST. Get roads out to every pile early.',
+    marker: null,
+  },
+  HINTS[2], // rally
+  {
+    id: 'brood-throttle-drought',
+    when: (ob, sim) => sim.time > 70,
+    until: (ob, sim) => !!sim.broodHeld,
+    text: 'Every ant EATS until the rains — and a colony never shrinks. Paint FEAR on the NEST to hold new brood.',
+    marker: (sim) => ({ at: { x: sim.world.nest.x, y: sim.world.nest.y } }),
+  },
+  HINTS[4], // fear walls
+];
+
 function updateOnboarding(ob, sim, ui) {
   // track painting for completion conditions
   if (ui.painting === 1) {
@@ -1316,7 +1463,8 @@ function updateOnboarding(ob, sim, ui) {
     if (ui.tool === 1) ob.fearPainted = (ob.fearPainted || 0) + 1;
   }
   ob.active = null;
-  for (const h of HINTS) {
+  const hints = SCENARIO.type === 'endure' ? HINTS_DROUGHT : HINTS;
+  for (const h of hints) {
     if (ob.done.has(h.id)) continue;
     if (!h.when(ob, sim)) continue;
     if (h.until(ob, sim)) { ob.done.add(h.id); continue; }
@@ -1381,11 +1529,14 @@ const seed = parseInt(q.get('seed') || '7', 10);
 const fast = parseInt(q.get('fast') || '0', 10);        // sim ticks per frame (0 = realtime)
 const stopTicks = parseInt(q.get('ticks') || '0', 10);  // hard stop after N ticks (harness)
 const autoName = q.get('auto');
+selectScenario(q.get('scn'));
+const scnParam = SCENARIO.key === 'first' ? '' : `&scn=${SCENARIO.key}`;
 
 const canvas = document.getElementById('cv');
 const hud = document.getElementById('hud');
 const world = makeWorld(seed);
 const sim = makeSim(world);
+if (SCENARIO.startStock != null) sim.foodStock = SCENARIO.startStock;
 const R = makeRenderer(canvas, world);
 const auto = autoName ? makeAutoPlayer(autoName) : null;
 const sc = makeScenarioState();
@@ -1416,9 +1567,15 @@ window.addEventListener('keydown', (e) => {
   if (e.key === '2') ui.tool = 1;
   if (e.key === '3') ui.tool = 2;
   if (e.key === 'p' || e.key === 'P') ui.paused = !ui.paused;
+  if (!ui.started && (e.key === 's' || e.key === 'S')) {
+    // cycle scenario on the title screen (reload keeps everything deterministic)
+    const keys = Object.keys(SCENARIOS);
+    const next = keys[(keys.indexOf(SCENARIO.key) + 1) % keys.length];
+    location.search = `?seed=${seed}` + (next === 'first' ? '' : `&scn=${next}`);
+  }
   if (sc.over) {
-    if (e.key === 'r' || e.key === 'R') location.search = `?seed=${seed}`;
-    if (e.key === 'n' || e.key === 'N') location.search = `?seed=${(Math.random() * 100000) | 0}`;
+    if (e.key === 'r' || e.key === 'R') location.search = `?seed=${seed}${scnParam}`;
+    if (e.key === 'n' || e.key === 'N') location.search = `?seed=${(Math.random() * 100000) | 0}${scnParam}`;
   }
 });
 
@@ -1434,7 +1591,7 @@ window.__DONE = false;
 function finish() {
   window.__DONE = true;
   window.__RESULTS = {
-    strategy: autoName || 'human', seed,
+    strategy: autoName || 'human', seed, scn: SCENARIO.key,
     ...sc.endStats,
     piles: world.piles.map((p) => ({ label: p.label, left: Math.max(0, p.amount), taken: p.taken || 0 })),
     msPerTick: +(simMsTotal / Math.max(1, simTicksTotal)).toFixed(3),
@@ -1448,7 +1605,7 @@ function tickOnce() {
   if (auto) auto(sim);
   const t0 = performance.now();
   step(sim, DT);
-  updateScenario(sc, sim, world);
+  updateScenario(sc, sim, world, DT);
   if (!auto) updateOnboarding(ob, sim, ui);
   simMsTotal += performance.now() - t0; simTicksTotal++;
   if (sc.over && !window.__DONE) finish();

@@ -49,4 +49,23 @@ if (!(stats.lure > 260) || !(stats.banked >= 12) || !stats.done.includes('paint-
   process.exitCode = 1;
 }
 await page.screenshot({ path: 'media/proto/game_hint_after.png' });
+
+// --- second scenario: [S] on the title must switch, and the drought must
+// run its own hint track (sun-tax replaces the season's pacing) ---
+await page.goto('http://localhost:8123/game/index.html?seed=7', { waitUntil: 'load' });
+await page.waitForTimeout(600);
+await page.keyboard.press('s');                      // title-screen scenario switch
+await page.waitForTimeout(1200);
+const scn = await page.evaluate(() => new URLSearchParams(location.search).get('scn'));
+console.log('scenario after [S] (expect drought):', scn);
+await page.mouse.click(...P(640, 600));              // dismiss drought title
+await page.waitForTimeout(16500);                    // sun-tax arms at t>14
+const dHint = await hint();
+console.log('drought hint at t~16 (expect sun-tax or paint-road):', dHint);
+const dStock = await page.evaluate(() => window.__SIM.foodStock);
+console.log('drought stock at t~16 (expect < 160, upkeep eating):', dStock.toFixed(1));
+if (scn !== 'drought' || !['sun-tax', 'paint-road', 'road-continuity'].includes(dHint) || !(dStock < 160)) {
+  console.error('FAIL: scenario switch, drought hints, or upkeep not working');
+  process.exitCode = 1;
+}
 await browser.close();

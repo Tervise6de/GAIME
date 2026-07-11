@@ -287,3 +287,52 @@ Entry template:
   palette identity remain; hivemind.gif still pre-juice (no ffmpeg).
 - Action taken: committed; art continuation stays on the backlog with the
   remaining scope noted.
+
+## 2026-07-11 ~16:20 UTC — Second scenario "The Long Drought": endurance goal, 16/16 + seed 7, only throttled play survives
+
+- Hypothesis / what was tested: the verb set (LURE/FEAR/RALLY + brood
+  throttle) generalizes beyond the gather-race goal structure. A second
+  scenario with an INVERTED goal (endure to t=420 with a 200-store reserve;
+  piles evaporate at 0.8/s; upkeep 0.004/ant/s ramping in over 90s) should
+  be winnable by throttled play and fatal to First-Season-optimal play.
+- How it was run: full bot matrix seed 7 `?scn=drought` (gcommander,
+  commander, smart, naive, idle, fast=20); cross-seed sweep
+  `node tools/win_sweep.mjs 16 40 1000 97 --scn=drought`; weak-bot spot
+  checks on generated seeds 1097/2455; First Season regression battery;
+  click test with new drought leg; dist rebuild + drought run from dist.
+- Observed results (facts):
+  - Seed 7 drought matrix: gcommander WON (205 stores vs 200 reserve,
+    t=420, colony 668, brood-held at t=62 pop=870); commander — the First
+    Season CHAMPION — starved t=221 with a bloated colony of 2462; smart
+    starved t=201 (colony 2260); naive starved t=73; idle starved t=132.
+    The goal inversion is real: the strategy that wins the season loses the
+    drought, and only the brood-throttle strategy survives.
+  - Drought sweep: 16/16 WINS on the reference generated seeds, stores
+    340-944 (mean 656, reserve 200), pile coverage ~100% almost everywhere.
+    Seed 7's thin 205 margin is the bot's known far-pile underservice
+    (far taken=2 in one run), not map hardness.
+  - Weak bots on generated seeds: smart/idle (1097) and naive (2455) all
+    starve — the drought is not accidentally trivial off seed 7.
+  - First Season regression after the sim change: commander seed 7
+    byte-identical (WON 1200 t=175 died 679); idle identical; 16/16 sweep
+    re-verified (win times 161-307s).
+  - Click test PASS including new drought leg ([S] switch on title →
+    scn=drought; drought hints run; upkeep observed eating stock 160→157.8
+    by t≈16). Dist 68.6KB reproduces the drought win deterministically
+    (205 stores).
+- Evidence class: VERIFIED FACT for every bot result above; the sweep
+  remains a STRONG-PROXY LOWER BOUND on winnability — silent on human play
+  and on whether the drought is FUN.
+- Weaknesses found (and two fixed):
+  - Sim bug found by the drought: reopening brood after a long hold used to
+    spawn a catch-up burst to the absolute growth clock (~1600 ants in one
+    tick at t=218, instant starvation). Fixed: holding brood pauses the
+    growth clock (heldTime subtraction, bit-for-bit identical when never
+    held). This landmine also existed for human players in First Season.
+  - gcommander hysteresis gap: between stamp and release thresholds the
+    nest FEAR silently decayed through 0.35 and reopened brood. Fixed.
+  - Remaining: drought margins on generated maps (340-944) are wide vs seed
+    7 (205); whether the drought reads as tense or as a spreadsheet to
+    humans is UNKNOWN — same founder-blocked human-playtest dependency.
+- Action taken: committed; scenario is in the build behind ?scn=drought and
+  the title-screen [S] switch; data in data/drought_sweep_20260711.md.
